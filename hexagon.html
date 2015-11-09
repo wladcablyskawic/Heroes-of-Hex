@@ -47,11 +47,21 @@ this.clear();
 		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'green', MOBS[i].name);
 		 
 		 this.addRegionEventListener("mousemove", function(){
-			message = MOBS[i].hover;
+		if(MOBS[i].player=='player2') {
+			var mousePos = events.getMousePos();
+			var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile.column, MOBS[i].Tile.row);
+			document.getElementById("HexCanvas").style.cursor = attackDirection+'-resize';	  	
+			
+		}
+		
+		  
+		  message = MOBS[i].hover;
 		 });
 
 		 this.addRegionEventListener("mouseout", function(){
-			message = "";
+document.getElementById("HexCanvas").style.cursor = "default";		  
+				
+		message = "";
 		 });
 
 		 this.closeRegion();

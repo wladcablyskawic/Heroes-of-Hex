@@ -68,9 +68,6 @@ function HexagonGrid(canvasId, radius) {
     this.canvas.addEventListener("contextmenu", this.contextMenuEvent.bind(this), false);	
 	
 	};
-	
-
-	
 
  
  
@@ -111,10 +108,93 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
 
 
 HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
-    var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
     var drawx = (column * this.side) + this.canvasOriginX;
+    var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
 
     this.drawHex(drawx, drawy, color, debugText);
+};
+
+function pDistance(x, y, x1, y1, x2, y2) {
+
+  var A = x - x1;
+  var B = y - y1;
+  var C = x2 - x1;
+  var D = y2 - y1;
+
+  var dot = A * C + B * D;
+  var len_sq = C * C + D * D;
+  var param = -1;
+  if (len_sq != 0) //in case of 0 length line
+      param = dot / len_sq;
+
+  var xx, yy;
+
+  if (param < 0) {
+    xx = x1;
+    yy = y1;
+  }
+  else if (param > 1) {
+    xx = x2;
+    yy = y2;
+  }
+  else {
+    xx = x1 + param * C;
+    yy = y1 + param * D;
+  }
+
+  var dx = x - xx;
+  var dy = y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, column, row) {
+    var x0 = (column * this.side) + this.canvasOriginX;
+    var y0 = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
+    var x1 = x0 + this.width - this.side;
+	var y1=	y0;
+    var x2 = x0 + this.side
+	var y2 = y0;
+	var distanceN = pDistance(mousex, mousey, x1, y1, x2, y2);	
+
+	x1=x2;
+	y1=y2;
+	x2=x0+this.width;
+	y2=y0+(this.height / 2);	
+	var distanceNE = pDistance(mousex, mousey, x1, y1, x2, y2);
+		
+	x1=x2;
+	y1=y2;
+	x2=x0+this.side;
+	y2=y0+this.height;
+	var distanceSE = pDistance(mousex, mousey, x1, y1, x2, y2);
+	
+	x1=x2;
+	y1=y2;
+	x2=x0+this.width-this.side;
+	y2=y0+this.height;
+	var distanceS = pDistance(mousex, mousey, x1, y1, x2, y2);
+
+	x1=x2;
+	y1=y2;
+	x2=x0;
+	y2=y0+(this.height/2);
+	var distanceSW = pDistance(mousex, mousey, x1, y1, x2, y2);
+
+	x1=x2;
+	y1=y2;
+	x2=x0 + this.width - this.side;
+	y2=y0;
+	var distanceNW = pDistance(mousex, mousey, x1, y1, x2, y2);
+	
+	var shortest=distanceN;
+	var answer='n';
+	if(distanceNE-shortest<0) { shortest=distanceNE; answer='ne'; }
+	if(distanceSE-shortest<0) { shortest=distanceSE; answer='se'; }
+	if(distanceS-shortest<0) { shortest=distanceS; answer='s'; }
+	if(distanceSW-shortest<0) { shortest=distanceSW; answer='sw'; }
+	if(distanceNW-shortest<0) { shortest=distanceNW; answer='nw'; }
+	
+	return answer;
 };
 
 HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
@@ -246,6 +326,7 @@ HexagonGrid.prototype.getSelectedTile = function(mouseX, mouseY) {
 
     return  new Tile(column, row); 
 };
+
 
 
 HexagonGrid.prototype.sign = function(p1, p2, p3) {
