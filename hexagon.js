@@ -60,7 +60,7 @@ Tile.prototype.getNeighbours = function(range) {
 		potentialNeighbours.push(new Tile(this.column-1, this.row));
 		potentialNeighbours.push(new Tile(this.column+1, this.row));
 
-		if(column%2==0) {	
+		if(this.column%2==0) {	
 			potentialNeighbours.push(new Tile(this.column-1, this.row-1));
 			potentialNeighbours.push(new Tile(this.column+1, this.row-1));
 		} else {
@@ -165,7 +165,7 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
 
 
 HexagonGrid.prototype.drawHexAtTile = function(tile, color, debugText) {
-    var drawy = column % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY : (tile.row * this.height) + this.canvasOriginY + (this.height / 2);
+    var drawy = tile.column % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY : (tile.row * this.height) + this.canvasOriginY + (this.height / 2);
     var drawx = (tile.column * this.side) + this.canvasOriginX;
 
     this.drawHex(drawx, drawy, color, debugText);
