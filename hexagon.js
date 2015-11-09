@@ -4,23 +4,23 @@ var MAX_COLUMN;
 var MAX_ROW;
 
 var OBSTACLES = [];
-var WARRIORS = [];
-var ACTIVE_WARRIOR;
+var MOBS = [];
+var ACTIVE_MOB;
 
 HexagonGrid.prototype.addObstacle = function addObstacle(column, row, name, hover) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover));
 }
 
-HexagonGrid.prototype.addWarrior = function addWarrior(column, row, name, speed, hover) 
+HexagonGrid.prototype.addMob = function addMob(player, column, row, name, speed, hover) 
 {
-	WARRIORS.push(new Warrior(new Tile(column, row), name, speed, hover));
+	MOBS.push(new Mob(player, new Tile(column, row), name, speed, hover));
 }
 
-HexagonGrid.prototype.selectWarrior = function addWarrior(name) 
+HexagonGrid.prototype.selectMob = function addMob(name) 
 {
-	for(var i=0; i<WARRIORS.length; i++) {
-		if(WARRIORS[i].name==name) ACTIVE_WARRIOR = WARRIORS[i];
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].name==name) ACTIVE_MOB = MOBS[i];
 	}
 }
 
@@ -31,12 +31,13 @@ var Obstacle = function(Tile, name, hover)
 	this.hover=hover;
 }
 
-var Warrior = function(Tile, name, speed, hover)
+var Mob = function(player, Tile, name, speed, hover)
 {
 	this.Tile = Tile;
 	this.name=name;
 	this.speed=speed;
 	this.hover=hover;
+	this.player=player;
 }
 
 var Tile = function(column, row, name)
@@ -271,10 +272,10 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
     var Tile = this.getSelectedTile(localX, localY);
 	
-	if(isValidTile(Tile) && isContained(Tile, ACTIVE_WARRIOR.neighbours))
+	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
-		ACTIVE_WARRIOR.Tile = Tile;
-		selectNextWarrior(ACTIVE_WARRIOR);
+		ACTIVE_MOB.Tile = Tile;
+		selectNextMob(ACTIVE_MOB);
 		
 		this.refreshHexGrid();
 	}
@@ -287,25 +288,30 @@ HexagonGrid.prototype.refreshHexGrid = function()
 	this.drawHexGrid(MAX_ROW, MAX_COLUMN, this.canvasOriginX, this.canvasOriginY,  true);    
 }
 
-function selectNextWarrior(warrior)
+function selectNextMob(warrior)
 {
-	for(i=0; i<WARRIORS.length; i++) 
+var firstPlayerMobs = []
+	for(i=0; i<MOBS.length; i++) 
 	{
-		if(ACTIVE_WARRIOR.name==WARRIORS[i].name) 
+		if(MOBS[i].player=='player1') firstPlayerMobs.push(MOBS[i]);		
+	}
+	for(i=0; i<firstPlayerMobs.length; i++) 
+	{
+		if(ACTIVE_MOB.name==firstPlayerMobs[i].name) 
 		{
-			if(i<WARRIORS.length-1) 
+			if(i<firstPlayerMobs.length-1) 
 			{ 
-				ACTIVE_WARRIOR=WARRIORS[i+1]; 
+				ACTIVE_MOB=firstPlayerMobs[i+1]; 
 				return; 
 			}
-			else ACTIVE_WARRIOR=WARRIORS[0];			
+			else ACTIVE_MOB=firstPlayerMobs[0];			
 		}
 	}
 }
 
 	
 HexagonGrid.prototype.contextMenuEvent = function (e) {
-		selectNextWarrior(ACTIVE_WARRIOR);
+		selectNextMob(ACTIVE_MOB);
 		return false;
 };
 
@@ -356,8 +362,8 @@ function isValidTile(tile) {
 	for(var i=0; i<OBSTACLES.length; i++) {
 		if(OBSTACLES[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
 	}
-	for(var i=0; i<WARRIORS.length; i++) {
-		if(WARRIORS[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
 	}
 
 		return true;

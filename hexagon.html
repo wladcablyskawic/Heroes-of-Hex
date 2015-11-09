@@ -14,14 +14,17 @@
 		hexagonGrid.addObstacle(3,4,'blokada','przepasc');		
 		hexagonGrid.addObstacle(4,5,'blokada','nieprzebyte gory');
 
-		hexagonGrid.addWarrior(0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
-		hexagonGrid.addWarrior(0,2,'wojownik2',3, 'opis wojownika 2. cechy: szybkosc=3');
-		hexagonGrid.addWarrior(0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
+		hexagonGrid.addMob('player1', 0,2,'wojownik2',3, 'opis wojownika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
 
-		hexagonGrid.selectWarrior('wojownik2');
+		hexagonGrid.addMob('player2', 6,0,'przeciwnik1',1,'opis przeciwnika1. cechy: szybkosc=1');
+		hexagonGrid.addMob('player2', 6,2,'przeciwnik2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player2', 6,4,'przeciwnik3',2,'opis przeciwnika 3. cechy: szybkosc=2');
+
 		
-//        hexagonGrid.drawHexGrid(6, 8, 50, 50, true);
-		
+		hexagonGrid.selectMob('wojownik2');
+				
 		window.onload = function(){
  var events = new Events("HexCanvas");
  var canvas = events.getCanvas();
@@ -37,13 +40,14 @@ this.clear();
 // draw blue triangle
          hexagonGrid.drawHexGrid(6, 8, 50, 50, true);
 
-		   for(var i=0; i<WARRIORS.length; i++) {
+		   for(var i=0; i<MOBS.length; i++) {
  this.beginRegion();
 
-			hexagonGrid.drawHexAtColRow(WARRIORS[i].Tile.column, WARRIORS[i].Tile.row,'blue', WARRIORS[i].name);
+		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'blue', MOBS[i].name);
+		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'green', MOBS[i].name);
 		 
 		 this.addRegionEventListener("mousemove", function(){
-			message = WARRIORS[i].hover;
+			message = MOBS[i].hover;
 		 });
 
 		 this.addRegionEventListener("mouseout", function(){
@@ -68,13 +72,13 @@ this.clear();
 		
 	}
 	
-	if(ACTIVE_WARRIOR != null) 
+	if(ACTIVE_MOB != null) 
 	{
-		ACTIVE_WARRIOR.neighbours = getNeighbours(ACTIVE_WARRIOR.speed, ACTIVE_WARRIOR.Tile);
-		for(neighbour of ACTIVE_WARRIOR.neighbours) {
+		ACTIVE_MOB.neighbours = getNeighbours(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
+		for(neighbour of ACTIVE_MOB.neighbours) {
 		hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates());
 		};
-		hexagonGrid.highlightHex('red', ACTIVE_WARRIOR.Tile);
+		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
 	}
 	
 
