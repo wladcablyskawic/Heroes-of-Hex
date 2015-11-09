@@ -272,7 +272,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
     var Tile = this.getSelectedTile(localX, localY);
 	
-	if(isValidTile(Tile.column, Tile.row) && isContained(Tile.column, Tile.row, ACTIVE_WARRIOR.neighbours))
+	if(isValidTile(Tile) && isContained(Tile, ACTIVE_WARRIOR.neighbours))
 	{
 		ACTIVE_WARRIOR.Tile = Tile;
 		selectNextWarrior(ACTIVE_WARRIOR);
@@ -314,72 +314,52 @@ function getNeighbours(range, column, row) {
 var neighbours = [ ];
 
 	if(range>0) {
+		potentialNeighbours = [];
+		potentialNeighbours.push(new Tile(column, row-1));
+		potentialNeighbours.push(new Tile(column, row+1));
+		potentialNeighbours.push(new Tile(column-1, row));
+		potentialNeighbours.push(new Tile(column+1, row));
+
 		if(column%2==0) {	
-		newTile = new Tile(column-1, row-1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-		newTile = new Tile(column-1, row);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-		newTile = new Tile(column, row-1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-		newTile = new Tile(column, row+1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));					
-		newTile = new Tile(column+1, row-1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-		newTile = new Tile(column+1, row);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-				} else {
-		newTile = new Tile(column-1, row);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
-		newTile = new Tile(column-1, row+1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));
-		newTile = new Tile(column, row-1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));
-		newTile = new Tile(column, row+1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));
-		newTile = new Tile(column+1, row+1);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));
-		newTile = new Tile(column+1, row);
-			if(isValidTile(newTile.column, newTile.row)  && !isContained(newTile.column, newTile.row, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));
+			potentialNeighbours.push(new Tile(column-1, row-1));
+			potentialNeighbours.push(new Tile(column+1, row-1));
+		} else {
+			potentialNeighbours.push(new Tile(column-1, row+1));
+			potentialNeighbours.push(new Tile(column+1, row+1));
 		}
+
+		for(newTile in potentialNeighbours) {
+			if(isValidTile(newTile)  && !isContained(newTile, neighbours)) 
+				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile.column, newTile.row));	
+		}
+
 	}
 	
-	if(isValidTile(column, row) && !isContained(column, row, neighbours)) {
-		neighbours.push(new Tile(column,row)); 
-		}
+	var thisTile = new Tile(column,row);
+	if(isValidTile(thisTile) && !isContained(thisTile, neighbours)) {
+		neighbours.push(thisTile); 
+	}
 
 return neighbours;
 };
 
-function isContained(column, row, neighbours)
+function isContained(tile, neighbours)
 {
 	for(var i=0; i<neighbours.length; i++) {
-		if(neighbours[i].row==row && neighbours[i].column==column) return true;
+		if(neighbours[i].row=tile) return true;
 	}
 	return false;
 }
 
-function isValidTile(column, row) {
-	if(row>=0 && row <MAX_ROW && column>=0 && column<MAX_COLUMN) {
+function isValidTile(tile) {
+	if(tile.row>=0 && tile.row <MAX_ROW && tile.column>=0 && tile.column<MAX_COLUMN) {
 
 	for(var i=0; i<OBSTACLES.length; i++) {
-		if(OBSTACLES[i].Tile.row==row && OBSTACLES[i].Tile.column==column) return false;
+		if(OBSTACLES[i].Tile==tile) return false;
 	}
 	for(var i=0; i<WARRIORS.length; i++) {
-		if(WARRIORS[i].Tile.row==row && WARRIORS[i].Tile.column==column) return false;
+		if(WARRIORS[i].Tile==tile) return false;
 	}
-
 		return true;
 	}
 	
