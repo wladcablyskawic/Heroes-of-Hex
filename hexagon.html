@@ -33,29 +33,27 @@
  
  
  events.setStage(function() {
-this.clear();
-// draw blue triangle
+	this.clear();
          hexagonGrid.drawHexGrid(6, 8, 50, 50, true);
 
-		   for(var i=0; i<WARRIORS.length; i++) {
- this.beginRegion();
-
-			hexagonGrid.drawHexAtColRow(WARRIORS[i].Tile.column, WARRIORS[i].Tile.row,'blue', WARRIORS[i].name);
+		for(var i=0; i<WARRIORS.length; i++) {
+			this.beginRegion();
+			hexagonGrid.drawHexAtTile(WARRIORS[i].Tile,'blue', WARRIORS[i].name);
 		 
-		 this.addRegionEventListener("mousemove", function(){
-			message = WARRIORS[i].hover;
-		 });
+			 this.addRegionEventListener("mousemove", function(){
+				message = WARRIORS[i].hover;
+			 });
 
-		 this.addRegionEventListener("mouseout", function(){
-			message = "";
-		 });
+			 this.addRegionEventListener("mouseout", function(){
+				message = "";
+			 });
 
-		 this.closeRegion();
- }
+			 this.closeRegion();
+		}
  
  	for(var i=0; i<OBSTACLES.length; i++) {
 	this.beginRegion();
-		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row,'red', OBSTACLES[i].name);
+		hexagonGrid.drawHexAtTile(OBSTACLES[i].Tile,'red', OBSTACLES[i].name);
 		 this.addRegionEventListener("mousemove", function(){
 			message = OBSTACLES[i].hover;
 		 });
@@ -70,11 +68,11 @@ this.clear();
 	
 	if(ACTIVE_WARRIOR != null) 
 	{
-		ACTIVE_WARRIOR.neighbours = getNeighbours(ACTIVE_WARRIOR.speed, ACTIVE_WARRIOR.Tile.column, ACTIVE_WARRIOR.Tile.row);
+		ACTIVE_WARRIOR.neighbours = ACTIVE_WARRIOR.Tile.getNeighbours(ACTIVE_WARRIOR.speed);
 		for(neighbour of ACTIVE_WARRIOR.neighbours) {
-		hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates());
+		hexagonGrid.drawHexAtTile(neighbour, 'white', neighbour.getCoordinates());
 		};
-		hexagonGrid.highlightHex('red', ACTIVE_WARRIOR.Tile);
+		hexagonGrid.highlightHex(ACTIVE_WARRIOR.Tile, 'red');
 	}
 	
 
