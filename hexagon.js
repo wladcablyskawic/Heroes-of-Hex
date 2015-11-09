@@ -26,83 +26,28 @@ HexagonGrid.prototype.selectWarrior = function addWarrior(name)
 
 var Obstacle = function(Tile, name, hover)
 {
-this.Tile=Tile;
-this.name=name;
-this.hover=hover;
+	this.Tile=Tile;
+	this.name=name;
+	this.hover=hover;
 }
 
 var Warrior = function(Tile, name, speed, hover)
 {
-this.Tile = Tile;
-this.name=name;
-this.speed=speed;
-this.hover=hover;
+	this.Tile = Tile;
+	this.name=name;
+	this.speed=speed;
+	this.hover=hover;
 }
 
 var Tile = function(column, row, name)
 {
 this.column=column;
 this.row=row;
-this.name=name;
 };
 
 Tile.prototype.getCoordinates = function() {
 	return '['+this.column+','+this.row+']';
 };
-
-Tile.prototype.getNeighbours = function(range) {
-	var neighbours = [ ];
-
-	if(range>0) {
-		potentialNeighbours = [];
-		potentialNeighbours.push(new Tile(this.column, this.row-1));
-		potentialNeighbours.push(new Tile(this.column, this.row+1));
-		potentialNeighbours.push(new Tile(this.column-1, this.row));
-		potentialNeighbours.push(new Tile(this.column+1, this.row));
-
-		if(this.column%2==0) {	
-			potentialNeighbours.push(new Tile(this.column-1, this.row-1));
-			potentialNeighbours.push(new Tile(this.column+1, this.row-1));
-		} else {
-			potentialNeighbours.push(new Tile(this.column-1, this.row+1));
-			potentialNeighbours.push(new Tile(this.column+1, this.row+1));
-		}
-
-		for(newTile in potentialNeighbours) {
-			if(isValidTile(newTile)  && !isContained(newTile, neighbours)) 
-				Array.prototype.push.apply(neighbours, newTile.getNeighbours(range-1));	
-		}
-
-	}
-	if(isValidTile(this) && !isContained(this, neighbours)) {
-		neighbours.push(this); 
-	}
-	return neighbours;
-};
-
-function isContained(tile, neighbours)
-{
-	for(var i=0; i<neighbours.length; i++) {
-		if(neighbours[i].row=tile) return true;
-	}
-	return false;
-}
-
-function isValidTile(tile) {
-	if(tile.row>=0 && tile.row <MAX_ROW && tile.column>=0 && tile.column<MAX_COLUMN) {
-
-	for(var i=0; i<OBSTACLES.length; i++) {
-		if(OBSTACLES[i].Tile==tile) return false;
-	}
-	for(var i=0; i<WARRIORS.length; i++) {
-		if(WARRIORS[i].Tile==tile) return false;
-	}
-		return true;
-	}
-	
-	return false;
-};
-
 
 
 function HexagonGrid(canvasId, radius) {
@@ -164,9 +109,9 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
 };
 
 
-HexagonGrid.prototype.drawHexAtTile = function(tile, color, debugText) {
-    var drawy = tile.column % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY : (tile.row * this.height) + this.canvasOriginY + (this.height / 2);
-    var drawx = (tile.column * this.side) + this.canvasOriginX;
+HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
+    var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
+    var drawx = (column * this.side) + this.canvasOriginX;
 
     this.drawHex(drawx, drawy, color, debugText);
 };
@@ -198,7 +143,7 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     }
 };
 
-HexagonGrid.prototype.highlightHex = function(Tile, color) {
+HexagonGrid.prototype.highlightHex = function(color, Tile) {
     var y0 = Tile.column % 2 == 0 ? (Tile.row * this.height) + this.canvasOriginY : (Tile.row * this.height) + this.canvasOriginY + (this.height / 2);
     var x0 = (Tile.column * this.side) + this.canvasOriginX;
 	
@@ -298,7 +243,7 @@ HexagonGrid.prototype.getSelectedTile = function(mouseX, mouseY) {
         }
     }
 
-    return  { row: row, column: column };
+    return  new Tile(column, row); 
 };
 
 
@@ -362,4 +307,61 @@ function selectNextWarrior(warrior)
 HexagonGrid.prototype.contextMenuEvent = function (e) {
 		selectNextWarrior(ACTIVE_WARRIOR);
 		return false;
-};	
+};
+
+function getNeighbours(range, tile) {
+var neighbours = [ ];
+	if(range>0) {
+		potentialNeighbours = [];
+		potentialNeighbours.push(new Tile(tile.column, tile.row-1));
+		potentialNeighbours.push(new Tile(tile.column, tile.row+1));
+		potentialNeighbours.push(new Tile(tile.column-1, tile.row));
+		potentialNeighbours.push(new Tile(tile.column+1, tile.row));
+
+		if(tile.column%2==0) {	
+			potentialNeighbours.push(new Tile(tile.column-1, tile.row-1));
+			potentialNeighbours.push(new Tile(tile.column+1, tile.row-1));
+		} else {
+			potentialNeighbours.push(new Tile(tile.column-1, tile.row+1));
+			potentialNeighbours.push(new Tile(tile.column+1, tile.row+1));
+		}
+
+
+		
+		for(newTile of potentialNeighbours) {
+			if(isValidTile(newTile)  && !isContained(newTile, neighbours)) 
+				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile));							
+		}
+	}
+	
+	if(isValidTile(tile) && !isContained(tile, neighbours)) {
+		neighbours.push(tile); 
+	}
+
+	return neighbours;
+};
+
+function isContained(tile, neighbours)
+{
+	for(var i=0; i<neighbours.length; i++) {
+	
+		if(neighbours[i].getCoordinates()==tile.getCoordinates()) return true;
+	}
+	return false;
+}
+
+function isValidTile(tile) {
+	if(tile.row>=0 && tile.row <MAX_ROW && tile.column>=0 && tile.column<MAX_COLUMN) {
+
+	for(var i=0; i<OBSTACLES.length; i++) {
+		if(OBSTACLES[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
+	}
+	for(var i=0; i<WARRIORS.length; i++) {
+		if(WARRIORS[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
+	}
+
+		return true;
+	}	
+	return false;
+};
+	
