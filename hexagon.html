@@ -14,12 +14,12 @@
 		hexagonGrid.addObstacle(3,4,'blokada','przepasc');		
 		hexagonGrid.addObstacle(4,5,'blokada','nieprzebyte gory');
 
-		hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
+	//	hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
 		hexagonGrid.addMob('player1', 0,2,'wojownik2',3, 'opis wojownika 2. cechy: szybkosc=3');
-		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
+//		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
 
 		hexagonGrid.addMob('player2', 6,0,'przeciwnik1',1,'opis przeciwnika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player2', 6,2,'przeciwnik2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player2', 5,2,'przeciwnik2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
 		hexagonGrid.addMob('player2', 6,4,'przeciwnik3',2,'opis przeciwnika 3. cechy: szybkosc=2');
 
 		
@@ -49,7 +49,7 @@ this.clear();
 		 this.addRegionEventListener("mousemove", function(){
 		if(MOBS[i].player=='player2') {
 			var mousePos = events.getMousePos();
-			var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile.column, MOBS[i].Tile.row);
+			var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile);
 			document.getElementById("HexCanvas").style.cursor = attackDirection+'-resize';	  	
 			
 		}

@@ -147,9 +147,9 @@ function pDistance(x, y, x1, y1, x2, y2) {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, column, row) {
-    var x0 = (column * this.side) + this.canvasOriginX;
-    var y0 = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
+HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, Tile) {
+    var x0 = (Tile.column * this.side) + this.canvasOriginX;
+    var y0 = Tile.column % 2 == 0 ? (Tile.row * this.height) + this.canvasOriginY : (Tile.row * this.height) + this.canvasOriginY + (this.height / 2);
     var x1 = x0 + this.width - this.side;
 	var y1=	y0;
     var x2 = x0 + this.side
@@ -196,6 +196,9 @@ HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, column, r
 	
 	return answer;
 };
+
+
+
 
 HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     this.context.strokeStyle = "#000";
@@ -344,6 +347,39 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
     return ((b1 == b2) && (b2 == b3));
 };
 
+HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='player2') {
+			var vector = this.calculateAttackVector(mouseX, mouseY, Tile);
+
+			switch(vector) {
+				case 'n':
+					Tile.row--;
+				break;
+				case 'ne':
+					Tile.column++;
+					if(Tile.column%2==1) Tile.row--;
+				break;
+				case 'se':
+					Tile.column++;
+					if(Tile.column%2==0) Tile.row++;	
+				break;
+				case 's':
+					Tile.row++;
+				break;
+				case 'sw':
+					Tile.column--;
+					if(Tile.column%2==0) Tile.row++;	
+				break;
+				case 'nw':
+					Tile.column--;
+					if(Tile.column%2==1) Tile.row--;
+				break;			
+			}
+		}
+	}			
+}
+
 HexagonGrid.prototype.clickEvent = function (e) {
     var mouseX = e.pageX;
     var mouseY = e.pageY;
@@ -353,15 +389,16 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
     var Tile = this.getSelectedTile(localX, localY);
 	
+	this.recalculateChargeClick(mouseX, mouseY, Tile);
+	
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
 		ACTIVE_MOB.Tile = Tile;
 		selectNextMob(ACTIVE_MOB);
 		
 		this.refreshHexGrid();
+		return;
 	}
-    	
-	
 };
 
 HexagonGrid.prototype.refreshHexGrid = function()
@@ -371,7 +408,7 @@ HexagonGrid.prototype.refreshHexGrid = function()
 
 function selectNextMob(warrior)
 {
-var firstPlayerMobs = []
+	var firstPlayerMobs = []
 	for(i=0; i<MOBS.length; i++) 
 	{
 		if(MOBS[i].player=='player1') firstPlayerMobs.push(MOBS[i]);		
@@ -451,4 +488,3 @@ function isValidTile(tile) {
 	}	
 	return false;
 };
-	
