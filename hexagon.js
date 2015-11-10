@@ -350,8 +350,8 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
 HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='player2') {
-			var vector = this.calculateAttackVector(mouseX, mouseY, Tile);
-
+		alert('charge!');
+			var vector = document.getElementById("HexCanvas").style.cursor.split('-')[0];
 			switch(vector) {
 				case 'n':
 					Tile.row--;
