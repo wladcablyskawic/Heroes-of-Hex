@@ -51,7 +51,10 @@ Tile.prototype.getCoordinates = function() {
 };
 
 
-function HexagonGrid(canvasId, radius) {
+function HexagonGrid(canvasId, radius, rows, cols) {
+	MAX_COLUMN=cols;
+	MAX_ROW=rows;
+
     this.radius = radius;
 
     this.height = Math.sqrt(3) * radius;
@@ -66,17 +69,16 @@ function HexagonGrid(canvasId, radius) {
     
     this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
     this.canvas.addEventListener("contextmenu", this.contextMenuEvent.bind(this), false);	
-	
+
+	initAStar(rows, cols);	
 	};
 
  
  
-HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDebug) {
+HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
     
-	MAX_COLUMN=cols;
-	MAX_ROW=rows;
 	
     var currentHexX;
     var currentHexY;
@@ -84,8 +86,8 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
 
     var offsetColumn = false;
 
-    for (var col = 0; col < cols; col++) {
-        for (var row = 0; row < rows; row++) {
+    for (var col = 0; col < MAX_COLUMN; col++) {
+        for (var row = 0; row < MAX_ROW; row++) {
 
             if (!offsetColumn) {
                 currentHexX = (col * this.side) + originX;
@@ -96,7 +98,7 @@ HexagonGrid.prototype.drawHexGrid = function (rows, cols, originX, originY, isDe
             }
 
             if (isDebug) {
-                debugText = '['+col + "," + row+']';
+                debugText = '['+col + "," + row+']' + 	hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,col,row);
             }
 
             this.drawHex(currentHexX, currentHexY, "#ddd", debugText);
@@ -405,7 +407,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {
-	this.drawHexGrid(MAX_ROW, MAX_COLUMN, this.canvasOriginX, this.canvasOriginY,  true);    
+	this.drawHexGrid(this.canvasOriginX, this.canvasOriginY,  true);    
 }
 
 function selectNextMob(warrior)
@@ -435,8 +437,9 @@ HexagonGrid.prototype.contextMenuEvent = function (e) {
 		return false;
 };
 
-function getNeighbours(range, tile) {
+function getNeighbours(tile) {
 var neighbours = [ ];
+var range = 1;
 	if(range>0) {
 		potentialNeighbours = [];
 		potentialNeighbours.push(new Tile(tile.column, tile.row-1));
@@ -455,17 +458,43 @@ var neighbours = [ ];
 
 		
 		for(newTile of potentialNeighbours) {
-			if(isValidTile(newTile)  )//&& !isContained(newTile, neighbours)) 
-				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile));							
+			if(isValidTile(newTile))
+				neighbours.push(newTile);							
 		}
 	}
 	
-	if(isValidTile(tile) && !isContained(tile, neighbours)) {
+	if(isValidTile(tile) && !isContained(tile, neighbours)) 
 		neighbours.push(tile); 
-	}
+	
 
 	return neighbours;
 };
+
+function getPossibleMoves(range, tile) {
+var visited = new Set();
+var coordinates = new Set();
+visited.add(tile);
+var fringes = new Array(range);
+for(i=0; i<=range; i++) fringes[i] = new Array();
+fringes[0]=[tile];
+
+
+	for(i=1; i<=range; i++) {
+		for(t of fringes[i-1]) {
+			var neighbours = getNeighbours(t);
+			for(n of neighbours) {
+				if(isValidTile(n) && !coordinates.has(n.getCoordinates())) {
+					visited.add(n);
+					coordinates.add(n.getCoordinates());
+					fringes[i].push(n);
+				}
+			}
+		
+		}
+	}
+	visited.delete(tile);
+	return Array.from(visited);
+}
 
 function isContained(tile, neighbours)
 {

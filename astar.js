@@ -1,16 +1,18 @@
-		var mapsize_x = 8;
-		var mapsize_y = 8;
-		var mapArray = MultiDimensionalArray(mapsize_x,mapsize_y);
-		for (x=0; x  < mapsize_x; x++) {
-			for (y=0; y < mapsize_y; y++) {
-				mapArray[x][y] = "hex_green";
+		var mapArray;
+		
+		function initAStar(row, col) {
+			mapArray = MultiDimensionalArray(MAX_ROW,MAX_COLUMN);
+			for (x=0; x  < MAX_ROW; x++) {
+				for (y=0; y < MAX_COLUMN; y++) {
+					mapArray[x][y] = "hex_green";
+				}
 			}
 		}
 		
 		function recalculateMapArray()
 		{
-		for (x=0; x  < mapsize_x; x++) {
-			for (y=0; y < mapsize_y; y++) {
+		for (x=0; x  < MAX_ROW; x++) {
+			for (y=0; y < MAX_COLUMN; y++) {
 				mapArray[x][y] = "hex_tree";
 			}
 		}		
@@ -75,16 +77,16 @@
 			}
 			
 			// Init
-			var openlist = new Array(mapsize_x*mapsize_y+2);
-			var openlist_x = new Array(mapsize_x);
-			var openlist_y = new Array(mapsize_y);
-			var statelist = MultiDimensionalArray(mapsize_x+1,mapsize_y+1); // current open or closed state
-			var openlist_g = MultiDimensionalArray(mapsize_x+1,mapsize_y+1);
-			var openlist_f = MultiDimensionalArray(mapsize_x+1,mapsize_y+1);
-			var openlist_h = MultiDimensionalArray(mapsize_x+1,mapsize_y+1);
-			var parent_x = MultiDimensionalArray(mapsize_x+1,mapsize_y+1);
-			var parent_y = MultiDimensionalArray(mapsize_x+1,mapsize_y+1);
-			var path = MultiDimensionalArray(mapsize_x*mapsize_y+2,2);
+			var openlist = new Array(MAX_ROW*MAX_COLUMN+2);
+			var openlist_x = new Array(MAX_ROW);
+			var openlist_y = new Array(MAX_COLUMN);
+			var statelist = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1); // current open or closed state
+			var openlist_g = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1);
+			var openlist_f = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1);
+			var openlist_h = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1);
+			var parent_x = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1);
+			var parent_y = MultiDimensionalArray(MAX_ROW+1,MAX_COLUMN+1);
+			var path = MultiDimensionalArray(MAX_ROW*MAX_COLUMN+2,2);
 
 			var select_x = 0;
 			var select_y = 0;
@@ -131,7 +133,7 @@
 				statelist[lowest_x][lowest_y] = 2;
 				openlist[selected_id]= false;
 				// Add connected nodes to the openlist
-				neighbours = getNeighbours(1, new Tile(lowest_y, lowest_x));
+				neighbours = getNeighbours(new Tile(lowest_y, lowest_x));
 				for(neighbour of neighbours) {
 				node_x = neighbour.row;
 				node_y=neighbour.column;
@@ -196,5 +198,5 @@
 				counter--;
 			}
 			console.log('fullPath: '+fullPath);
-			alert(fullPath);
+//			alert(fullPath);
 		}				
