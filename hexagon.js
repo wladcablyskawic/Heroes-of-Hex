@@ -386,13 +386,15 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
     var localX = mouseX - this.canvasOriginX;
     var localY = mouseY - this.canvasOriginY;
-
+	
     var Tile = this.getSelectedTile(localX, localY);
+
 	
 	this.recalculateChargeClick(mouseX, mouseY, Tile);
 	
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
+	path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, Tile.row, Tile.column);
 		ACTIVE_MOB.Tile = Tile;
 		selectNextMob(ACTIVE_MOB);
 		
@@ -453,7 +455,7 @@ var neighbours = [ ];
 
 		
 		for(newTile of potentialNeighbours) {
-			if(isValidTile(newTile)  && !isContained(newTile, neighbours)) 
+			if(isValidTile(newTile)  )//&& !isContained(newTile, neighbours)) 
 				Array.prototype.push.apply(neighbours, getNeighbours(range-1, newTile));							
 		}
 	}

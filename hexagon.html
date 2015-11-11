@@ -3,9 +3,11 @@
     <title>Hex</title>
     <script src="hexagon.js"></script>
 	<script src="events.js"></script>
+	<script src="astar.js"></script>	
 </head>
 <body>
-	<canvas id="HexCanvas" width="1000" height="700"></canvas>
+
+	<canvas id="HexCanvas" width="1000" height="1000"></canvas>
     <script>
         var hexagonGrid = new HexagonGrid("HexCanvas", 50);
 
@@ -15,7 +17,7 @@
 		hexagonGrid.addObstacle(4,5,'blokada','nieprzebyte gory');
 
 	//	hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player1', 0,2,'wojownik2',3, 'opis wojownika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player1', 1,1,'wojownik2',5, 'opis wojownika 2. cechy: szybkosc=3');
 //		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
 
 		hexagonGrid.addMob('player2', 6,0,'przeciwnik1',1,'opis przeciwnika1. cechy: szybkosc=1');
@@ -38,7 +40,7 @@
  events.setStage(function() {
 this.clear();
 // draw blue triangle
-         hexagonGrid.drawHexGrid(6, 8, 50, 50, true);
+         hexagonGrid.drawHexGrid(8, 8, 50, 50, true);
 
 		   for(var i=0; i<MOBS.length; i++) {
  this.beginRegion();
@@ -86,7 +88,8 @@ document.getElementById("HexCanvas").style.cursor = "default";
 	{
 		ACTIVE_MOB.neighbours = getNeighbours(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 		for(neighbour of ACTIVE_MOB.neighbours) {
-		hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates());
+		hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates()+
+		hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
 		};
 		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
 	}
