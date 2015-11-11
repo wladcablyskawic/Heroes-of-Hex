@@ -77,7 +77,7 @@ function HexagonGrid(canvasId, radius, rows, cols) {
  
 HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 
-	 this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	 //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
@@ -379,7 +379,7 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
 HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='player2') {
-		alert('charge!');
+
 			var vector = document.getElementById("HexCanvas").style.cursor.split('-')[0];
 			switch(vector) {
 				case 'n':
@@ -405,6 +405,8 @@ HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 					if(Tile.column%2==1) Tile.row--;
 				break;			
 			}
+			
+			if(isContained(Tile, ACTIVE_MOB.neighbours)) alert('charge!');
 		}
 	}			
 }

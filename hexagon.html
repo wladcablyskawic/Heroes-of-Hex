@@ -24,7 +24,7 @@
 
 		
 		hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player1', 1,1,'wojownik2',5, 'opis wojownika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player1', 1,1,'wojownik2',8, 'opis wojownika 2. cechy: szybkosc=3');
 //		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
 
 		hexagonGrid.addMob('player2', 6,0,'przeciwnik1',1,'opis przeciwnika1. cechy: szybkosc=1');
@@ -50,6 +50,8 @@
 
 	for(var i=0; i<MOBS.length; i++) {
 		this.beginRegion();
+		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'blue', MOBS[i].name);
+		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'green', MOBS[i].name);
 	 
 		this.addRegionEventListener("mousemove", function(){
 		if(MOBS[i].player=='player2') {
@@ -73,8 +75,10 @@
  }
  
  	for(var i=0; i<OBSTACLES.length; i++) {
+	
 	this.beginRegion();
-		 this.addRegionEventListener("mousemove", function(){
+		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row,'red', OBSTACLES[i].name);
+		this.addRegionEventListener("mousemove", function(){
 			message = OBSTACLES[i].hover;
 		 });
 
@@ -85,6 +89,8 @@
 		 this.closeRegion();
 		
 	}
+	
+	
 	
 	
 
