@@ -76,6 +76,9 @@ function HexagonGrid(canvasId, radius, rows, cols) {
  
  
 HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
+
+	 this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
     
@@ -105,6 +108,30 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
         }
         offsetColumn = !offsetColumn;
     }	
+	
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'blue', MOBS[i].name);
+		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'green', MOBS[i].name);
+	}
+	
+	for(var i=0; i<OBSTACLES.length; i++) {
+		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row,'red', OBSTACLES[i].name);
+	}
+
+	if(ACTIVE_MOB != null) 
+	{
+		if(ACTIVE_MOB.isWorking!=true) {
+			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
+			for(neighbour of ACTIVE_MOB.neighbours) {
+			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates()+
+			hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
+			};
+		}
+		
+		
+		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
+	}
+
 	
 };
 
@@ -382,7 +409,9 @@ HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 	}			
 }
 
+
 HexagonGrid.prototype.clickEvent = function (e) {
+	if(ACTIVE_MOB.isWorking==true) return;
     var mouseX = e.pageX;
     var mouseY = e.pageY;
 
@@ -396,14 +425,54 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
-	path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, Tile.row, Tile.column);
-		ACTIVE_MOB.Tile = Tile;
-		selectNextMob(ACTIVE_MOB);
+		ACTIVE_MOB.isWorking=true;
+		var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, Tile.row, Tile.column);
+		for(i=1; i<stepByStep.length; i++) {
+
+			var param = {hexagon:this, tile:stepByStep[i]};
 		
-		this.refreshHexGrid();
+		setTimeout(function(param) {
+			ACTIVE_MOB.Tile = param.tile;			
+			if(ACTIVE_MOB.Tile.getCoordinates()==Tile.getCoordinates()) {
+				selectNextMob(ACTIVE_MOB);
+				ACTIVE_MOB.isWorking=false;
+				}
+			param.hexagon.refreshHexGrid();
+		}, i*300, param);
+			
+		}					
 		return;
 	}
 };
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+function goTo(tile, steps) {
+	if(hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,tile.column,tile.row)==1) {
+	console.log('w koncu!');
+		ACTIVE_MOB.Tile = tile;
+		selectNextMob(ACTIVE_MOB);
+	}
+	else {
+	console.log('ide dalej');
+		for(i = 0; i<steps.length; i++) {
+			if(ACTIVE_MOB.Tile.getCoordinates()==steps[i].getCoordinates()) {
+				ACTIVE_MOB.Tile = steps[i+1];
+				setTimeout(goTo(tile,steps), 1000);
+				console.log('go to '+tile.getCoordinates() +' from '+ACTIVE_MOB.Tile.getCoordinates());
+				break;
+			}
+		}
+	}
+
+}
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {

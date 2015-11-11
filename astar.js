@@ -191,12 +191,14 @@
 			path[counter][2] = start_y;
 			
 			// Draw path.
-			var fullPath=''
+			var fullPath = [];
 			while(counter!=0) {
-			fullPath+='next step: ['+path[counter][2] + ',' + path[counter][1]+'],';
+			fullPath.push(new Tile(path[counter][2], path[counter][1]));
+			//fullPath+='next step: ['+path[counter][2] + ',' + path[counter][1]+'],';
 //				document.getElementById('hex_' + path[counter][1] + '_' + path[counter][2]).className = 'hex_blue';
 				counter--;
 			}
-			console.log('fullPath: '+fullPath);
+			return fullPath;
+		//	console.log('fullPath: '+fullPath);
 //			alert(fullPath);
 		}				
