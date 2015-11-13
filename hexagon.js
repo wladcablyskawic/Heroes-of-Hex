@@ -7,17 +7,17 @@ var OBSTACLES = [];
 var MOBS = [];
 var ACTIVE_MOB;
 
-HexagonGrid.prototype.addObstacle = function addObstacle(column, row, name, hover) 
+HexagonGrid.prototype.addObstacle = function(column, row, name, hover) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover));
 }
 
-HexagonGrid.prototype.addMob = function addMob(player, column, row, name, speed, hover) 
+HexagonGrid.prototype.addMob = function(player, column, row, name, speed, hover) 
 {
 	MOBS.push(new Mob(player, new Tile(column, row), name, speed, hover));
 }
 
-HexagonGrid.prototype.selectMob = function addMob(name) 
+HexagonGrid.prototype.selectMob = function(name) 
 {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].name==name) ACTIVE_MOB = MOBS[i];
@@ -135,6 +135,10 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	
 };
 
+HexagonGrid.prototype.calculateVisibility = function(Mob, Tile) {
+
+};
+
 
 HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
     var drawx = (column * this.side) + this.canvasOriginX;
@@ -234,12 +238,8 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
 	this.context.lineWidth=1;
 	
     this.context.beginPath();
-    this.context.moveTo(x0 + this.width - this.side, y0);
-    this.context.lineTo(x0 + this.side, y0);
-    this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
-    this.context.lineTo(x0 + this.side, y0 + this.height);
-    this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
-    this.context.lineTo(x0, y0 + (this.height / 2));
+	this.drawOddQHex(x0,y0);
+		
 
     if (fillColor) {
         this.context.fillStyle = fillColor;
@@ -250,11 +250,21 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     this.context.stroke();
 
     if (debugText) {
-        this.context.font = "8px";
+        this.context.font = "6px";
         this.context.fillStyle = "#000";
-        this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/4), y0 + (this.height - 5));
+        this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/3), y0 + (this.height - 20));
     }
 };
+
+HexagonGrid.prototype.drawOddQHex = function(x0, y0) {
+    this.context.moveTo(x0 + this.width - this.side, y0);
+    this.context.lineTo(x0 + this.side, y0);
+    this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
+    this.context.lineTo(x0 + this.side, y0 + this.height);
+    this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
+    this.context.lineTo(x0, y0 + (this.height / 2));
+};
+
 
 HexagonGrid.prototype.highlightHex = function(color, Tile) {
     var y0 = Tile.column % 2 == 0 ? (Tile.row * this.height) + this.canvasOriginY : (Tile.row * this.height) + this.canvasOriginY + (this.height / 2);
@@ -263,12 +273,7 @@ HexagonGrid.prototype.highlightHex = function(color, Tile) {
     this.context.strokeStyle = color;
 	this.context.lineWidth=5;
     this.context.beginPath();
-    this.context.moveTo(x0 + this.width - this.side, y0);
-    this.context.lineTo(x0 + this.side, y0);
-    this.context.lineTo(x0 + this.width, y0 + (this.height / 2));
-    this.context.lineTo(x0 + this.side, y0 + this.height);
-    this.context.lineTo(x0 + this.width - this.side, y0 + this.height);
-    this.context.lineTo(x0, y0 + (this.height / 2));
+	this.drawOddQHex(x0,y0);
     this.context.closePath();
     this.context.stroke();	
 };
@@ -413,6 +418,8 @@ HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 
 
 HexagonGrid.prototype.clickEvent = function (e) {
+	if(e.which != 1) return; // just right left click
+	
 	if(ACTIVE_MOB.isWorking==true) return;
     var mouseX = e.pageX;
     var mouseY = e.pageY;
@@ -440,41 +447,13 @@ HexagonGrid.prototype.clickEvent = function (e) {
 				ACTIVE_MOB.isWorking=false;
 				}
 			param.hexagon.refreshHexGrid();
-		}, i*300, param);
+		}, i*150, param);
 			
 		}					
 		return;
 	}
 };
 
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-
-function goTo(tile, steps) {
-	if(hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,tile.column,tile.row)==1) {
-	console.log('w koncu!');
-		ACTIVE_MOB.Tile = tile;
-		selectNextMob(ACTIVE_MOB);
-	}
-	else {
-	console.log('ide dalej');
-		for(i = 0; i<steps.length; i++) {
-			if(ACTIVE_MOB.Tile.getCoordinates()==steps[i].getCoordinates()) {
-				ACTIVE_MOB.Tile = steps[i+1];
-				setTimeout(goTo(tile,steps), 1000);
-				console.log('go to '+tile.getCoordinates() +' from '+ACTIVE_MOB.Tile.getCoordinates());
-				break;
-			}
-		}
-	}
-
-}
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {
@@ -504,7 +483,9 @@ function selectNextMob(warrior)
 
 	
 HexagonGrid.prototype.contextMenuEvent = function (e) {
-		selectNextMob(ACTIVE_MOB);
+		alert('click');
+		//selectNextMob(ACTIVE_MOB);
+		e.preventDefault();
 		return false;
 };
 

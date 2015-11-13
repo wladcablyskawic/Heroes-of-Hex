@@ -44,21 +44,89 @@
 			if(mapArray[x][y] == 'hex_tree') return false;
 			
 			return true;
-		}
+		};
 
+	var Cube = function(x, y, z) {
+		this.x=x;
+		this.y=y;
+		this.z=z;
+	};	
+	
+	function cube_round(h) {
+		var rx = Math.round(h.x);
+		var ry = Math.round(h.y);
+		var rz = Math.round(h.z);
 		
-		function hex_distance(col1,row1,col2,row2) {
+		var x_diff = Math.abs(rx-h.x);
+		var y_diff = Math.abs(ry-h.y);
+		var z_diff = Math.abs(rz-h.z);
 		
-		x1=col1;
-		z1=row1 - (col1 - (col1&1))/2;
-		y1=-x1-z1;
+		if(x_diff > y_diff && x_diff > z_diff)
+			rx = -ry-rz;
+		else if(y_diff > z_diff)
+			ry = -rx-rz;
+		else 
+			rz = -rx-ry;
+			
+		return new Cube(rx,ry,rz);
+	};
+	
+	function cube_lerp(hex1,hex2,t) {
+	
+		a = convertTileToCube(hex1);
+		b = convertTileToCube(hex2);
 		
-		x2=col2;
-		z2=row2 - (col2 - (col2&1))/2;
-		y2=-x2-z2;
+		return new Cube(a.x + (b.x-a.x)*t,
+					a.y + (b.y-a.y)*t,
+					a.z + (b.z-a.z)*t);
+	};
+	
+	function getLineOfSight(a,b) {
+		var N = hex_distance(a.column, a.row, b.column, b.row);
+		console.log(N);
+		var results = [];
+		for(var i=0; i<=N; i++){
+		var cube = cube_round(cube_lerp(a, b, 1.0/N *i));
+			results.push(convertCubeToTile(cube));
+		}
+		return results;
+	};		
+	
+	function checkLineOfSight(observer, target) {
+		var tiles = getLineOfSight(observer.Tile, target.Tile);
 		
+		var answer=true;
+		for(i=1; i<tiles.length-1; i++) {
+			for(j=0; j<OBSTACLES.length; j++) {
+				if(OBSTACLES[j].Tile.getCoordinates()== tiles[i].getCoordinates()) answer=false;	
+			}
+			for(j=0; j<MOBS.length; j++) {
+				if(MOBS[j].Tile.getCoordinates()== tiles[i].getCoordinates()) answer=false;	
+			}			
+		}
+		return answer;
+	}	
+	
+	function convertTileToCube(tile) {
+		var x1=tile.column;
+		var z1=tile.row - (tile.column - (tile.column&1))/2;
+		var y1=-x1-z1;
+		return new Cube(x1,y1,z1);
+	}
+	
+	function convertCubeToTile(cube) {
+		var col = cube.x;
+		var row = cube.z + (cube.x - (cube.x&1)) / 2;
 		
-		var ans = (Math.abs(x1 - x2) + Math.abs(y1 - y2) + Math.abs(z1 - z2)) / 2;
+		return new Tile(col, row);
+	}
+		
+	function hex_distance(col1,row1,col2,row2) {
+		Cube1 = convertTileToCube(new Tile(col1, row1));
+		Cube2 = convertTileToCube(new Tile(col2, row2));
+		
+		var ans = (Math.abs(Cube1.x - Cube2.x) + Math.abs(Cube1.y - Cube2.y) 
+					+ Math.abs(Cube1.z - Cube2.z)) / 2;
 
 	return ans;
 	}		
@@ -192,6 +260,8 @@
 			var fullPath = [];
 			while(counter!=0) {
 			fullPath.push(new Tile(path[counter][2], path[counter][1]));
+			//fullPath+='next step: ['+path[counter][2] + ',' + path[counter][1]+'],';
+//				document.getElementById('hex_' + path[counter][1] + '_' + path[counter][2]).className = 'hex_blue';
 				counter--;
 			}
 //			console.log(fullPath);

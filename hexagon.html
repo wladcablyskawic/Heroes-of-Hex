@@ -11,7 +11,7 @@
 
 	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
     <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 50, 8,14);
+        var hexagonGrid = new HexagonGrid("HexCanvas", 30, 10,10, "odd-q");
 
 		hexagonGrid.addObstacle(2,4,'blokada','nieprzebyte gory');
 		hexagonGrid.addObstacle(2,2,'blokada','nieprzebyte gory');
@@ -23,16 +23,16 @@
 		
 
 		
-		hexagonGrid.addMob('player1', 0,0,'wojownik1',1,'opis wojownika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player1', 1,1,'wojownik2',8, 'opis wojownika 2. cechy: szybkosc=3');
-//		hexagonGrid.addMob('player1', 0,4,'wojownik3',2,'opis wojownika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('player1', 1,1,'mob1',1,'opis wojownika1. cechy: szybkosc=1');
+		hexagonGrid.addMob('player1', 0,0,'mob2',8, 'opis wojownika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player1', 0,4,'mob3',2,'opis wojownika 3. cechy: szybkosc=2');
 
-		hexagonGrid.addMob('player2', 6,0,'przeciwnik1',1,'opis przeciwnika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player2', 5,2,'przeciwnik2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
-		hexagonGrid.addMob('player2', 6,4,'przeciwnik3',2,'opis przeciwnika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('player2', 6,0,'enemy1',1,'opis przeciwnika1. cechy: szybkosc=1');
+		hexagonGrid.addMob('player2', 7,2,'enemy2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
+		hexagonGrid.addMob('player2', 6,4,'enemy3',2,'opis przeciwnika 3. cechy: szybkosc=2');
 
 		
-		hexagonGrid.selectMob('wojownik2');
+		hexagonGrid.selectMob('mob2');
 				
 		window.onload = function(){
  var events = new Events("HexCanvas");
