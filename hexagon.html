@@ -55,9 +55,13 @@
 	 
 		this.addRegionEventListener("mousemove", function(){
 		if(MOBS[i].player=='player2') {
-			var mousePos = events.getMousePos();
-			var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile);
-			document.getElementById("HexCanvas").style.cursor = attackDirection+'-resize';	  				
+			if(checkLineOfSight(ACTIVE_MOB, MOBS[i])) {
+				var mousePos = events.getMousePos();
+				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
+				var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile);
+				document.getElementById("HexCanvas").style.cursor = attackDirection+'-resize';	  			
+				}				
+			}
 		}
 		
 		  

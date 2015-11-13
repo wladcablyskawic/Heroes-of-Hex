@@ -135,11 +135,6 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	
 };
 
-HexagonGrid.prototype.calculateVisibility = function(Mob, Tile) {
-
-};
-
-
 HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
     var drawx = (column * this.side) + this.canvasOriginX;
     var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
@@ -379,6 +374,19 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
     b3 = this.sign(pt, v3, v1) < 0.0;
 
     return ((b1 == b2) && (b2 == b3));
+};
+
+HexagonGrid.prototype.isChargePossible = function(offensive, target) {
+	var potentialFields = getNeighbours(target.Tile);
+	var moves = getPossibleMoves(offensive.speed, offensive.Tile);
+		
+	for(var i=0; i<moves.length; i++) {
+		for(var j=0; j<potentialFields.length; j++)
+		if(moves[i].getCoordinates()==potentialFields[j].getCoordinates()) return true;
+	}
+	
+
+	return false;
 };
 
 HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
