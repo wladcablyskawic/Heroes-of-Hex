@@ -138,8 +138,6 @@
 				node_x = neighbour.row;
 				node_y=neighbour.column;
 
-					
-				  var tmpTile = new Tile(node_y, node_x);
 				  if (hex_accessible([node_x],[node_y])) {
 
 				  if(statelist[node_x][node_y] == true) {
@@ -166,7 +164,7 @@
 						  if ( ydist < 0 ) ydist = ydist*-1;
 						  var xdist = end_x - node_x;
 						  if ( xdist < 0 ) xdist = xdist*-1;		
-						  openlist_h[node_x][node_y] = hex_distance(node_x,node_y,end_x,end_y) * 10;
+						  openlist_h[node_x][node_y] = hex_distance(node_x,node_y,end_x,end_y);// * 10;
 						  if(openlist_h[node_x][node_y]==0) break;
 						  openlist_g[node_x][node_y] = openlist_g[lowest_x][lowest_y] + 10;
 						  openlist_f[node_x][node_y] = openlist_g[node_x][node_y] + openlist_h[node_x][node_y];
@@ -194,11 +192,10 @@
 			var fullPath = [];
 			while(counter!=0) {
 			fullPath.push(new Tile(path[counter][2], path[counter][1]));
-			//fullPath+='next step: ['+path[counter][2] + ',' + path[counter][1]+'],';
-//				document.getElementById('hex_' + path[counter][1] + '_' + path[counter][2]).className = 'hex_blue';
 				counter--;
 			}
+//			console.log(fullPath);
 			return fullPath;
-		//	console.log('fullPath: '+fullPath);
+
 //			alert(fullPath);
 		}				
