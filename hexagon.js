@@ -460,6 +460,14 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		}					
 		return;
 	}
+	else {
+		var cursor = document.getElementById("HexCanvas").style.cursor;
+		if(cursor=='crosshair') {
+			alert('pif-paf!');
+				selectNextMob(ACTIVE_MOB);
+			
+		}
+	}
 };
 
 
