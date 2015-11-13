@@ -7,9 +7,9 @@ var OBSTACLES = [];
 var MOBS = [];
 var ACTIVE_MOB;
 
-HexagonGrid.prototype.addObstacle = function(column, row, name, hover) 
+HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
-	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover));
+	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
 }
 
 HexagonGrid.prototype.addMob = function(player, column, row, name, speed, hover) 
@@ -24,11 +24,21 @@ HexagonGrid.prototype.selectMob = function(name)
 	}
 }
 
-var Obstacle = function(Tile, name, hover)
+var Obstacle = function(Tile, name, hover, blockingLoS, blockingMovement)
 {
 	this.Tile=Tile;
 	this.name=name;
 	this.hover=hover;
+	this.blockingLoS = blockingLoS;
+	this.blockingMovement=blockingMovement;
+}
+
+Obstacle.prototype.getColor = function()
+{
+	if(this.blockingLoS==true && this.blockingMovement==true) return 'black'; // mountains
+	else if(this.blockingLoS==true && this.blockingMovement==false) return 'green'; // forest
+	else if (this.blockingLoS==false && this.blockingMovement==true) return 'blue'; // lake
+	else return 'pink';
 }
 
 var Mob = function(player, Tile, name, speed, hover)
@@ -109,14 +119,16 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
         offsetColumn = !offsetColumn;
     }	
 	
-	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'blue', MOBS[i].name);
-		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'green', MOBS[i].name);
+	for(var i=0; i<OBSTACLES.length; i++) {
+		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), OBSTACLES[i].name);
 	}
 	
-	for(var i=0; i<OBSTACLES.length; i++) {
-		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row,'red', OBSTACLES[i].name);
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name);
+		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name);
 	}
+	
+
 
 	if(ACTIVE_MOB != null) 
 	{
@@ -577,7 +589,8 @@ function isValidTile(tile) {
 	if(tile.row>=0 && tile.row <MAX_ROW && tile.column>=0 && tile.column<MAX_COLUMN) {
 
 	for(var i=0; i<OBSTACLES.length; i++) {
-		if(OBSTACLES[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
+		if(OBSTACLES[i].Tile.getCoordinates()==tile.getCoordinates()
+		&& OBSTACLES[i].blockingMovement==true) return false;
 	}
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].Tile.getCoordinates()==tile.getCoordinates()) return false;

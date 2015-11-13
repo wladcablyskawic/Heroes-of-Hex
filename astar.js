@@ -14,8 +14,8 @@
 		for (x=0; x  < MAX_ROW; x++) {
 			for (y=0; y < MAX_COLUMN; y++) {
 				mapArray[x][y] = "hex_tree";
-			}
-		}		
+				}
+			}		
 			for(neighbour of ACTIVE_MOB.neighbours) {
 			mapArray[neighbour.row][neighbour.column]="hex_green";
 			}
@@ -83,7 +83,6 @@
 	
 	function getLineOfSight(a,b) {
 		var N = hex_distance(a.column, a.row, b.column, b.row);
-		console.log(N);
 		var results = [];
 		for(var i=0; i<=N; i++){
 		var cube = cube_round(cube_lerp(a, b, 1.0/N *i));
@@ -98,7 +97,8 @@
 		var answer=true;
 		for(i=1; i<tiles.length-1; i++) {
 			for(j=0; j<OBSTACLES.length; j++) {
-				if(OBSTACLES[j].Tile.getCoordinates()== tiles[i].getCoordinates()) answer=false;	
+				if(OBSTACLES[j].Tile.getCoordinates()== tiles[i].getCoordinates()
+				&& OBSTACLES[j].blockingLoS==true) answer=false;	
 			}
 			for(j=0; j<MOBS.length; j++) {
 				if(MOBS[j].Tile.getCoordinates()== tiles[i].getCoordinates()) answer=false;	
