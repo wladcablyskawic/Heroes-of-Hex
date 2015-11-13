@@ -30,7 +30,7 @@
 		
 		hexagonGrid.addMob('player1', 0,0,'mob1',1,'opis wojownika1. cechy: szybkosc=1');
 		hexagonGrid.addMob('player1', 1,1,'mob2',5, 'opis wojownika 2. cechy: szybkosc=3');
-		hexagonGrid.addMob('player1', 0,4,'mob3',2,'opis wojownika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('player1', 0,4,'mob3',4,'opis wojownika 3. cechy: szybkosc=2');
 
 		hexagonGrid.addMob('player2', 6,0,'enemy1',1,'opis przeciwnika1. cechy: szybkosc=1');
 		hexagonGrid.addMob('player2', 7,2,'enemy2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
@@ -51,7 +51,7 @@
  
  events.setStage(function() {
 	this.clear();
-    hexagonGrid.drawHexGrid(50, 50, true);
+    hexagonGrid.drawHexGrid(50, 50, false);
 	
  	for(var i=0; i<OBSTACLES.length; i++) {
 	

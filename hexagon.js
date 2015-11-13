@@ -135,8 +135,8 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 		if(ACTIVE_MOB.isWorking!=true) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
-			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', neighbour.getCoordinates()+
-			hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
+			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', '');
+			//neighbour.getCoordinates()+ hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
 			};
 		}
 		
@@ -464,7 +464,6 @@ HexagonGrid.prototype.clickEvent = function (e) {
 			ACTIVE_MOB.Tile = param.tile;			
 			if(ACTIVE_MOB.Tile.getCoordinates()==Tile.getCoordinates()) {
 				selectNextMob(ACTIVE_MOB);
-				ACTIVE_MOB.isWorking=false;
 				}
 			param.hexagon.refreshHexGrid();
 		}, i*150, param);
@@ -477,6 +476,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		if(cursor=='crosshair') {
 			alert('pif-paf!');
 				selectNextMob(ACTIVE_MOB);
+				ACTIVE_MOB.isWorking=false;
 			
 		}
 	}
@@ -485,7 +485,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {
-	this.drawHexGrid(this.canvasOriginX, this.canvasOriginY,  true);    
+	this.drawHexGrid(this.canvasOriginX, this.canvasOriginY,  false);    
 }
 
 function selectNextMob(warrior)
@@ -507,6 +507,7 @@ function selectNextMob(warrior)
 			else ACTIVE_MOB=firstPlayerMobs[0];			
 		}
 	}
+	ACTIVE_MOB.isWorking=false;
 }
 
 	
