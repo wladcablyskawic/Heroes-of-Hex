@@ -12,9 +12,9 @@ HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockin
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
 }
 
-HexagonGrid.prototype.addMob = function(player, column, row, name, speed, hover) 
+HexagonGrid.prototype.addMob = function(player, column, row, name, speed, hover, type) 
 {
-	MOBS.push(new Mob(player, new Tile(column, row), name, speed, hover));
+	MOBS.push(new Mob(player, new Tile(column, row), name, speed, hover, type));
 }
 
 HexagonGrid.prototype.selectMob = function(name) 
@@ -41,15 +41,41 @@ Obstacle.prototype.getColor = function()
 	else return 'pink';
 }
 
-var Mob = function(player, Tile, name, speed, hover)
+var Mob = function(player, Tile, name, speed, hover, type)
 {
 	this.Tile = Tile;
 	this.name=name;
 	this.speed=speed;
 	this.hover=hover;
 	this.player=player;
+	this.type=type;
 }
 
+Mob.prototype.getImage = function() {
+	var img=document.getElementById("Image_"+this.type+'_'+this.player);
+	if(img!=undefined)
+	return img;
+	else return;
+	}
+
+/*
+var Mob = function(player, Tile, name, speed, hover)
+{
+	this.Tile = Tile;
+	this.name=name;
+	this.hover=hover;
+	this.player=player;
+	this.unitsize=unitsize;;
+	this.attack=attack;
+	this.defense=defense;
+	this.damage_min = damage_min;
+	this.damage_max = damage_max;
+	this.hp = hp;
+	this.max_hp=hp;
+	this.speed=speed;	
+	
+}
+*/
 var Tile = function(column, row, name)
 {
 this.column=column;
@@ -124,10 +150,11 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	for(var i=0; i<OBSTACLES.length; i++) {
 		this.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), OBSTACLES[i].name);
 	}
-	
+
+			
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player=='player1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name);
-		else if(MOBS[i].player=='player2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name);
+		if(MOBS[i].player=='1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name, MOBS[i].getImage());
+		else if(MOBS[i].player=='2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name, MOBS[i].getImage());
 	 }
 	
 
@@ -152,11 +179,12 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
  }
 
 
-HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
+HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText, img) {
     var drawx = (column * this.side) + this.canvasOriginX;
     var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
 
-    this.drawHex(drawx, drawy, color, debugText);
+
+    this.drawHex(drawx, drawy, color, debugText, img);
 };
 
 function pDistance(x, y, x1, y1, x2, y2) {
@@ -245,7 +273,7 @@ HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, Tile) {
 
 
 
-HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
+HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText, image) {
     this.context.strokeStyle = "#000";
 	this.context.lineWidth=1;
 	
@@ -261,11 +289,15 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText) {
     this.context.closePath();
     this.context.stroke();
 
-    if (debugText) {
+    if (image=='undefined' && debugText) {
         this.context.font = "6px";
         this.context.fillStyle = "#000";
         this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/3), y0 + (this.height - 20));
     }
+	
+	if(image) {
+		this.context.drawImage(image,x0+(this.width / 5),y0+10, this.radius*1.25, this.radius*1.25);
+	}
 };
 
 HexagonGrid.prototype.drawOddQHex = function(x0, y0) {
@@ -410,7 +442,7 @@ HexagonGrid.prototype.isChargePossible = function(offensive, target) {
 
 HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='player2') {
+		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='2') {
 
 			var vector = this.canvas.style.cursor.split('-')[0];
 			switch(vector) {
@@ -463,7 +495,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	}
 	
 	for(var i=0; i<MOBS.length; i++) {
-		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player=='player2') {
+		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player=='2') {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
 				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
 					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
@@ -471,6 +503,8 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 				} else this.canvas.style.cursor = 'crosshair';	
 				
 			}
+			
+		
 		  message = MOBS[i].hover;				
    		  writeMessage(this.context, message);
  		  return;
@@ -494,7 +528,6 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	
     var Tile = this.getSelectedTile(localX, localY);
 
-	
 	this.recalculateChargeClick(mouseX, mouseY, Tile);
 	
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
@@ -511,12 +544,10 @@ HexagonGrid.prototype.clickEvent = function (e) {
 				selectNextMob(ACTIVE_MOB);
 				}
 			param.hexagon.refreshHexGrid();
-		}, i*150, param);
-			
+			}, i*150, param);	
 		}					
 		return;
-	}
-	else {
+	} else {
 		var cursor = this.canvas.style.cursor;
 		if(cursor=='crosshair') {
 			alert('pif-paf!');
@@ -532,6 +563,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {
+
 	this.drawHexGrid(this.canvasOriginX, this.canvasOriginY,  false);    
 }
 
@@ -541,7 +573,7 @@ function selectNextMob(warrior)
 	var firstPlayerMobs = []
 	for(i=0; i<MOBS.length; i++) 
 	{
-		if(MOBS[i].player=='player1') firstPlayerMobs.push(MOBS[i]);		
+		if(MOBS[i].player=='1') firstPlayerMobs.push(MOBS[i]);		
 	}
 	for(i=0; i<firstPlayerMobs.length; i++) 
 	{

@@ -4,11 +4,11 @@
     <script src="hexagon.js"></script>
 	<script src="astar.js"></script>	
 </head>
-<body>
 
+<body>
 	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
     <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 30, 10,10);
+        var hexagonGrid = new HexagonGrid("HexCanvas", 50, 10,10);
 
 		hexagonGrid.addObstacle(2,4,'blokada','nieprzebyte gory', true, true);
 		hexagonGrid.addObstacle(2,3,'blokada','przepasc', true, true);
@@ -25,13 +25,13 @@
 		
 
 		
-		hexagonGrid.addMob('player1', 0,0,'mob1',1,'opis wojownika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player1', 1,1,'mob2',5, 'opis wojownika 2. cechy: szybkosc=3');
-		hexagonGrid.addMob('player1', 0,4,'mob3',4,'opis wojownika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('1', 0,0,'mob1',1,'opis wojownika1. cechy: szybkosc=1', 'Archer');
+		hexagonGrid.addMob('1', 1,1,'mob2',5, 'opis wojownika 2. cechy: szybkosc=3', 'Swordsman');
+		hexagonGrid.addMob('1', 0,4,'mob3',4,'opis wojownika 3. cechy: szybkosc=2', 'Pikeman');
 
-		hexagonGrid.addMob('player2', 6,0,'enemy1',1,'opis przeciwnika1. cechy: szybkosc=1');
-		hexagonGrid.addMob('player2', 7,2,'enemy2',3, 'opis przeciwnika 2. cechy: szybkosc=3');
-		hexagonGrid.addMob('player2', 6,4,'enemy3',2,'opis przeciwnika 3. cechy: szybkosc=2');
+		hexagonGrid.addMob('2', 6,0,'enemy1',1,'opis przeciwnika1. cechy: szybkosc=1', 'Goblin');
+		hexagonGrid.addMob('2', 7,2,'enemy2',3, 'opis przeciwnika 2. cechy: szybkosc=3', 'Orc');
+		hexagonGrid.addMob('2', 6,4,'Pikeman3',2,'opis przeciwnika 3. cechy: szybkosc=2', 'Troll');
 
 		
 		hexagonGrid.selectMob('mob2');
@@ -41,5 +41,21 @@
 		
 			};
 		</script>
+<img src="troops/Creature_Pikeman_1.gif" id="Image_Pikeman_1" style="display:none" >
+<img src="troops/Creature_Archer_1.gif" id="Image_Archer_1" style="display:none" >
+<img src="troops/Creature_Swordsman_1.gif" id="Image_Swordsman_1" style="display:none" >
+<img src="troops/Creature_Peasant_1.gif" id="Image_Peasant_1" style="display:none" >
+<img src="troops/Creature_Halfling_1.gif" id="Image_Halfling_1" style="display:none" >
+<img src="troops/Creature_Goblin_1.gif" id="Image_Goblin_1" style="display:none" >
+<img src="troops/Creature_Orc_1.gif" id="Image_Orc_1" style="display:none" >
+<img src="troops/Creature_Troll_1.gif" id="Image_Troll_1" style="display:none" >
+<img src="troops/Creature_Pikeman_2.gif" id="Image_Pikeman_2" style="display:none" >
+<img src="troops/Creature_Archer_2.gif" id="Image_Archer_2" style="display:none" >
+<img src="troops/Creature_Swordsman_2.gif" id="Image_Swordsman_2" style="display:none" >
+<img src="troops/Creature_Peasant_2.gif" id="Image_Peasant_2" style="display:none" >
+<img src="troops/Creature_Halfling_2.gif" id="Image_Halfling_2" style="display:none" >
+<img src="troops/Creature_Goblin_2.gif" id="Image_Goblin_2" style="display:none" >
+<img src="troops/Creature_Orc_2.gif" id="Image_Orc_2" style="display:none" >
+<img src="troops/Creature_Troll_2.gif" id="Image_Troll_2" style="display:none" >
 
 </body>
