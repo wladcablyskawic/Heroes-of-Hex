@@ -12,9 +12,17 @@ HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockin
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
 }
 
-HexagonGrid.prototype.addMob = function(player, column, row, name, speed, hover, type) 
+HexagonGrid.prototype.addMob = function(player, type, column, row, name, unitsize) 
 {
-	MOBS.push(new Mob(player, new Tile(column, row), name, speed, hover, type));
+	var mob;
+	if(type=='Goblin') mob = createGoblin(player, new Tile(column, row), name, unitsize);
+	else if(type=='Orc') mob = createOrc(player, new Tile(column, row), name, unitsize);
+	else if(type=='Troll') mob = createTroll(player, new Tile(column, row), name, unitsize);
+	else if(type=='Pikeman') mob = createPikeman(player, new Tile(column, row), name, unitsize);
+	else if(type=='Archer') mob = createArcher(player, new Tile(column, row), name, unitsize);
+	else if(type=='Swordsman') mob = createSwordsman(player, new Tile(column, row), name, unitsize);
+				
+	MOBS.push(mob);
 }
 
 HexagonGrid.prototype.selectMob = function(name) 
@@ -41,16 +49,26 @@ Obstacle.prototype.getColor = function()
 	else return 'pink';
 }
 
-var Mob = function(player, Tile, name, speed, hover, type)
+
+var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, damage_min, damage_max, hp, max_hp, shots, max_shots)
 {
 	this.Tile = Tile;
 	this.name=name;
-	this.speed=speed;
-	this.hover=hover;
+	this.hover='lorem ipsum';
 	this.player=player;
 	this.type=type;
-}
-
+	this.unitsize=unitsize;
+	this.attack=attack;
+	this.defense=defense;
+	this.damage_min = damage_min;
+	this.damage_max = damage_max;
+	this.hp = hp;
+	this.max_hp=max_hp;
+	this.speed=speed;	
+	this.shots=shots;
+	this.max_shots=max_shots;
+	
+};
 Mob.prototype.getImage = function() {
 	var img=document.getElementById("Image_"+this.type+'_'+this.player);
 	if(img!=undefined)
@@ -58,28 +76,11 @@ Mob.prototype.getImage = function() {
 	else return;
 	}
 
-/*
-var Mob = function(player, Tile, name, speed, hover)
-{
-	this.Tile = Tile;
-	this.name=name;
-	this.hover=hover;
-	this.player=player;
-	this.unitsize=unitsize;;
-	this.attack=attack;
-	this.defense=defense;
-	this.damage_min = damage_min;
-	this.damage_max = damage_max;
-	this.hp = hp;
-	this.max_hp=hp;
-	this.speed=speed;	
-	
-}
-*/
+
 var Tile = function(column, row, name)
 {
-this.column=column;
-this.row=row;
+	this.column=column;
+	this.row=row;
 };
 
 Tile.prototype.getCoordinates = function() {

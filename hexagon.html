@@ -3,6 +3,7 @@
     <title>Hex</title>
     <script src="hexagon.js"></script>
 	<script src="astar.js"></script>	
+	<script src="troops.js"></script>		
 </head>
 
 <body>
@@ -23,16 +24,13 @@
 		hexagonGrid.addObstacle(5,2,'las','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
 
 		
-
+		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',4,5);
+		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',4,5);
+		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4,5);
 		
-		hexagonGrid.addMob('1', 0,0,'mob1',1,'opis wojownika1. cechy: szybkosc=1', 'Archer');
-		hexagonGrid.addMob('1', 1,1,'mob2',5, 'opis wojownika 2. cechy: szybkosc=3', 'Swordsman');
-		hexagonGrid.addMob('1', 0,4,'mob3',4,'opis wojownika 3. cechy: szybkosc=2', 'Pikeman');
-
-		hexagonGrid.addMob('2', 6,0,'enemy1',1,'opis przeciwnika1. cechy: szybkosc=1', 'Goblin');
-		hexagonGrid.addMob('2', 7,2,'enemy2',3, 'opis przeciwnika 2. cechy: szybkosc=3', 'Orc');
-		hexagonGrid.addMob('2', 6,4,'Pikeman3',2,'opis przeciwnika 3. cechy: szybkosc=2', 'Troll');
-
+		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',4,5);
+		hexagonGrid.addMob('2', 'Orc', 6,4,'mob5',4,5);
+		hexagonGrid.addMob('2', 'Troll', 6,6,'mob6',4,5);		
 		
 		hexagonGrid.selectMob('mob2');
 				
