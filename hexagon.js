@@ -64,7 +64,7 @@ Tile.prototype.getCoordinates = function() {
 function HexagonGrid(canvasId, radius, rows, cols) {
 	MAX_COLUMN=cols;
 	MAX_ROW=rows;
-
+	
     this.radius = radius;
 
     this.height = Math.sqrt(3) * radius;
@@ -78,6 +78,7 @@ function HexagonGrid(canvasId, radius, rows, cols) {
     this.canvasOriginY = 0;
     
     this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
+    this.canvas.addEventListener("mousemove", this.hoverEvent.bind(this), false);
     this.canvas.addEventListener("contextmenu", this.contextMenuEvent.bind(this), false);	
 
 	initAStar(rows, cols);	
@@ -87,8 +88,7 @@ function HexagonGrid(canvasId, radius, rows, cols) {
  
 HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 
-	 //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.canvasOriginX = originX;
     this.canvasOriginY = originY;
     
@@ -96,6 +96,8 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
     var currentHexX;
     var currentHexY;
     var debugText = "";
+	
+	var message = "";	
 
     var offsetColumn = false;
 
@@ -120,13 +122,13 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
     }	
 	
 	for(var i=0; i<OBSTACLES.length; i++) {
-		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), OBSTACLES[i].name);
+		this.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), OBSTACLES[i].name);
 	}
 	
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name);
-		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name);
-	}
+		if(MOBS[i].player=='player1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name);
+		else if(MOBS[i].player=='player2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name);
+	 }
 	
 
 
@@ -135,17 +137,20 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 		if(ACTIVE_MOB.isWorking!=true) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
-			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'white', '');
+			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)', '');
 			//neighbour.getCoordinates()+ hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
 			};
 		}
 		
-		
 		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
 	}
-
 	
 };
+ function writeMessage(context, message){
+	console.log(message);
+	context.fillText(message, 10, 25);
+ }
+
 
 HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText) {
     var drawx = (column * this.side) + this.canvasOriginX;
@@ -394,7 +399,9 @@ HexagonGrid.prototype.isChargePossible = function(offensive, target) {
 		
 	for(var i=0; i<moves.length; i++) {
 		for(var j=0; j<potentialFields.length; j++)
-		if(moves[i].getCoordinates()==potentialFields[j].getCoordinates()) return true;
+		if(moves[i].getCoordinates()==potentialFields[j].getCoordinates()
+		&& checkLineOfSight(offensive.Tile, moves[i])) 
+			return true;
 	}
 	
 
@@ -405,7 +412,7 @@ HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='player2') {
 
-			var vector = document.getElementById("HexCanvas").style.cursor.split('-')[0];
+			var vector = this.canvas.style.cursor.split('-')[0];
 			switch(vector) {
 				case 'n':
 					Tile.row--;
@@ -435,6 +442,44 @@ HexagonGrid.prototype.recalculateChargeClick = function(mouseX, mouseY, Tile) {
 		}
 	}			
 }
+
+
+HexagonGrid.prototype.hoverEvent = function (e) {
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
+
+    var localX = mouseX - this.canvasOriginX;
+    var localY = mouseY - this.canvasOriginY;
+	
+    var Tile = this.getSelectedTile(localX, localY);
+
+	
+	for(var i=0; i<OBSTACLES.length; i++) {
+		if(Tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
+			message = OBSTACLES[i].hover;
+			writeMessage(this.context, message);
+			return;
+		}
+	}
+	
+	for(var i=0; i<MOBS.length; i++) {
+		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player=='player2') {
+			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
+				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
+					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
+					this.canvas.style.cursor = attackDirection+'-resize';	  			
+				} else this.canvas.style.cursor = 'crosshair';	
+				
+			}
+		  message = MOBS[i].hover;				
+   		  writeMessage(this.context, message);
+ 		  return;
+		}
+	}
+	message='';
+	writeMessage(this.context, message);
+	this.canvas.style.cursor = "default";		
+};
 
 
 HexagonGrid.prototype.clickEvent = function (e) {
@@ -472,7 +517,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		return;
 	}
 	else {
-		var cursor = document.getElementById("HexCanvas").style.cursor;
+		var cursor = this.canvas.style.cursor;
 		if(cursor=='crosshair') {
 			alert('pif-paf!');
 				selectNextMob(ACTIVE_MOB);
@@ -480,6 +525,8 @@ HexagonGrid.prototype.clickEvent = function (e) {
 			
 		}
 	}
+	
+	this.refreshHexGrid();
 };
 
 
@@ -490,6 +537,7 @@ HexagonGrid.prototype.refreshHexGrid = function()
 
 function selectNextMob(warrior)
 {
+	warrior.isWorking=false;
 	var firstPlayerMobs = []
 	for(i=0; i<MOBS.length; i++) 
 	{
@@ -507,13 +555,11 @@ function selectNextMob(warrior)
 			else ACTIVE_MOB=firstPlayerMobs[0];			
 		}
 	}
-	ACTIVE_MOB.isWorking=false;
 }
 
 	
 HexagonGrid.prototype.contextMenuEvent = function (e) {
 		alert('click');
-		//selectNextMob(ACTIVE_MOB);
 		e.preventDefault();
 		return false;
 };

@@ -92,7 +92,7 @@
 	};		
 	
 	function checkLineOfSight(observer, target) {
-		var tiles = getLineOfSight(observer.Tile, target.Tile);
+		var tiles = getLineOfSight(observer, target);
 		
 		var answer=true;
 		for(i=1; i<tiles.length-1; i++) {

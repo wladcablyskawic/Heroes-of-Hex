@@ -2,28 +2,25 @@
 <head>
     <title>Hex</title>
     <script src="hexagon.js"></script>
-	<script src="events.js"></script>
 	<script src="astar.js"></script>	
-	<script src="animation.js"></script>	
-
 </head>
 <body>
 
 	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
     <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 30, 10,10, "odd-q");
+        var hexagonGrid = new HexagonGrid("HexCanvas", 30, 10,10);
 
 		hexagonGrid.addObstacle(2,4,'blokada','nieprzebyte gory', true, true);
 		hexagonGrid.addObstacle(2,3,'blokada','przepasc', true, true);
 		hexagonGrid.addObstacle(3,4,'blokada','przepasc', true, true);		
 		hexagonGrid.addObstacle(4,5,'blokada','nieprzebyte gory', true, true);
 		
-		hexagonGrid.addObstacle(3,1,'blokada','jezioro', false, true);
-		hexagonGrid.addObstacle(2,1,'blokada','jezioro', false, true);
-		hexagonGrid.addObstacle(2,0,'blokada','jezioro', false, true);
+		hexagonGrid.addObstacle(3,1,'jezioro','ruch niemozliwy', false, true);
+		hexagonGrid.addObstacle(2,1,'jezioro','ruch niemozliwy', false, true);
+		hexagonGrid.addObstacle(2,0,'jezioro','ruch niemozliwy', false, true);
 
-		hexagonGrid.addObstacle(5,1,'blokada','las', true, false);
-		hexagonGrid.addObstacle(5,2,'blokada','las', true, false);
+		hexagonGrid.addObstacle(5,1,'las','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
+		hexagonGrid.addObstacle(5,2,'las','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
 
 		
 
@@ -40,77 +37,9 @@
 		hexagonGrid.selectMob('mob2');
 				
 		window.onload = function(){
- var events = new Events("HexCanvas");
- var canvas = events.getCanvas();
- var context = events.getContext();
- var message = "";
- 
- 
- 
- 
- 
- events.setStage(function() {
-	this.clear();
-    hexagonGrid.drawHexGrid(50, 50, false);
-	
- 	for(var i=0; i<OBSTACLES.length; i++) {
-	
-	this.beginRegion();
-		hexagonGrid.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row,OBSTACLES[i].getColor(), OBSTACLES[i].name);
-		this.addRegionEventListener("mousemove", function(){
-			message = OBSTACLES[i].hover;
-		 });
-
-		 this.addRegionEventListener("mouseout", function(){
-			message = "";
-		 });
-
-		 this.closeRegion();
-	}	
-
-	for(var i=0; i<MOBS.length; i++) {
-		this.beginRegion();
-		if(MOBS[i].player=='player1') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name);
-		else if(MOBS[i].player=='player2') hexagonGrid.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name);
-	 
-		this.addRegionEventListener("mousemove", function(){
-		if(MOBS[i].player=='player2') {
-			if(checkLineOfSight(ACTIVE_MOB, MOBS[i])) {
-				var mousePos = events.getMousePos();
-				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
-					var attackDirection=hexagonGrid.calculateAttackVector(mousePos.x, mousePos.y, MOBS[i].Tile);
-					document.getElementById("HexCanvas").style.cursor = attackDirection+'-resize';	  			
-				} else document.getElementById("HexCanvas").style.cursor = 'crosshair';	
-				
-			}
-		}
+			hexagonGrid.drawHexGrid(50, 50, false);
 		
-		  
-		  message = MOBS[i].hover;
-		 });
-
-		 this.addRegionEventListener("mouseout", function(){
-		 document.getElementById("HexCanvas").style.cursor = "default";		  
-				
-		message = "";
-		 });
-		 
-
-		 this.closeRegion();
- }
- 
-
-	writeMessage(context, message);
- });
-
- // since we set the draw stage function, the listen()
- // method is automatically called for us
-
- function writeMessage(context, message){
- context.fillText(message, 10, 25);
- }
-
- };
+			};
 		</script>
 
 </body>
