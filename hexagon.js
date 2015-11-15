@@ -154,8 +154,8 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 
 			
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player=='1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', MOBS[i].name, MOBS[i].getImage());
-		else if(MOBS[i].player=='2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', MOBS[i].name, MOBS[i].getImage());
+		if(MOBS[i].player=='1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
+		else if(MOBS[i].player=='2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
 	 }
 	
 
@@ -290,14 +290,14 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText, image) {
     this.context.closePath();
     this.context.stroke();
 
-    if (image=='undefined' && debugText) {
+    if (debugText) {
         this.context.font = "6px";
         this.context.fillStyle = "#000";
-        this.context.fillText(debugText, x0 + (this.width / 2) - (this.width/3), y0 + (this.height - 20));
+        this.context.fillText(debugText, x0 + (this.width * 0.7) - (this.width/3), y0 + (this.height * 0.9));
     }
 	
 	if(image) {
-		this.context.drawImage(image,x0+(this.width / 5),y0+10, this.radius*1.25, this.radius*1.25);
+		this.context.drawImage(image,x0+(this.width / 5),y0 + this.height*0.05, this.radius*1.25, this.radius*1.25);
 	}
 };
 

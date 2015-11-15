@@ -9,7 +9,7 @@
 <body>
 	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
     <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 50, 10,10);
+        var hexagonGrid = new HexagonGrid("HexCanvas", 40, 8,8);
 
 		hexagonGrid.addObstacle(2,4,'blokada','nieprzebyte gory', true, true);
 		hexagonGrid.addObstacle(2,3,'blokada','przepasc', true, true);
@@ -24,13 +24,13 @@
 		hexagonGrid.addObstacle(5,2,'las','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
 
 		
-		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',4,5);
-		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',4,5);
-		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4,5);
+		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',10);
+		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',20);
+		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
 		
-		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',4,5);
-		hexagonGrid.addMob('2', 'Orc', 6,4,'mob5',4,5);
-		hexagonGrid.addMob('2', 'Troll', 6,6,'mob6',4,5);		
+		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',25);
+		hexagonGrid.addMob('2', 'Orc', 6,4,'mob5',10);
+		hexagonGrid.addMob('2', 'Troll', 6,6,'mob6',2);		
 		
 		hexagonGrid.selectMob('mob2');
 				
