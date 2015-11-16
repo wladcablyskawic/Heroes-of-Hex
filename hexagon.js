@@ -80,6 +80,7 @@ Mob.prototype.getImage = function() {
 };
 	
 Mob.prototype.calculateDmg = function(target) {
+// http://heroes.thelazy.net/wiki/Damage
 	if(!(this.unitsize>0)) return 0;
 	var randomElement = Math.floor(Math.random()*(this.damage_max-this.damage_min+1)+this.damage_min);
 
@@ -116,7 +117,6 @@ Mob.prototype.payThePiper = function(dmg) {
 		if(MOBS[i]==this) { 
 		MOBS.splice(i, 1); break ; }
 		}
-
 	}
 
 };
@@ -210,8 +210,8 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 		if(ACTIVE_MOB.isWorking!=true) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
-			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)', '');
-			//neighbour.getCoordinates()+ hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
+			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)',  //'');
+			neighbour.getCoordinates()+ hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
 			};
 		}
 		
@@ -575,11 +575,13 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 	var target;
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='2') target=MOBS[i];
+		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='2')
+		target=MOBS[i];
 	}
 
 		
 	this.recalculateChargeClick(Tile);
+	
 
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
@@ -592,32 +594,15 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		setTimeout(function(param) {
 			ACTIVE_MOB.Tile = param.tile;			
 			if(ACTIVE_MOB.Tile.getCoordinates()==Tile.getCoordinates()) {
-				
-				if(target!=undefined) {
-					var dmg = ACTIVE_MOB.calculateDmg(target);
-					target.payThePiper(dmg);
-					if(target!=undefined) { 
-					console.log(target);
-						dmg = target.calculateDmg(ACTIVE_MOB);
-						ACTIVE_MOB.payThePiper(dmg);
-					}
-				}
-				
+				if(target!=undefined) combat(ACTIVE_MOB, target)
 				selectNextMob(ACTIVE_MOB);
-				}
+			}
 			param.hexagon.refreshHexGrid();
 			}, i*150, param);	
 		}					
 		return;
 	} else if(Tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
-		if(target!=undefined) {
-			var dmg = ACTIVE_MOB.calculateDmg(target);
-			target.payThePiper(dmg);
-			if(target.unitsize>0) { 
-				dmg = target.calculateDmg(ACTIVE_MOB);
-				ACTIVE_MOB.payThePiper(dmg);
-			}
-		}
+		if(target!=undefined) combat(ACTIVE_MOB, target)
 		selectNextMob(ACTIVE_MOB);
 	}	
 	else {
@@ -632,6 +617,17 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	
 	this.refreshHexGrid();
 };
+
+function combat(attacker, target) {
+		if(target!=undefined) {
+			var dmg = attacker.calculateDmg(target);
+			target.payThePiper(dmg);
+			if(target.unitsize>0) { 
+				dmg = target.calculateDmg(attacker);
+				attacker.payThePiper(dmg);
+			}
+		}
+}
 
 
 HexagonGrid.prototype.refreshHexGrid = function()
@@ -674,8 +670,7 @@ HexagonGrid.prototype.contextMenuEvent = function (e) {
 
 function getNeighbours(tile) {
 var neighbours = [ ];
-var range = 1;
-	if(range>0) {
+
 		potentialNeighbours = [];
 		potentialNeighbours.push(new Tile(tile.column, tile.row-1));
 		potentialNeighbours.push(new Tile(tile.column, tile.row+1));
@@ -696,7 +691,6 @@ var range = 1;
 			if(isValidTile(newTile))
 				neighbours.push(newTile);							
 		}
-	}
 	
 	if(isValidTile(tile) && !isContained(tile, neighbours)) 
 		neighbours.push(tile); 

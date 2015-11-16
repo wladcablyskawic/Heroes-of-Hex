@@ -88,6 +88,7 @@
 		var cube = cube_round(cube_lerp(a, b, 1.0/N *i));
 			results.push(convertCubeToTile(cube));
 		}
+		console.log(results);
 		return results;
 	};		
 	
@@ -96,16 +97,41 @@
 		
 		var answer=true;
 		for(i=1; i<tiles.length-1; i++) {
-			for(j=0; j<OBSTACLES.length; j++) {
-				if(OBSTACLES[j].Tile.getCoordinates()== tiles[i].getCoordinates()
-				&& OBSTACLES[j].blockingLoS==true) answer=false;	
+			if(checkTileVisibility(tiles[i])==false) 
+			{
+				if(observer.row==target.row && i%2==1) {
+				console.log('sprawdzam druga opcje dla '+i);
+					var secondOption = tiles[i];
+					secondOption.row++;
+					if(checkTileVisibility(secondOption)==false) {
+						answer=false;
+						break;
+						console.log('druga opcja odpada');
+					}
+				} else {
+				answer=false;
+				break;
+				}
 			}
-			for(j=0; j<MOBS.length; j++) {
-				if(MOBS[j].Tile.getCoordinates()== tiles[i].getCoordinates()) answer=false;	
-			}			
 		}
+		
 		return answer;
 	}	
+	
+	function checkTileVisibility(tile) {
+		var answer=true;
+			for(j=0; j<OBSTACLES.length; j++) {
+				if(OBSTACLES[j].Tile.getCoordinates()== tile.getCoordinates()
+				&& OBSTACLES[j].blockingLoS==true) {
+					answer=false;	
+				}
+			}
+			for(j=0; j<MOBS.length; j++) {
+				if(MOBS[j].Tile.getCoordinates()== tile.getCoordinates()) answer=false;	
+			}		
+			
+			return answer;
+	}
 	
 	function convertTileToCube(tile) {
 		var x1=tile.column;
