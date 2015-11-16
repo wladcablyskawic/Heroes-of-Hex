@@ -100,13 +100,12 @@
 			if(checkTileVisibility(tiles[i])==false) 
 			{
 				if(observer.row==target.row && i%2==1) {
-				console.log('sprawdzam druga opcje dla '+i);
 					var secondOption = tiles[i];
 					secondOption.row++;
-					if(checkTileVisibility(secondOption)==false) {
+					if(isValidTile(secondOption)==false ||
+						checkTileVisibility(secondOption)==false) {
 						answer=false;
 						break;
-						console.log('druga opcja odpada');
 					}
 				} else {
 				answer=false;

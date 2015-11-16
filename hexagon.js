@@ -70,7 +70,7 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.speed=speed;	
 	this.shots=shots;
 	this.max_shots=max_shots;
-	
+
 };
 Mob.prototype.getImage = function() {
 	var img=document.getElementById("Image_"+this.type+'_'+this.player);
@@ -78,6 +78,19 @@ Mob.prototype.getImage = function() {
 	return img;
 	else return;
 };
+
+Mob.prototype.isSurrounded = function() {
+	var neighbours = getConnectedHexes(this.Tile);
+	
+	for(i=0; i<neighbours.length; i++) {
+		for(j=0; j<MOBS.length; j++) {
+			if(MOBS[j].player!=this.player && MOBS[j].Tile.getCoordinates()==neighbours[i].getCoordinates()) 
+			return true;
+		}
+	}
+	
+	return false;
+}
 	
 Mob.prototype.calculateDmg = function(target) {
 // http://heroes.thelazy.net/wiki/Damage
@@ -562,7 +575,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 
 
 HexagonGrid.prototype.clickEvent = function (e) {
-	if(e.which != 1) return; // just right left click
+	if(e.which != 1) return; // just left click
 	
 	if(ACTIVE_MOB.isWorking==true) return;
     var mouseX = e.pageX;
@@ -581,6 +594,13 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 		
 	this.recalculateChargeClick(Tile);
+	
+	if(ACTIVE_MOB.isSurrounded() && Tile.getCoordinates() != ACTIVE_MOB.Tile.getCoordinates()) 
+	{
+		alert('you cannot just go, you are fighting, lol');
+		return;
+	}
+	
 	
 
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
@@ -619,6 +639,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 };
 
 function combat(attacker, target) {
+	
 		if(target!=undefined) {
 			var dmg = attacker.calculateDmg(target);
 			target.payThePiper(dmg);
@@ -668,9 +689,7 @@ HexagonGrid.prototype.contextMenuEvent = function (e) {
 		return false;
 };
 
-function getNeighbours(tile) {
-var neighbours = [ ];
-
+function getConnectedHexes(tile) {
 		potentialNeighbours = [];
 		potentialNeighbours.push(new Tile(tile.column, tile.row-1));
 		potentialNeighbours.push(new Tile(tile.column, tile.row+1));
@@ -684,8 +703,13 @@ var neighbours = [ ];
 			potentialNeighbours.push(new Tile(tile.column-1, tile.row+1));
 			potentialNeighbours.push(new Tile(tile.column+1, tile.row+1));
 		}
+		return potentialNeighbours;
+}
 
+function getNeighbours(tile) {
+var neighbours = [ ];
 
+		potentialNeighbours = getConnectedHexes(tile);
 		
 		for(newTile of potentialNeighbours) {
 			if(isValidTile(newTile))
