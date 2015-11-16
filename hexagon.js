@@ -7,6 +7,8 @@ var OBSTACLES = [];
 var MOBS = [];
 var ACTIVE_MOB;
 
+var firstPlayerMobs = []	
+
 HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
@@ -23,6 +25,7 @@ HexagonGrid.prototype.addMob = function(player, type, column, row, name, unitsiz
 	else if(type=='Swordsman') mob = createSwordsman(player, new Tile(column, row), name, unitsize);
 				
 	MOBS.push(mob);
+	if(mob.player=='1') firstPlayerMobs.push(mob);
 }
 
 HexagonGrid.prototype.selectMob = function(name) 
@@ -74,7 +77,7 @@ Mob.prototype.getImage = function() {
 	if(img!=undefined)
 	return img;
 	else return;
-	}
+};
 	
 Mob.prototype.calculateDmg = function(target) {
 	if(!(this.unitsize>0)) return 0;
@@ -95,7 +98,7 @@ Mob.prototype.payThePiper = function(dmg) {
 		this.unitsize--;
 		dmg-=this.max_hp;
 	}
-	
+	 
 	if(this.hp>dmg) 
 	{
 		this.hp-=dmg;
@@ -109,8 +112,11 @@ Mob.prototype.payThePiper = function(dmg) {
 	
 	if(this.unitsize==0) {
 		for(i=0; i<MOBS.length; i++) {
-		if(MOBS[i]==this) MOBS.splice(MOBS.indexOf(i), 1);
+		
+		if(MOBS[i]==this) { 
+		MOBS.splice(i, 1); break ; }
 		}
+
 	}
 
 };
@@ -590,8 +596,11 @@ HexagonGrid.prototype.clickEvent = function (e) {
 				if(target!=undefined) {
 					var dmg = ACTIVE_MOB.calculateDmg(target);
 					target.payThePiper(dmg);
-					dmg = target.calculateDmg(ACTIVE_MOB);
-					ACTIVE_MOB.payThePiper(dmg);
+					if(target!=undefined) { 
+					console.log(target);
+						dmg = target.calculateDmg(ACTIVE_MOB);
+						ACTIVE_MOB.payThePiper(dmg);
+					}
 				}
 				
 				selectNextMob(ACTIVE_MOB);
@@ -601,14 +610,15 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		}					
 		return;
 	} else if(Tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
-	
-	if(target!=undefined) {
-					var dmg = ACTIVE_MOB.calculateDmg(target);
-					target.payThePiper(dmg);
-					dmg = target.calculateDmg(ACTIVE_MOB);
-					ACTIVE_MOB.payThePiper(dmg);
-				}
-				selectNextMob(ACTIVE_MOB);
+		if(target!=undefined) {
+			var dmg = ACTIVE_MOB.calculateDmg(target);
+			target.payThePiper(dmg);
+			if(target.unitsize>0) { 
+				dmg = target.calculateDmg(ACTIVE_MOB);
+				ACTIVE_MOB.payThePiper(dmg);
+			}
+		}
+		selectNextMob(ACTIVE_MOB);
 	}	
 	else {
 		var cursor = this.canvas.style.cursor;
@@ -633,23 +643,26 @@ HexagonGrid.prototype.refreshHexGrid = function()
 function selectNextMob(warrior)
 {
 	warrior.isWorking=false;
-	var firstPlayerMobs = []
-	for(i=0; i<MOBS.length; i++) 
-	{
-		if(MOBS[i].player=='1') firstPlayerMobs.push(MOBS[i]);		
+	
+	var aliveFirstPlayerMobs = [];
+	for(i=0; i<firstPlayerMobs.length; i++) {
+		if(firstPlayerMobs[i].unitsize>0) aliveFirstPlayerMobs.push(firstPlayerMobs[i]);
 	}
+	
 	for(i=0; i<firstPlayerMobs.length; i++) 
 	{
 		if(ACTIVE_MOB.name==firstPlayerMobs[i].name) 
 		{
-			if(i<firstPlayerMobs.length-1) 
+			if(i<aliveFirstPlayerMobs.length-1) 
 			{ 
-				ACTIVE_MOB=firstPlayerMobs[i+1]; 
-				return; 
+				ACTIVE_MOB=aliveFirstPlayerMobs[i+1]; 
+				break;
 			}
-			else ACTIVE_MOB=firstPlayerMobs[0];			
+			else ACTIVE_MOB=aliveFirstPlayerMobs[0];			
 		}
 	}
+	
+	firstPlayerMobs=aliveFirstPlayerMobs;
 }
 
 	
