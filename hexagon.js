@@ -680,8 +680,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 			}
 			param.hexagon.refreshHexGrid();
 			}, i*150, param);	
-		}					
-		return;
+		}	
 	} else if(Tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
 		if(target!=undefined) combat(ACTIVE_MOB, target)
 		selectNextMob(ACTIVE_MOB);
@@ -691,10 +690,9 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		if(cursor=='crosshair') {
 		
 			ACTIVE_MOB.shoot(target);
-
 		}
 	}
-	
+	this.canvas.style.cursor = "default";
 	this.refreshHexGrid();
 };
 
@@ -740,6 +738,7 @@ function selectNextMob(warrior)
 	}
 	
 	firstPlayerMobs=aliveFirstPlayerMobs;
+	
 }
 
 	
