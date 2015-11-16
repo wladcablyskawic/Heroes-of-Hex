@@ -88,7 +88,6 @@
 		var cube = cube_round(cube_lerp(a, b, 1.0/N *i));
 			results.push(convertCubeToTile(cube));
 		}
-		console.log(results);
 		return results;
 	};		
 	

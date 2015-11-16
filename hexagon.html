@@ -25,14 +25,14 @@
 
 		
 		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',10);
-		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',20);
-		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
+	//	hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',20);
+	//	hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
 		
 		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',25);
-		hexagonGrid.addMob('2', 'Orc', 6,4,'mob5',10);
-		hexagonGrid.addMob('2', 'Troll', 6,6,'mob6',2);		
+		hexagonGrid.addMob('2', 'Orc', 5,4,'mob5',10);
+		hexagonGrid.addMob('2', 'Troll', 6,9,'mob6',2);		
 		
-		hexagonGrid.selectMob('mob2');
+		hexagonGrid.selectMob('mob0');
 				
 		window.onload = function(){
 			hexagonGrid.drawHexGrid(50, 50, false);

@@ -92,7 +92,7 @@ Mob.prototype.isSurrounded = function() {
 	return false;
 }
 	
-Mob.prototype.calculateDmg = function(target) {
+Mob.prototype.calculateBasicDmg = function(target) {
 // http://heroes.thelazy.net/wiki/Damage
 	if(!(this.unitsize>0)) return 0;
 	var randomElement = Math.floor(Math.random()*(this.damage_max-this.damage_min+1)+this.damage_min);
@@ -103,9 +103,67 @@ Mob.prototype.calculateDmg = function(target) {
 	else if (this.attack <target.defense) param = 0.025;
 
 	var dmg = this.unitsize *  randomElement * (1+param*(this.attack-target.defense));
-	console.log(this.type+ ' zadaje '+dmg+ ' dmg');
 	return dmg;
 };	
+	
+Mob.prototype.calculateMeleeDmg = function(target) {
+	var dmg = this.calculateBasicDmg(target);
+	if(this.max_shots>0) dmg=dmg*0.5;
+	
+	return dmg;
+};	
+
+Mob.prototype.calculateRangeDmg = function(target) {
+	var dmg = this.calculateBasicDmg(target);
+	var distance = hex_distance(this.column,this.row,target.column, target.row);
+	if(distance>=10) dmg=dmg*0.5;
+
+	// cover
+	var potentialCovers = getConnectedHexes(target.Tile);
+	console.log('potentialCovers:');
+	console.log(potentialCovers);
+	var minimumRange=999;
+	var minimumCount=0;	
+	for(tile of potentialCovers) {
+		tile.distance = hex_distance(this.Tile.column,this.Tile.row,tile.column, tile.row);
+		if(tile.distance<minimumRange) {
+			minimumRange=tile.distance;
+			minimumCount=1;
+		}else if(tile.distance==minimumRange) minimumCount++;
+	}
+	console.log('minimumRange='+minimumRange);
+	console.log('minimumcount='+minimumCount);
+	
+	var coverRatio=1;	
+	for(tile of potentialCovers) {
+		if((minimumCount==1 && tile.distance==minimumRange+1) ||
+		(minimumCount==2 && tile.distance==minimumRange)) {
+			if(checkTileVisibility(tile)==false) coverRatio+=0.25;
+		}
+	}
+	dmg = dmg/coverRatio;
+	
+	console.log('zadano ze strzelania '+dmg+' przy coverRatio='+coverRatio);
+	
+	return dmg;
+};	
+
+Mob.prototype.shoot = function(target) {
+	if(target==undefined) return;
+	if(this.isSurrounded()==true) {
+	alert('you cannot shot when you are surrounded by enemies!'); return;
+	} else if(target.isSurrounded()==true) {
+	alert('you cannot shot this target, because he is too close to your ally!'); return;
+	}
+	
+	var dmg = this.calculateRangeDmg(target);
+	target.payThePiper(dmg);
+
+	selectNextMob(ACTIVE_MOB);
+	ACTIVE_MOB.isWorking=false;			
+			
+}
+
 Mob.prototype.payThePiper = function(dmg) {
 	var tmp = this.unitsize;
 	while(dmg > this.max_hp) {
@@ -595,16 +653,19 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		
 	this.recalculateChargeClick(Tile);
 	
-	if(ACTIVE_MOB.isSurrounded() && Tile.getCoordinates() != ACTIVE_MOB.Tile.getCoordinates()) 
-	{
-		alert('you cannot just go, you are fighting, lol');
-		return;
-	}
+
 	
 	
 
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
+	
+		if(ACTIVE_MOB.isSurrounded() && Tile.getCoordinates() != ACTIVE_MOB.Tile.getCoordinates()) 
+		{
+			alert('you cannot just go, you are fighting, lol');
+			return;
+		}
+	
 		ACTIVE_MOB.isWorking=true;
 		var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, Tile.row, Tile.column);
 		for(i=1; i<stepByStep.length; i++) {
@@ -628,10 +689,9 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	else {
 		var cursor = this.canvas.style.cursor;
 		if(cursor=='crosshair') {
-			alert('pif-paf!');
-				selectNextMob(ACTIVE_MOB);
-				ACTIVE_MOB.isWorking=false;
-			
+		
+			ACTIVE_MOB.shoot(target);
+
 		}
 	}
 	
@@ -641,10 +701,10 @@ HexagonGrid.prototype.clickEvent = function (e) {
 function combat(attacker, target) {
 	
 		if(target!=undefined) {
-			var dmg = attacker.calculateDmg(target);
+			var dmg = attacker.calculateMeleeDmg(target);
 			target.payThePiper(dmg);
 			if(target.unitsize>0) { 
-				dmg = target.calculateDmg(attacker);
+				dmg = target.calculateMeleeDmg(attacker);
 				attacker.payThePiper(dmg);
 			}
 		}
