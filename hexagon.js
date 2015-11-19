@@ -9,6 +9,7 @@ var ACTIVE_MOB;
 
 var firstPlayerMobs = []	
 
+
 HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
@@ -79,18 +80,24 @@ Mob.prototype.getImage = function() {
 	else return;
 };
 
+Mob.prototype.isAlive = function() {
+	if(this.unitsize>0) return true;
+	else return false;
+};
+
 Mob.prototype.isSurrounded = function() {
 	var neighbours = getConnectedHexes(this.Tile);
 	
 	for(i=0; i<neighbours.length; i++) {
 		for(j=0; j<MOBS.length; j++) {
-			if(MOBS[j].player!=this.player && MOBS[j].Tile.getCoordinates()==neighbours[i].getCoordinates()) 
+			if(MOBS[j].player!=this.player && MOBS[j].Tile.getCoordinates()==neighbours[i].getCoordinates()
+			&& MOBS[j].isAlive()) 
 			return true;
 		}
 	}
 	
 	return false;
-}
+};
 	
 Mob.prototype.calculateBasicDmg = function(target) {
 // http://heroes.thelazy.net/wiki/Damage
@@ -182,13 +189,13 @@ Mob.prototype.payThePiper = function(dmg) {
 	if(this.unitsize<0) this.unitsize=0;	
 	console.log(this.type + ' traci '+(tmp-this.unitsize)+' jednostek');
 	
-	if(this.unitsize==0) {
+/*	if(this.unitsize==0) {
 		for(i=0; i<MOBS.length; i++) {
 		
 		if(MOBS[i]==this) { 
 		MOBS.splice(i, 1); break ; }
 		}
-	}
+	}*/
 
 };
 
@@ -270,13 +277,15 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 
 			
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player=='1') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
-		else if(MOBS[i].player=='2') this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
+		if(MOBS[i].player==PLAYER_NAME && MOBS[i].isAlive()) 
+			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
+		else if(MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()) 
+			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
 	 }
 	
 
 
-	if(ACTIVE_MOB != null) 
+	if(ACTIVE_MOB != null && PLAYER_NAME==ACTIVE_MOB.player) 
 	{
 		if(ACTIVE_MOB.isWorking!=true) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
@@ -559,7 +568,8 @@ HexagonGrid.prototype.isChargePossible = function(offensive, target) {
 
 HexagonGrid.prototype.recalculateChargeClick = function(Tile) {
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='2') {
+		if(MOBS[i].isAlive()==false) continue;
+		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME) {
 
 			var vector = this.canvas.style.cursor.split('-')[0];
 			switch(vector) {
@@ -611,7 +621,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	}
 	
 	for(var i=0; i<MOBS.length; i++) {
-		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player=='2') {
+		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
 				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
 					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
@@ -633,6 +643,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 
 
 HexagonGrid.prototype.clickEvent = function (e) {
+	if(ACTIVE_MOB.player != PLAYER_NAME) return;
 	if(e.which != 1) return; // just left click
 	
 	if(ACTIVE_MOB.isWorking==true) return;
@@ -646,7 +657,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 	var target;
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player=='2')
+		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME)
 		target=MOBS[i];
 	}
 
@@ -719,26 +730,26 @@ function selectNextMob(warrior)
 {
 	warrior.isWorking=false;
 	
-	var aliveFirstPlayerMobs = [];
-	for(i=0; i<firstPlayerMobs.length; i++) {
-		if(firstPlayerMobs[i].unitsize>0) aliveFirstPlayerMobs.push(firstPlayerMobs[i]);
-	}
-	
-	for(i=0; i<firstPlayerMobs.length; i++) 
+	for(i=0; i<MOBS.length; i++) 
 	{
-		if(ACTIVE_MOB.name==firstPlayerMobs[i].name) 
+		if(ACTIVE_MOB.name==MOBS[i].name) 
 		{
-			if(i<aliveFirstPlayerMobs.length-1) 
+			if(i<MOBS.length-1) 
 			{ 
-				ACTIVE_MOB=aliveFirstPlayerMobs[i+1]; 
+				ACTIVE_MOB=MOBS[i+1]; 
 				break;
 			}
-			else ACTIVE_MOB=aliveFirstPlayerMobs[0];			
+			else {
+				ACTIVE_MOB=MOBS[0]; 
+				break;
+			}
+			
 		}
 	}
 	
-	firstPlayerMobs=aliveFirstPlayerMobs;
+	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
 	
+	sendGameState();
 }
 
 	
@@ -825,7 +836,7 @@ function isValidTile(tile) {
 		&& OBSTACLES[i].blockingMovement==true) return false;
 	}
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].Tile.getCoordinates()==tile.getCoordinates()) return false;
+		if(MOBS[i].Tile.getCoordinates()==tile.getCoordinates() && MOBS[i].isAlive()) return false;
 	}
 
 		return true;
