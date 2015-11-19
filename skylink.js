@@ -1,6 +1,6 @@
 var skylink = new Skylink();
 
-var PLAYER_NAME='1';
+var PLAYER_NAME;
 
 skylink.on('peerJoined', function(peerId, peerInfo, isSelf) {
   var user = 'You';
@@ -69,6 +69,12 @@ function setName() {
 
 function joinRoom() {
   skylink.joinRoom("room2");
+}
+
+function bePlayer(which) {
+	PLAYER_NAME=which;
+	joinRoom();
+	hexagonGrid.refreshHexGrid();	
 }
 
 function leaveRoom() {

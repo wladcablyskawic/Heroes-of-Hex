@@ -43,6 +43,10 @@ header a:first-child {
 }
 </style>
 <body>
+	<button onclick="bePlayer(1)">graj ludzmi</button>
+	<button onclick="bePlayer(2)">graj goblinami</button>
+    <button onclick="sendGameState()">synchronize games</button>	
+
 	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
     <script>
         var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
@@ -77,10 +81,11 @@ header a:first-child {
 		</script>
 		
 		<input type="text" id="name" placeholder="My name" autofocus />
+		
+	
     <button onclick="setName()">Set my name</button>
     <button onclick="joinRoom()">Join room</button>
     <button onclick="leaveRoom()">Leave room</button>
-    <button onclick="sendGameState()">synchronize games</button>	
     <br/>
     <input type="text" id="message" placeholder="My message" />
     <button onclick="sendMessage()">Send message</button>
