@@ -69,7 +69,7 @@ Tile.prototype.isNeighbour = function(tile) {
 	if(this.column == tile.column && this.row==tile.row+1) return true;
 	if(this.column == tile.column-1 && this.row==tile.row) return true;
 	if(this.column == tile.column+1 && this.row==tile.row) return true;
-	if(this.column%2==0) {
+	if(this.column%2==1) {
 		if(this.column == tile.column-1 && this.row==tile.row-1) return true;
 		if(this.column == tile.column+1 && this.row==tile.row-1) return true;
 	
@@ -155,9 +155,9 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	
 
 
-	if(ACTIVE_MOB != null && PLAYER_NAME==ACTIVE_MOB.player) 
+	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player ) 
 	{
-		if(ACTIVE_MOB.isWorking!=true) {
+		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded()) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
 			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)',  //'');
@@ -442,6 +442,13 @@ HexagonGrid.prototype.recalculateChargeClick = function(Tile) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].isAlive()==false) continue;
 		if(MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME) {
+		
+			if(MOBS[i].Tile.isNeighbour(ACTIVE_MOB.Tile)) {
+				Tile.column=ACTIVE_MOB.Tile.column;
+				Tile.row=ACTIVE_MOB.Tile.row;				
+				console.log('set tile to am tile');
+				return;
+			}
 
 			var vector = this.canvas.style.cursor.split('-')[0];
 			switch(vector) {
@@ -535,6 +542,8 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	}	
 		
 	this.recalculateChargeClick(Tile);
+	console.log(Tile);
+	
 
 		var cursor = this.canvas.style.cursor;
 
