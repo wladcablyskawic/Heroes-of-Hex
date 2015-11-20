@@ -17,6 +17,13 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.max_shots=max_shots;
 
 };
+
+Mob.prototype.parse = function(mob) {
+	var newMob = new Mob(mob.player, new Tile(mob.Tile.column, mob.Tile.row), mob.name, mob.type, mob.speed, mob.unitsize, mob.attack, mob.defense, mob.damage_min,
+	mob.damage_max, mob.hp, mob.max_hp, mob.shots, mob.max_shots);
+	return newMob;
+}
+
 Mob.prototype.getImage = function() {
 	var img=document.getElementById("Image_"+this.type+'_'+this.player);
 	if(img!=undefined)
@@ -65,6 +72,9 @@ Mob.prototype.calculateMeleeDmg = function(target) {
 };	
 
 Mob.prototype.calculateRangeDmg = function(target) {
+	if(this.shots==0) { 
+		return 0;
+	}
 	var dmg = this.calculateBasicDmg(target);
 	var distance = hex_distance(this.column,this.row,target.column, target.row);
 	if(distance>=10) dmg=dmg*0.5;
@@ -82,9 +92,7 @@ Mob.prototype.calculateRangeDmg = function(target) {
 			minimumCount=1;
 		}else if(tile.distance==minimumRange) minimumCount++;
 	}
-	console.log('minimumRange='+minimumRange);
-	console.log('minimumcount='+minimumCount);
-	
+
 	var coverRatio=1;	
 	for(tile of potentialCovers) {
 		if((minimumCount==1 && tile.distance==minimumRange+1) ||
@@ -99,7 +107,16 @@ Mob.prototype.calculateRangeDmg = function(target) {
 	return dmg;
 };	
 
+Mob.prototype.isShotPossible = function(target) {
+	if(this.shots==0) return false;
+	if(this.isSurrounded()) return false;
+	if(target.isSurrounded()) return false;
+	
+	return true;
+}
+
 Mob.prototype.shoot = function(target) {
+	if(this.shots==0) return;
 	if(target==undefined) return;
 	if(this.isSurrounded()==true) {
 	alert('you cannot shot when you are surrounded by enemies!'); return;
@@ -109,11 +126,20 @@ Mob.prototype.shoot = function(target) {
 	
 	var dmg = this.calculateRangeDmg(target);
 	target.payThePiper(dmg);
-
+	this.shots--;
 	selectNextMob(ACTIVE_MOB);
 	ACTIVE_MOB.isWorking=false;			
 			
 }
+
+Mob.prototype.standAndShot = function(target) {
+	if(this.shots==0) return;
+	var dmg = 0.5 * this.calculateRangeDmg(target);
+	target.payThePiper(dmg);
+	this.shots--;
+	console.log(this.name+' wykonuje SnS, zadajac '+dmg+' obrazen atakujacemu!');
+}
+
 
 Mob.prototype.payThePiper = function(dmg) {
 	var tmp = this.unitsize;

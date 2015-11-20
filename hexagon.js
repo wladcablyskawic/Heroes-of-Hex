@@ -49,11 +49,16 @@ Obstacle.prototype.getColor = function()
 	else return 'pink';
 }
 
-var Tile = function(column, row, name)
+var Tile = function(column, row)
 {
 	this.column=column;
 	this.row=row;
 };
+
+Tile.prototype.parse = function(tile) {
+	var newTile = new Tile(tile.column, tile.row);
+	return newTile;
+}
 
 Tile.prototype.getCoordinates = function() {
 	return '['+this.column+','+this.row+']';
@@ -490,10 +495,11 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
-				if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
+			if(ACTIVE_MOB.isShotPossible(MOBS[i])) this.canvas.style.cursor = 'crosshair';	
+			else if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
 					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
 					this.canvas.style.cursor = attackDirection+'-resize';	  			
-				} else this.canvas.style.cursor = 'crosshair';	
+				} 
 				
 			}
 			
@@ -526,10 +532,22 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME)
 		target=MOBS[i];
-	}
-
+	}	
 		
 	this.recalculateChargeClick(Tile);
+
+		var cursor = this.canvas.style.cursor;
+
+		
+	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && Tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
+	&& target.isSurrounded()==false) {
+		sendChargeDeclaration(ACTIVE_MOB, target, Tile);
+		alert('czekam na odpowiedz przeciwnika');
+		ACTIVE_MOB.isWorking=true;
+		return;
+	}
+
+	
 
 	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
 	{
@@ -561,7 +579,6 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		selectNextMob(ACTIVE_MOB);
 	}	
 	else {
-		var cursor = this.canvas.style.cursor;
 		if(cursor=='crosshair') {
 		
 			ACTIVE_MOB.shoot(target);
@@ -571,6 +588,84 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	this.refreshHexGrid();
 };
 
+HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
+attacker=ACTIVE_MOB;
+attacker.hp=attackertmp.hp;
+attacker.unitsize=attackertmp.unitsize;
+console.log(attacker);
+var target;
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
+		target=MOBS[i];
+	}	
+
+	attacker.isWorking=true;
+		var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
+		for(i=1; i<stepByStep.length; i++) {
+
+			var param = {hexagon:this, tile:stepByStep[i]};
+		
+		setTimeout(function(param) {
+			attacker.Tile = param.tile;
+			sendGameState();	
+			if(attacker.Tile.row==tile.row && attacker.Tile.column==tile.column) {
+				if(target!=undefined) combat(attacker, target)
+				selectNextMob(attacker);
+			}
+			param.hexagon.refreshHexGrid();
+			}, i*150, param);	
+		}
+
+};
+
+HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
+attacker = ACTIVE_MOB;
+var target;
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
+		target=MOBS[i];
+	}	
+		
+
+	attacker.isWorking=true;
+		var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
+		for(i=1; i<stepByStep.length; i++) {
+
+			var param = {hexagon:this, tile:stepByStep[i]};
+			param.isFinalStep=(i==stepByStep.length-1)?true:false;
+		
+		setTimeout(function(param) {
+			attacker.Tile = param.tile;
+			sendGameState();	
+			param.hexagon.refreshHexGrid();
+			if(param.isFinalStep) selectNextMob(attacker); 
+			}, i*500, param);	
+		}
+
+		ACTIVE_MOB = target;
+		ACTIVE_MOB.neighbours = getPossibleMoves(100, target.Tile);		
+		var fleeDistance = Math.floor((Math.random() * target.speed)+1);
+		var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);
+		//getEscapePath(attacker.Tile, target.Tile, fleeDistance)
+		target.isWorking=true;
+		console.log(fleeDestination);
+		var fleeStepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);
+		ACTIVE_MOB=attacker;
+		for(i=1; i<fleeStepByStep.length; i++) {
+
+			var param = {hexagon:this, tile:fleeStepByStep[i]};
+		
+		setTimeout(function(param) {
+			target.Tile = param.tile;
+			sendGameState();
+			param.hexagon.refreshHexGrid();
+			}, i*500, param);	
+		}
+		
+		ACTIVE_MOB=attacker;
+	
+		
+};
 
 
 function combat(attacker, target) {	
@@ -618,7 +713,8 @@ function selectNextMob(warrior)
 
 	
 HexagonGrid.prototype.contextMenuEvent = function (e) {
-		alert('click');
+						selectNextMob(ACTIVE_MOB);
+
 		e.preventDefault();
 		return false;
 };

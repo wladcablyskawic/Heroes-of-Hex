@@ -25,7 +25,7 @@ header a:first-child {
 #container {
   position: relative;
   border: 1px #ddd solid;
-  height: 180px;
+  height: 1180px;
   overflow-y: auto;
 }
 
@@ -63,14 +63,14 @@ header a:first-child {
 
 		
 		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',10);
-		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',20);
+		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',15);
 		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
 		
-		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',25);
+		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',30);
 		hexagonGrid.addMob('2', 'Orc', 5,4,'mob5',10);
 		hexagonGrid.addMob('2', 'Troll', 6,9,'mob6',2);		
 		
-		hexagonGrid.selectMob('mob0');
+		hexagonGrid.selectMob('mob1');
 				
 		window.onload = function(){
 			hexagonGrid.drawHexGrid(50, 50, false);

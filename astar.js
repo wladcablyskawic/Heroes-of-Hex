@@ -81,6 +81,27 @@
 					a.z + (b.z-a.z)*t);
 	};
 	
+	function getEscapeDestination(a,b,n) {
+		var N = hex_distance(a.column, a.row, b.column, b.row);	
+		var results = [];
+		for(var i=n; i<=N+n; i++){
+		var cube = cube_round(cube_lerp(a, b, 1.0/(n) *i));
+			var tile = convertCubeToTile(cube);
+			results.push(tile);
+		}
+		
+		console.log(results);
+		
+		for(var i=results.length-1; i>0; i--) {
+			if(isValidTile(results[i])) {
+				console.log(results[i]);
+				return results[i];
+			}
+		}
+		
+		return null;	
+	}
+	
 	function getLineOfSight(a,b) {
 		var N = hex_distance(a.column, a.row, b.column, b.row);
 		var results = [];
@@ -125,7 +146,8 @@
 				}
 			}
 			for(j=0; j<MOBS.length; j++) {
-				if(MOBS[j].Tile.getCoordinates()== tile.getCoordinates()) answer=false;	
+				if(MOBS[j].isAlive()==true && 
+					MOBS[j].Tile.getCoordinates()== tile.getCoordinates()) answer=false;	
 			}		
 			
 			return answer;
