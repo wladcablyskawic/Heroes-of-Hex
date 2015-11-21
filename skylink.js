@@ -77,8 +77,11 @@ var mess = JSON.parse(message.content);
 });
 
 function respondCharge(mess) {
-		alert(mess.attacker.name +' szarzuje na '+mess.target.name);
-		var respond = prompt('Twoja decyzja? Do wyboru: hold, flee, sns', 'hold');
+		alert(mess.attacker.type+'['+mess.attacker.Tile.column
+		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
+		+'['+mess.tile.column
+		+','+mess.tile.row+']');
+		var respond = prompt('Your decision? hold, flee, sns', 'hold');
 		var tmp={};
 		tmp.respond = respond;
 		tmp.Action = 'CHARGE_RESPOND';
