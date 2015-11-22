@@ -147,10 +147,17 @@ function bePlayer(which) {
 	PLAYER_NAME=which;
 	var mobs = JSON.parse(sessionStorage.getItem('army-cart')).items;
 	var row = 0;
+	var column = 0;
 	if(which=='2') row = MAX_ROW-1;
 	console.log(row);
 	for(i=0; i<mobs.length; i++) {
-		hexagonGrid.addMob(which, mobs[i].product, row,1+2*i,'mob'+which+i,mobs[i].qty);	
+		column=1+2*i;
+		if(column>MAX_COLUMN) {
+			column=1+2*i - MAX_COLUMN;			
+			if(which=='1') row++;
+			else row--;
+		}
+		hexagonGrid.addMob(which, mobs[i].product, row,column,'mob'+which+i,mobs[i].qty);	
 	}
 	
 	hexagonGrid.refreshHexGrid();	
