@@ -1,115 +1,135 @@
 <!DOCTYPE html>
+<html>
 <head>
-    <title>Hex</title>
-	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
-    <script src="skylink.js"></script>
-    <script src="hexagon.js"></script>
-	<script src="mob.js"></script>		
-	<script src="astar.js"></script>	
-	<script src="troops.js"></script>		
+<title>Army Builder</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.shop.js"></script>
 </head>
 
-<style>
-header {
-  background: #eee;
-  padding: 20px;
-  margin-bottom: .4em;
-  font-family: Helvetica, Arial, sans-serif;
-}
-
-header a:first-child {
-  float: right;
-  margin: 0 0 20px 30px;
-}
-
-#container {
-  position: relative;
-  border: 1px #ddd solid;
-  height: 1180px;
-  overflow-y: auto;
-}
-
-#chatbox {
-  position: absolute;
-  bottom: 0px;
-}
-
-.action {
-  font-style: italic;
-  color: gray;
-}
-
-.you {
-  font-weight: bold;
-}
-</style>
 <body>
 
-	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
-    <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
-
-		hexagonGrid.addObstacle(2,4,'blokada','mountains', true, true);
-		hexagonGrid.addObstacle(2,3,'blokada','mountains', true, true);
-		hexagonGrid.addObstacle(3,4,'blokada','mountains', true, true);		
-		hexagonGrid.addObstacle(4,5,'blokada','mountains', true, true);
-		
-		hexagonGrid.addObstacle(3,1,'lake','ruch niemozliwy', false, true);
-		hexagonGrid.addObstacle(2,1,'lake','ruch niemozliwy', false, true);
-		hexagonGrid.addObstacle(2,0,'lake','ruch niemozliwy', false, true);
-
-		hexagonGrid.addObstacle(5,1,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
-		hexagonGrid.addObstacle(5,2,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
-
-		
-		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',10);
-		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',15);
-		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
-		
-		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',30);
-		hexagonGrid.addMob('2', 'Orc', 5,4,'mob5',10);
-		hexagonGrid.addMob('2', 'Troll', 6,9,'mob6',2);		
-		
-		hexagonGrid.selectMob('mob1');
+<div id="site">
+	<header id="masthead">
+		<h1>Army Builder <span class="tagline">Brace yourself for a hex battle!</h1>
+	</header>
+	<div id="content">
+		<div id="products">
+			<ul>
+				<li>
+					<div class="product-image">
+						<img src="images/pikeman.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Pikeman" data-price="60">
+						<h3 class="product-name">Pikeman</h3>
+						<p class="product-price">$60</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-1">Unit size</label>
+								<input type="text" name="qty-1" id="qty-1" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>
 				
-		window.onload = function(){
-			hexagonGrid.drawHexGrid(50, 50, false);
-		
-			};
-		</script>
-		
-		<input type="text" id="name" placeholder="My name" autofocus />
-		
-	<button onclick="bePlayer(1)">graj ludzmi</button>
-	<button onclick="bePlayer(2)">graj goblinami</button>
-    <button onclick="sendGameState()">synchronize games</button>	
-<br/>	
-    <button onclick="setName()">Set my name</button>
-    <button onclick="joinRoom()">Join room</button>
-    <button onclick="leaveRoom()">Leave room</button>
-    <br/>
-    <input type="text" id="message" placeholder="My message" />
-    <button onclick="sendMessage()">Send message</button>
-	  <div id="container">
-    <div id="chatbox"></div>
-  </div>
-		<br/><BR/><BR/>
-		
-<img src="troops/Creature_Pikeman_1.gif" id="Image_Pikeman_1" style="display:none" >
-<img src="troops/Creature_Archer_1.gif" id="Image_Archer_1" style="display:none" >
-<img src="troops/Creature_Swordsman_1.gif" id="Image_Swordsman_1" style="display:none" >
-<img src="troops/Creature_Peasant_1.gif" id="Image_Peasant_1" style="display:none" >
-<img src="troops/Creature_Halfling_1.gif" id="Image_Halfling_1" style="display:none" >
-<img src="troops/Creature_Goblin_1.gif" id="Image_Goblin_1" style="display:none" >
-<img src="troops/Creature_Orc_1.gif" id="Image_Orc_1" style="display:none" >
-<img src="troops/Creature_Troll_1.gif" id="Image_Troll_1" style="display:none" >
-<img src="troops/Creature_Pikeman_2.gif" id="Image_Pikeman_2" style="display:none" >
-<img src="troops/Creature_Archer_2.gif" id="Image_Archer_2" style="display:none" >
-<img src="troops/Creature_Swordsman_2.gif" id="Image_Swordsman_2" style="display:none" >
-<img src="troops/Creature_Peasant_2.gif" id="Image_Peasant_2" style="display:none" >
-<img src="troops/Creature_Halfling_2.gif" id="Image_Halfling_2" style="display:none" >
-<img src="troops/Creature_Goblin_2.gif" id="Image_Goblin_2" style="display:none" >
-<img src="troops/Creature_Orc_2.gif" id="Image_Orc_2" style="display:none" >
-<img src="troops/Creature_Troll_2.gif" id="Image_Troll_2" style="display:none" >
+				<li>
+					<div class="product-image">
+						<img src="images/archer.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Archer" data-price="100">
+						<h3 class="product-name">Archer</h3>
+						<p class="product-price">#100</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-2">Unit size</label>
+								<input type="text" name="qty-2" id="qty-2" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>
+				
+				<li>
+					<div class="product-image">
+						<img src="images/swordsman.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Swordsman" data-price="300">
+						<h3 class="product-name">Swordsman</h3>
+						<p class="product-price">$300</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-3">Unit size</label>
+								<input type="text" name="qty-3" id="qty-3" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>
+
+				<li>
+					<div class="product-image">
+						<img src="images/goblin.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Goblin" data-price="40">
+						<h3 class="product-name">Goblin</h3>
+						<p class="product-price">$40</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-3">Unit size</label>
+								<input type="text" name="qty-4" id="qty-4" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>
+				
+				<li>
+					<div class="product-image">
+						<img src="images/orc.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Orc" data-price="150">
+						<h3 class="product-name">Orc</h3>
+						<p class="product-price">$150</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-3">Unit size</label>
+								<input type="text" name="qty-5" id="qty-5" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>
+
+				<li>
+					<div class="product-image">
+						<img src="images/troll.jpg" alt="" />
+					</div>
+					<div class="product-description" data-name="Troll" data-price="500">
+						<h3 class="product-name">Troll</h3>
+						<p class="product-price">$500</p>
+						<form class="add-to-cart" action="cart.html" method="post">
+							<div>
+								<label for="qty-3">Unit size</label>
+								<input type="text" name="qty-6" id="qty-6" class="qty" value="1" />
+							</div>
+							<p><input type="submit" value="Add to army" class="btn" /></p>
+						</form>
+					</div>
+				</li>				
+				
+			</ul>
+		</div>
+	</div>
+	
+	
+
+</div>
+
+<footer id="site-info">
+		Copyright &copy; Kuba
+	</footer>
 
 </body>
+</html>	

@@ -8,6 +8,10 @@ skylink.on('peerJoined', function(peerId, peerInfo, isSelf) {
     user = peerInfo.userData.name || peerId;
   }
   addMessage(user + ' joined the room', 'action');
+  
+  if(!isSelf) {
+		skylink.sendP2PMessage(showArmyList());	  
+  }
 });
 
 skylink.on('peerUpdated', function(peerId, peerInfo, isSelf) {
@@ -70,11 +74,39 @@ var mess = JSON.parse(message.content);
 			hexagonGrid.moveFlee(mess.target, mess.tile);
 		}
 		
+	} else if(mess.Action=='SHOW_ARMY'  && !isSelf) {
+		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
+		
+		for(i=0; i<mess.MOBS.length; i++) {
+			if(mess.MOBS[i].player!=PLAYER_NAME) {
+			hexagonGrid.addMob(mess.MOBS[i].player, mess.MOBS[i].type, 
+			mess.MOBS[i].Tile.column,mess.MOBS[i].Tile.row,mess.MOBS[i].name, mess.MOBS[i].unitsize);	
+			}
+		}
+			console.log(MOBS.length);
+			MOBS.sort(compare);
+			startgame();
+		
+		
+		hexagonGrid.refreshHexGrid();
 	}
 }
 
 
 });
+
+function compare(a,b) {
+  if (a.name < b.name)
+    return -1;
+  if (a.name > b.name)
+    return 1;
+  return 0;
+}
+
+function startgame() {
+	hexagonGrid.selectMob('mob10');
+	hexagonGrid.refreshHexGrid();
+}
 
 function respondCharge(mess) {
 		alert(mess.attacker.type+'['+mess.attacker.Tile.column
@@ -94,22 +126,33 @@ function respondCharge(mess) {
 };
 
 skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456',
-			defaultroom:'testroom'}); // Get your own key at developer.temasys.com.sg
-
+			defaultroom:'testroom2'}, function()
+			{
+				skylink.joinRoom('room3')
+					   
+				setTimeout(function(){
+				skylink.sendP2PMessage(showArmyList());	
+				}, 2000);				
+			});
+			
 function setName() {
-  var input = document.getElementById('name');
+  var input = sessionStorage.getItem('player-name');
   skylink.setUserData({
-    name: input.value
+    name: input
   });
 }
 
-function joinRoom() {
-  skylink.joinRoom("room2");
-}
 
 function bePlayer(which) {
 	PLAYER_NAME=which;
-	joinRoom();
+	var mobs = JSON.parse(sessionStorage.getItem('army-cart')).items;
+	var row = 0;
+	if(which=='2') row = MAX_ROW-1;
+	console.log(row);
+	for(i=0; i<mobs.length; i++) {
+		hexagonGrid.addMob(which, mobs[i].product, row,1+2*i,'mob'+which+i,mobs[i].qty);	
+	}
+	
 	hexagonGrid.refreshHexGrid();	
 }
 
@@ -133,7 +176,6 @@ function addMessage(message, className) {
 }
 
 function sendGameState() {
-	//var input ='{json: aa, json2: bb}';
 	  skylink.sendP2PMessage(describeGame());
 }
 
@@ -159,3 +201,12 @@ function declareCharge(attacker, target, tile) {
 	charge['tile']=tile;
 	return JSON.stringify(charge); 	
 };
+
+function showArmyList(isSource) {
+	var army = {};
+	army.Action='SHOW_ARMY';
+	var myMobs = [];
+	army['MOBS']=MOBS;
+	army.isSource=isSource;
+	return JSON.stringify(army); 
+}

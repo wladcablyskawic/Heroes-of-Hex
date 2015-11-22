@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<head>
+    <title>Hex</title>
+	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
+    <script src="skylink.js"></script>
+    <script src="hexagon.js"></script>
+	<script src="mob.js"></script>		
+	<script src="astar.js"></script>	
+	<script src="troops.js"></script>		
+</head>
+
+<style>
+header {
+  background: #eee;
+  padding: 20px;
+  margin-bottom: .4em;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+header a:first-child {
+  float: right;
+  margin: 0 0 20px 30px;
+}
+
+#container {
+  position: relative;
+  border: 1px #ddd solid;
+  height: 1180px;
+  overflow-y: auto;
+}
+
+#chatbox {
+  position: absolute;
+  bottom: 0px;
+}
+
+.action {
+  font-style: italic;
+  color: gray;
+}
+
+.you {
+  font-weight: bold;
+}
+</style>
+<body>
+
+	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
+    <script>
+        var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
+
+		hexagonGrid.addObstacle(2,4,'blokada','mountains', true, true);
+		hexagonGrid.addObstacle(2,3,'blokada','mountains', true, true);
+		hexagonGrid.addObstacle(3,4,'blokada','mountains', true, true);		
+		hexagonGrid.addObstacle(4,5,'blokada','mountains', true, true);
+		
+		hexagonGrid.addObstacle(3,1,'lake','ruch niemozliwy', false, true);
+		hexagonGrid.addObstacle(2,1,'lake','ruch niemozliwy', false, true);
+		hexagonGrid.addObstacle(2,0,'lake','ruch niemozliwy', false, true);
+
+		hexagonGrid.addObstacle(5,1,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
+		hexagonGrid.addObstacle(5,2,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
+
+		
+/*		hexagonGrid.addMob('1', 'Archer', 0,1,'mob0',10);
+		hexagonGrid.addMob('1', 'Pikeman', 0,4,'mob1',15);
+		hexagonGrid.addMob('1', 'Swordsman', 0,6,'mob2',4);
+		
+		hexagonGrid.addMob('2', 'Goblin', 6,1,'mob4',30);
+		hexagonGrid.addMob('2', 'Orc', 5,4,'mob5',10);
+		hexagonGrid.addMob('2', 'Troll', 6,9,'mob6',2);		
+		
+		hexagonGrid.selectMob('mob1');
+*/				
+		window.onload = function(){
+			hexagonGrid.drawHexGrid(50, 50, false);
+		
+			};
+		setName();	
+		if(sessionStorage.getItem('player-number')=='1') bePlayer(1);
+		else if(sessionStorage.getItem('player-number')=='2') bePlayer(2);
+		</script>
+		
+
+	<button onclick="sendGameState()">synchronize games</button>	
+    <button onclick="skylink.sendP2PMessage(showArmyList())">start game</button>	
+
+	<br/>	
+    <input type="text" id="message" placeholder="My message" />
+    <button onclick="sendMessage()">Send message</button>
+	  <div id="container">
+    <div id="chatbox"></div>
+  </div>
+		<br/><BR/><BR/>
+		
+<img src="troops/Creature_Pikeman_1.gif" id="Image_Pikeman_1" style="display:none" >
+<img src="troops/Creature_Archer_1.gif" id="Image_Archer_1" style="display:none" >
+<img src="troops/Creature_Swordsman_1.gif" id="Image_Swordsman_1" style="display:none" >
+<img src="troops/Creature_Peasant_1.gif" id="Image_Peasant_1" style="display:none" >
+<img src="troops/Creature_Halfling_1.gif" id="Image_Halfling_1" style="display:none" >
+<img src="troops/Creature_Goblin_1.gif" id="Image_Goblin_1" style="display:none" >
+<img src="troops/Creature_Orc_1.gif" id="Image_Orc_1" style="display:none" >
+<img src="troops/Creature_Troll_1.gif" id="Image_Troll_1" style="display:none" >
+<img src="troops/Creature_Pikeman_2.gif" id="Image_Pikeman_2" style="display:none" >
+<img src="troops/Creature_Archer_2.gif" id="Image_Archer_2" style="display:none" >
+<img src="troops/Creature_Swordsman_2.gif" id="Image_Swordsman_2" style="display:none" >
+<img src="troops/Creature_Peasant_2.gif" id="Image_Peasant_2" style="display:none" >
+<img src="troops/Creature_Halfling_2.gif" id="Image_Halfling_2" style="display:none" >
+<img src="troops/Creature_Goblin_2.gif" id="Image_Goblin_2" style="display:none" >
+<img src="troops/Creature_Orc_2.gif" id="Image_Orc_2" style="display:none" >
+<img src="troops/Creature_Troll_2.gif" id="Image_Troll_2" style="display:none" >
+
+</body>
