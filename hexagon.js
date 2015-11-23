@@ -608,19 +608,19 @@ HexagonGrid.prototype.clickEvent = function (e) {
 };
 
 HexagonGrid.prototype.animateShot = function(shoter, target) {
-var count = 2* hex_distance(shoter.Tile.column, shoter.Tile.row,target.Tile.column,target.Tile.row);
-var startX = (shoter.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
-var startY = shoter.Tile.column % 2 == 0 ? 
+	var count = 2* hex_distance(shoter.Tile.column, shoter.Tile.row,target.Tile.column,target.Tile.row);
+	var startX = (shoter.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
+	var startY = shoter.Tile.column % 2 == 0 ? 
 			(shoter.Tile.row * this.height) + this.canvasOriginY + (this.height / 2): 
 			(shoter.Tile.row * this.height) + this.canvasOriginY + (this.height);
 			
-var endX = (target.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
-var endY = target.Tile.column % 2 == 0 ? 
+	var endX = (target.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
+	var endY = target.Tile.column % 2 == 0 ? 
 			(target.Tile.row * this.height) + this.canvasOriginY + (this.height / 2): 
 			(target.Tile.row * this.height) + this.canvasOriginY + (this.height);
 
-var stepRow = -(startX-endX)/count;
-var stepColumn=-(startY-endY)/count;
+	var stepRow = -(startX-endX)/count;
+	var stepColumn=-(startY-endY)/count;
 	for(i=0; i<count; i++) {
 	var param ={startX:startX, startY:startY, stepColumn:stepColumn, stepRow:stepRow, hexagon:this, i:i};
 		setTimeout(function(param) {
@@ -643,19 +643,15 @@ var stepColumn=-(startY-endY)/count;
 	
 	setTimeout(function(hexagon) {
 		hexagon.refreshHexGrid();
-	}, count*50, this);
-	
-			
-			
+	}, count*50, this);			
 };
 
 
 HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
-attacker=ACTIVE_MOB;
-attacker.hp=attackertmp.hp;
-attacker.unitsize=attackertmp.unitsize;
-console.log(attacker);
-var target;
+	attacker=ACTIVE_MOB;
+	attacker.hp=attackertmp.hp;
+	attacker.unitsize=attackertmp.unitsize;
+	var target;
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
 		target=MOBS[i];
@@ -676,18 +672,16 @@ var target;
 			param.hexagon.refreshHexGrid();
 			}, i*150, param);	
 		}
-
 };
 
 HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
-attacker = ACTIVE_MOB;
-var target;
+	attacker = ACTIVE_MOB;
+	var target;
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
 		target=MOBS[i];
 	}	
 		
-
 	attacker.isWorking=true;
 		var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
 		for(i=1; i<stepByStep.length; i++) {
@@ -722,10 +716,7 @@ var target;
 		}
 		
 		ACTIVE_MOB=attacker;
-	
-		
 };
-
 
 function combat(attacker, target) {	
 		if(target!=undefined) {
@@ -737,7 +728,6 @@ function combat(attacker, target) {
 			}
 		}
 }
-
 
 HexagonGrid.prototype.refreshHexGrid = function()
 {

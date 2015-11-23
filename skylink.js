@@ -75,7 +75,6 @@ var mess = JSON.parse(message.content);
 		}
 		
 	} else if(mess.Action=='SHOT') {
-	console.log('shot odebrany');
 			hexagonGrid.animateShot(mess.shoter, mess.target);
 			
 	}else if(mess.Action=='SHOW_ARMY'  && !isSelf) {
