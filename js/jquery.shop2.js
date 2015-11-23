@@ -1,7 +1,7 @@
 (function( $ ) {
 	$.Shop = function( element ) {
 		this.$element = $( element );
-		this.init();				
+		this.init();
 	};
 	
 	$.Shop.prototype = {
@@ -126,7 +126,7 @@
 		},
 
 		// Delete a product from the shopping cart
-		
+
 		deleteProduct: function() {
 			var self = this;
 			if( self.$formCart.length ) {
@@ -205,7 +205,7 @@
 				} else {	
 				
 					var total = this.storage.getItem( this.total );
-					this.$subTotal[0].innerHTML = this.currency + " " + total ;
+					this.$subTotal[0].innerHTML = this.currency + " " + total;
 				}
 			} else if( this.$checkoutCart.length ) {
 				var checkoutCart = this._toJSONObject( this.storage.getItem( this.cartName ) );
@@ -238,8 +238,7 @@
 					this.$subTotal[0].innerHTML = this.currency + " " + 0.00;
 				}
 			
-			}				
-			
+			}
 		},
 		
 		// Empties the cart by calling the _emptyCart() method
@@ -295,9 +294,6 @@
 				
 			});
 		  }
-		  
-
-		  
 		},
 		
 		// Adds items to the shopping cart

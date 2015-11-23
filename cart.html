@@ -30,8 +30,12 @@
 			  </tbody>
 			</table>
 			<p id="sub-total">
-				<strong>Sub Total</strong>: <span id="stotal"></span>
+				<strong>Total</strong>: <span id="stotal"></span>
 			</p>
+			<p id="sub-total">
+				<strong>Max budget</strong>: 5000<span id="stotal"></span>
+			</p>
+
 			<ul id="shopping-cart-actions">
 				<li>
 					<input type="submit" name="update" id="update-cart" class="btn" value="Update" />
@@ -43,11 +47,19 @@
 					<a href="index.html" class="btn">Next unit</a>
 				</li>
 				<li>
-					<a href="checkout.html" class="btn">Checkout</a>
+					<a href="checkout.html" class="btn" id="checkoutlink">Checkout</a>
 				</li>
 			</ul>
 		</form>
 	</div>
+			<script>
+			$('#checkoutlink').click(function(e) {
+				if(sessionStorage.getItem('army-total') > 5000) {
+				e.preventDefault();
+				alert('Overbudget! You have to delete some trops before checkout');
+				}
+			});						
+			</script>
 	
 	
 

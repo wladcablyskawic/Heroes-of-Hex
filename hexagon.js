@@ -216,44 +216,60 @@ function pDistance(x, y, x1, y1, x2, y2) {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, Tile) {
-    var x0 = (Tile.column * this.side) + this.canvasOriginX;
-    var y0 = Tile.column % 2 == 0 ? (Tile.row * this.height) + this.canvasOriginY : (Tile.row * this.height) + this.canvasOriginY + (this.height / 2);
+HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, tile) {
+    var x0 = (tile.column * this.side) + this.canvasOriginX;
+    var y0 = tile.column % 2 == 0 ? (tile.row * this.height) + this.canvasOriginY : (tile.row * this.height) + this.canvasOriginY + (this.height / 2);
     var x1 = x0 + this.width - this.side;
 	var y1=	y0;
     var x2 = x0 + this.side
 	var y2 = y0;
 	var distanceN = pDistance(mousex, mousey, x1, y1, x2, y2);	
-
+	var nNeighbour = new Tile(tile.column, tile.row-1);
+	if(!isValidTile(nNeighbour)) distanceN=999;
+	
 	x1=x2;
 	y1=y2;
 	x2=x0+this.width;
 	y2=y0+(this.height / 2);	
 	var distanceNE = pDistance(mousex, mousey, x1, y1, x2, y2);
-		
+	var neNeighbour = tile.column%2==0? new Tile(tile.column+1, tile.row-1) : new Tile(tile.column+1, tile.row);
+	if(!isValidTile(neNeighbour)) distanceNE=999;
+
+	
 	x1=x2;
 	y1=y2;
 	x2=x0+this.side;
 	y2=y0+this.height;
 	var distanceSE = pDistance(mousex, mousey, x1, y1, x2, y2);
+	var seNeighbour = tile.column%2==0? new Tile(tile.column+1, tile.row) : new Tile(tile.column+1, tile.row+1);
+	if(!isValidTile(seNeighbour)) distanceSE=999;
+	
 	
 	x1=x2;
 	y1=y2;
 	x2=x0+this.width-this.side;
 	y2=y0+this.height;
 	var distanceS = pDistance(mousex, mousey, x1, y1, x2, y2);
+	var sNeighbour = new Tile(tile.column, tile.row+1);
+	if(!isValidTile(sNeighbour)) distanceS=999;
 
+	
 	x1=x2;
 	y1=y2;
 	x2=x0;
 	y2=y0+(this.height/2);
 	var distanceSW = pDistance(mousex, mousey, x1, y1, x2, y2);
+	var swNeighbour = tile.column%2==0? new Tile(tile.column-1, tile.row) : new Tile(tile.column-1, tile.row+1);
+	if(!isValidTile(swNeighbour)) distanceSW=999;
 
 	x1=x2;
 	y1=y2;
 	x2=x0 + this.width - this.side;
 	y2=y0;
 	var distanceNW = pDistance(mousex, mousey, x1, y1, x2, y2);
+	var nwNeighbour = tile.column%2==0? new Tile(tile.column-1, tile.row-1) : new Tile(tile.column-1, tile.row);
+	if(!isValidTile(nwNeighbour)) distanceNW=999;
+
 	
 	var shortest=distanceN;
 	var answer='n';
@@ -543,7 +559,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	this.recalculateChargeClick(Tile);
 
 	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && Tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
-	&& target.isSurrounded()==false) {
+	&& target.isSurrounded()==false && isValidTile(Tile)) {
 		sendChargeDeclaration(ACTIVE_MOB, target, Tile);
 		alert('The charge was declared. Waiting for an opponent\'s respond.');
 		ACTIVE_MOB.isWorking=true;
