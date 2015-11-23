@@ -1,11 +1,13 @@
 var commandManager = {
  
-	chargeDeclaration: function(mess) {
+	chargeDeclaration: function(mess, isSelf) {
+		if(isSelf) return;
 		respondCharge(mess);
 		return;
 	},
 	
-	chargeRespond: function(mess) {
+	chargeRespond: function(mess, isSelf) {
+		if(isSelf) return;	
 		if(mess.respond=='hold') 
 			hexagonGrid.moveCharge(mess.attacker, mess.target, mess.tile);
 		else if(mess.respond=='sns') {
@@ -23,11 +25,14 @@ var commandManager = {
 		}	
 	},
 	
-	shot: function(mess) {
-		hexagonGrid.animateShot(mess.shoter, mess.target);
+	shot: function(mess, isSelf) {
+		target = new Mob().parse(mess.target);
+		ACTIVE_MOB.shoot(target);
+		hexagonGrid.animateShot(mess.shoter, target);
 	},
 	
-	showArmy: function(mess) {
+	showArmy: function(mess, isSelf) {
+		if(isSelf) return;
 		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
 		
 		for(i=0; i<mess.MOBS.length; i++) {
@@ -37,14 +42,15 @@ var commandManager = {
 			}
 		}
 			console.log(MOBS.length);
-			MOBS.sort(compare);
+			MOBS.sort(compareMobs);
 			startgame();
 		
 		
 		hexagonGrid.refreshHexGrid();
 	},
 	
-	synchronizeMobs: function(mess) {
+	synchronizeMobs: function(mess, isSelf) {
+		if(isSelf) return;
 		for(i=0; i<mess.MOBS.length; i++) {
 			MOBS[i].unitsize = mess.MOBS[i].unitsize;
 			MOBS[i].hp = mess.MOBS[i].hp;
@@ -55,11 +61,19 @@ var commandManager = {
 			}
 		}
 		hexagonGrid.refreshHexGrid();
-		}
+	}
  
  
   };
-
+  
+function compareMobs(a,b) {
+  if (a.name < b.name)
+    return -1;
+  if (a.name > b.name)
+    return 1;
+  return 0;
+}
+  
  commandManager.execute = function ( name ) {
     return commandManager[name] && commandManager[name].apply(commandManager, [].slice.call(arguments, 1) );
 };

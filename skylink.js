@@ -41,70 +41,14 @@ skylink.on('incomingMessage', function(message, peerId, peerInfo, isSelf) {
   
 var mess = JSON.parse(message.content);
 	if(mess!=undefined) {
-
-	if(mess.Action=='DESCRIBE_GAME' && mess.MOBS != undefined) {
-		for(i=0; i<mess.MOBS.length; i++) {
-			MOBS[i].unitsize = mess.MOBS[i].unitsize;
-			MOBS[i].hp = mess.MOBS[i].hp;
-			MOBS[i].Tile.column = mess.MOBS[i].Tile.column;
-			MOBS[i].Tile.row = mess.MOBS[i].Tile.row;		
-			if(mess.ACTIVE_MOB.name==MOBS[i].name) {
-				ACTIVE_MOB=MOBS[i];
-			}
-		}
-		hexagonGrid.refreshHexGrid();
-		}
-	else if(mess.Action=='CHARGE_DECLARATION' && mess.target.player==PLAYER_NAME) {
-			respondCharge(mess);
-		}
-	else if(mess.Action=='CHARGE_RESPOND' && !isSelf) {
-		if(mess.respond=='hold') 
-			hexagonGrid.moveCharge(mess.attacker, mess.target, mess.tile);
-		else if(mess.respond=='sns') {
-			target = new Mob();
-			target = target.parse(mess.target);
-			attacker = new Mob();
-			attacker = attacker.parse(mess.attacker);
-			target.standAndShot(ACTIVE_MOB);
-			if(ACTIVE_MOB.unitsize>0)	hexagonGrid.moveCharge(ACTIVE_MOB, target, mess.tile);
-			else selectNextMob(ACTIVE_MOB);
-
-		}
-		else if(mess.respond=='flee') {
-			hexagonGrid.moveFlee(mess.target, mess.tile);
-		}
-		
-	} else if(mess.Action=='SHOT') {
-			hexagonGrid.animateShot(mess.shoter, mess.target);
-			
-	}else if(mess.Action=='SHOW_ARMY'  && !isSelf) {
-		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
-		
-		for(i=0; i<mess.MOBS.length; i++) {
-			if(mess.MOBS[i].player!=PLAYER_NAME) {
-			hexagonGrid.addMob(mess.MOBS[i].player, mess.MOBS[i].type, 
-			mess.MOBS[i].Tile.column,mess.MOBS[i].Tile.row,mess.MOBS[i].name, mess.MOBS[i].unitsize);	
-			}
-		}
-			console.log(MOBS.length);
-			MOBS.sort(compare);
-			startgame();
-		
-		
-		hexagonGrid.refreshHexGrid();
+	//	if(isSelf) return;
+		commandManager.execute(mess.Action, mess, isSelf);	
 	}
-}
 
 
 });
 
-function compare(a,b) {
-  if (a.name < b.name)
-    return -1;
-  if (a.name > b.name)
-    return 1;
-  return 0;
-}
+
 
 function startgame() {
 	hexagonGrid.selectMob('mob10');
@@ -119,7 +63,7 @@ function respondCharge(mess) {
 		var respond = prompt('Your decision? hold, flee, sns', 'hold');
 		var tmp={};
 		tmp.respond = respond;
-		tmp.Action = 'CHARGE_RESPOND';
+		tmp.Action = 'chargeRespond';
 		tmp['attacker']=mess.attacker;
 		tmp['target']=mess.target;
 		tmp['tile']=mess.tile;
@@ -197,7 +141,7 @@ function sendChargeDeclaration(attacker, target, tile) {
 
 function describeGame() {
 	var game = {};
-	game.Action='DESCRIBE_GAME';
+	game.Action='synchronizeMobs';
 	game['ACTIVE_MOB']=ACTIVE_MOB;
 	game['MOBS']=MOBS;
 	return JSON.stringify(game); 
@@ -205,7 +149,7 @@ function describeGame() {
 
 function sendShotCommunicate(shoter, target) {
 	var communicate = {};
-	communicate.Action='SHOT';
+	communicate.Action='shot';
 	communicate.shoter=shoter;
 	communicate.target=target;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
@@ -213,7 +157,7 @@ function sendShotCommunicate(shoter, target) {
 
 function declareCharge(attacker, target, tile) {
 	var charge = {};
-	charge.Action='CHARGE_DECLARATION';
+	charge.Action='chargeDeclaration';
 	charge['attacker']=attacker;
 	charge['target']=target;
 	charge['tile']=tile;
@@ -222,7 +166,7 @@ function declareCharge(attacker, target, tile) {
 
 function showArmyList(isSource) {
 	var army = {};
-	army.Action='SHOW_ARMY';
+	army.Action='showArmy';
 	var myMobs = [];
 	army['MOBS']=MOBS;
 	army.isSource=isSource;

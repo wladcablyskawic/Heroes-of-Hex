@@ -599,8 +599,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	else {
 		if(ACTIVE_MOB.isShotPossible(target)) {		
 			sendShotCommunicate(ACTIVE_MOB, target); 
-		//			this.animateShot();
-			ACTIVE_MOB.shoot(target);
+			//ACTIVE_MOB.shoot(target);
 		}
 	}
 	this.canvas.style.cursor = "default";
@@ -626,9 +625,7 @@ HexagonGrid.prototype.animateShot = function(shoter, target) {
 		setTimeout(function(param) {
 			param.hexagon.refreshHexGrid();
 		  var centerX = param.startX + param.i *param.stepRow;
-		  console.log('centerX='+centerX);
 		  var centerY = param.startY + param.i *param.stepColumn;
-		  console.log('centerY='+centerY);
 		  var radius = 5;
 
 		  param.hexagon.context.beginPath();
@@ -699,7 +696,7 @@ HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
 
 		ACTIVE_MOB = target;
 		ACTIVE_MOB.neighbours = getPossibleMoves(100, target.Tile);		
-		var fleeDistance = Math.floor((Math.random() * target.speed)+1);
+		var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
 		var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);
 		target.isWorking=true;
 		var fleeStepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);

@@ -18,10 +18,11 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 
 };
 
-Mob.prototype.parse = function(mob) {
-	var newMob = new Mob(mob.player, new Tile(mob.Tile.column, mob.Tile.row), mob.name, mob.type, mob.speed, mob.unitsize, mob.attack, mob.defense, mob.damage_min,
-	mob.damage_max, mob.hp, mob.max_hp, mob.shots, mob.max_shots);
-	return newMob;
+Mob.prototype.parse = function(newmob) {
+	for(mob of MOBS) {
+	if(newmob.name==mob.name) return mob;
+	}
+	return null;
 }
 
 Mob.prototype.getImage = function() {
@@ -53,7 +54,7 @@ Mob.prototype.isSurrounded = function() {
 Mob.prototype.calculateBasicDmg = function(target) {
 // http://heroes.thelazy.net/wiki/Damage
 	if(!(this.unitsize>0)) return 0;
-	var randomElement = Math.floor(Math.random()*(this.damage_max-this.damage_min+1)+this.damage_min);
+	var randomElement = Math.floor(randomGenerator()*(this.damage_max-this.damage_min+1)+this.damage_min);
 
 	var param=0;
 	var dmg=0;
