@@ -8,8 +8,43 @@
 <script type="text/javascript" src="js/jquery.shop.js"></script>
 </head>
 
+<script>
+function quickAddToCart(values) {
+			var cart = sessionStorage.getItem('army-cart');
+			
+			var cartObject = JSON.parse(cart);
+			var cartCopy = cartObject;
+			var items = cartCopy.items;
+			items.push( values );
+			
+			sessionStorage.setItem('army-cart', JSON.stringify(cartCopy) );
+		};
+</script>
+
 <body>
 
+					<a href="hexagongrid.html" class="btn" id="checkoutlink" onclick="
+					sessionStorage.setItem('player-name', 'empire-player' );
+					sessionStorage.setItem('player-email', 'empire@player.com' );
+					quickAddToCart({product:'Archer', price:'150', qty: '11'});
+					quickAddToCart({product:'Swordsman', price:'300', qty: '4'});
+					quickAddToCart({product:'Swordsman', price:'300', qty: '4'});
+					quickAddToCart({product:'Pikeman', price:'60', qty: '25'});
+					sessionStorage.setItem('army-total', '5000');
+					sessionStorage.setItem('player-number','1');
+					">QuickPlay Empire</a>
+					<a href="hexagongrid.html" class="btn" id="checkoutlink" onclick="
+					sessionStorage.setItem('player-name', 'goblin-player' );
+					sessionStorage.setItem('player-email', 'goblin@player.com' );
+					quickAddToCart({product:'Orc', price:'150', qty: '5'});
+					quickAddToCart({product:'Troll', price:'500', qty: '5'});
+					quickAddToCart({product:'Orc', price:'150', qty: '5'});
+					quickAddToCart({product:'Goblin', price:'40', qty: '25'});
+					sessionStorage.setItem('army-total', '5000');
+					sessionStorage.setItem('player-number','2');
+					">QuickPlay Greenskins</a>
+
+					
 <div id="site">
 	<header id="masthead">
 		<h1>Army Builder <span class="tagline">Brace yourself for a hex battle!</h1>
