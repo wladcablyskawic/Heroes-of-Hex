@@ -598,12 +598,57 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	}	
 	else {
 		if(ACTIVE_MOB.isShotPossible(target)) {		
+			sendShotCommunicate(ACTIVE_MOB, target); 
+		//			this.animateShot();
 			ACTIVE_MOB.shoot(target);
 		}
 	}
 	this.canvas.style.cursor = "default";
 	this.refreshHexGrid();
 };
+
+HexagonGrid.prototype.animateShot = function(shoter, target) {
+var count = 2* hex_distance(shoter.Tile.column, shoter.Tile.row,target.Tile.column,target.Tile.row);
+var startX = (shoter.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
+var startY = shoter.Tile.column % 2 == 0 ? 
+			(shoter.Tile.row * this.height) + this.canvasOriginY + (this.height / 2): 
+			(shoter.Tile.row * this.height) + this.canvasOriginY + (this.height);
+			
+var endX = (target.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
+var endY = target.Tile.column % 2 == 0 ? 
+			(target.Tile.row * this.height) + this.canvasOriginY + (this.height / 2): 
+			(target.Tile.row * this.height) + this.canvasOriginY + (this.height);
+
+var stepRow = -(startX-endX)/count;
+var stepColumn=-(startY-endY)/count;
+	for(i=0; i<count; i++) {
+	var param ={startX:startX, startY:startY, stepColumn:stepColumn, stepRow:stepRow, hexagon:this, i:i};
+		setTimeout(function(param) {
+			param.hexagon.refreshHexGrid();
+		  var centerX = param.startX + param.i *param.stepRow;
+		  console.log('centerX='+centerX);
+		  var centerY = param.startY + param.i *param.stepColumn;
+		  console.log('centerY='+centerY);
+		  var radius = 5;
+
+		  param.hexagon.context.beginPath();
+		  param.hexagon.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+		  param.hexagon.context.fillStyle = 'green';
+		  param.hexagon.context.fill();
+		  param.hexagon.context.lineWidth = 5;
+		  param.hexagon.context.strokeStyle = '#003300';
+		  param.hexagon.context.stroke();				
+			}, i*50, param);	
+	}
+	
+	setTimeout(function(hexagon) {
+		hexagon.refreshHexGrid();
+	}, count*50, this);
+	
+			
+			
+};
+
 
 HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
 attacker=ACTIVE_MOB;

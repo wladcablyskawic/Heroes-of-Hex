@@ -74,7 +74,11 @@ var mess = JSON.parse(message.content);
 			hexagonGrid.moveFlee(mess.target, mess.tile);
 		}
 		
-	} else if(mess.Action=='SHOW_ARMY'  && !isSelf) {
+	} else if(mess.Action=='SHOT') {
+	console.log('shot odebrany');
+			hexagonGrid.animateShot(mess.shoter, mess.target);
+			
+	}else if(mess.Action=='SHOW_ARMY'  && !isSelf) {
 		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
 		
 		for(i=0; i<mess.MOBS.length; i++) {
@@ -198,6 +202,14 @@ function describeGame() {
 	game['ACTIVE_MOB']=ACTIVE_MOB;
 	game['MOBS']=MOBS;
 	return JSON.stringify(game); 
+}
+
+function sendShotCommunicate(shoter, target) {
+	var communicate = {};
+	communicate.Action='SHOT';
+	communicate.shoter=shoter;
+	communicate.target=target;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
 function declareCharge(attacker, target, tile) {
