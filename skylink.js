@@ -172,3 +172,11 @@ function showArmyList(isSource) {
 	army.isSource=isSource;
 	return JSON.stringify(army); 
 }
+
+function sendMobToTile(tile) {
+	var move = {};
+	move.Action='moveMob';
+	move['mob']=ACTIVE_MOB;
+	move['tile']=tile;
+	skylink.sendP2PMessage(JSON.stringify(move)); 	
+}

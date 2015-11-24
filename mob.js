@@ -18,9 +18,32 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 
 };
 
+Mob.prototype.goToTile = function(tile) {
+	console.log('start goToTile');
+		ACTIVE_MOB=this;
+		this.isWorking=true;
+		var stepByStep = path(this.Tile.row,this.Tile.column, tile.row, tile.column);
+		console.log(stepByStep);
+		for(i=1; i<stepByStep.length; i++) {
+
+			var param = {nextTile:stepByStep[i]};
+		
+		setTimeout(function(param) {
+			ACTIVE_MOB.Tile = param.nextTile;
+			if(ACTIVE_MOB.Tile.getCoordinates()==tile.getCoordinates()) {
+				selectNextMob(ACTIVE_MOB);
+			}
+			hexagonGrid.refreshHexGrid();
+			}, i*150, param);	
+		}
+}
+
 Mob.prototype.parse = function(newmob) {
 	for(mob of MOBS) {
-	if(newmob.name==mob.name) return mob;
+		if(newmob.name==mob.name) {
+			mob.neighbours = getPossibleMoves(mob.speed, mob.Tile);
+			return mob;
+		}
 	}
 	return null;
 }

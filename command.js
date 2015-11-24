@@ -7,21 +7,23 @@ var commandManager = {
 	},
 	
 	chargeRespond: function(mess, isSelf) {
-		if(isSelf) return;	
-		if(mess.respond=='hold') 
-			hexagonGrid.moveCharge(mess.attacker, mess.target, mess.tile);
+		//if(isSelf) return;	
+			target = new Mob().parse(mess.target);
+			attacker = new Mob().parse(mess.attacker);
+		
+		if(mess.respond=='hold') {
+			if(isSelf) return;
+			hexagonGrid.moveCharge(attacker, target, mess.tile);
+		}
 		else if(mess.respond=='sns') {
-			target = new Mob();
-			target = target.parse(mess.target);
-			attacker = new Mob();
-			attacker = attacker.parse(mess.attacker);
+			if(isSelf) return;
 			target.standAndShot(ACTIVE_MOB);
 			if(ACTIVE_MOB.unitsize>0)	hexagonGrid.moveCharge(ACTIVE_MOB, target, mess.tile);
 			else selectNextMob(ACTIVE_MOB);
 
 		}
 		else if(mess.respond=='flee') {
-			hexagonGrid.moveFlee(mess.target, mess.tile);
+			hexagonGrid.moveFlee(target, mess.tile);
 		}	
 	},
 	
@@ -29,6 +31,12 @@ var commandManager = {
 		target = new Mob().parse(mess.target);
 		ACTIVE_MOB.shoot(target);
 		hexagonGrid.animateShot(mess.shoter, target);
+	},
+	
+	moveMob: function(mess) {
+		mob = new Mob().parse(mess.mob);
+		tile = new Tile().parse(mess.tile);
+		mob.goToTile(tile);
 	},
 	
 	showArmy: function(mess, isSelf) {

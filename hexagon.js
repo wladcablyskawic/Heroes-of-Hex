@@ -417,7 +417,7 @@ HexagonGrid.prototype.getSelectedTile = function(mouseX, mouseY) {
         }
     }
 
-    return  new Tile(column, row); 
+    return new Tile(column, row); 
 };
 
 
@@ -502,12 +502,12 @@ HexagonGrid.prototype.hoverEvent = function (e) {
     var localX = mouseX - this.canvasOriginX;
     var localY = mouseY - this.canvasOriginY;
 	
-    var Tile = this.getSelectedTile(localX, localY);
+    var tile = this.getSelectedTile(localX, localY);
 
 	
 	
 	for(var i=0; i<OBSTACLES.length; i++) {
-		if(Tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
+		if(tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
 			message = OBSTACLES[i].hover;
 			writeMessage(this.context, message);
 			return;
@@ -515,7 +515,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	}
 	
 	for(var i=0; i<MOBS.length; i++) {
-		if(Tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
+		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
 			if(ACTIVE_MOB.isShotPossible(MOBS[i])) this.canvas.style.cursor = 'crosshair';	
 			else if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
@@ -548,51 +548,38 @@ HexagonGrid.prototype.clickEvent = function (e) {
     var localX = mouseX - this.canvasOriginX;
     var localY = mouseY - this.canvasOriginY;
 	
-    var Tile = this.getSelectedTile(localX, localY);
+    var tile = this.getSelectedTile(localX, localY);
+	
 
 	var target;
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==Tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME)
+		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME)
 		target=MOBS[i];
 	}	
 		
-	this.recalculateChargeClick(Tile);
+	this.recalculateChargeClick(tile);
 
-	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && Tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
-	&& target.isSurrounded()==false && isValidTile(Tile)) {
-		sendChargeDeclaration(ACTIVE_MOB, target, Tile);
+	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
+	&& target.isSurrounded()==false && isValidTile(tile)) {
+		sendChargeDeclaration(ACTIVE_MOB, target, tile);
 		alert('The charge was declared. Waiting for an opponent\'s respond.');
 		ACTIVE_MOB.isWorking=true;
 		return;
 	}
 
 	
-	if(isValidTile(Tile) && isContained(Tile, ACTIVE_MOB.neighbours))
+	if(isValidTile(tile) && isContained(tile, ACTIVE_MOB.neighbours))
 	{
 	
-		if(ACTIVE_MOB.isSurrounded() && Tile.getCoordinates() != ACTIVE_MOB.Tile.getCoordinates()) 
+		if(ACTIVE_MOB.isSurrounded() && tile.getCoordinates() != ACTIVE_MOB.Tile.getCoordinates()) 
 		{
 			alert('you cannot just go, you are fighting, lol');
 			return;
 		}
 	
-		ACTIVE_MOB.isWorking=true;
-		var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, Tile.row, Tile.column);
-		for(i=1; i<stepByStep.length; i++) {
-
-			var param = {hexagon:this, tile:stepByStep[i]};
+		sendMobToTile(tile); // komunikat obslugiwany przez obu graczy
 		
-		setTimeout(function(param) {
-			ACTIVE_MOB.Tile = param.tile;
-			sendGameState();	
-			if(ACTIVE_MOB.Tile.getCoordinates()==Tile.getCoordinates()) {
-				if(target!=undefined) combat(ACTIVE_MOB, target)
-				selectNextMob(ACTIVE_MOB);
-			}
-			param.hexagon.refreshHexGrid();
-			}, i*150, param);	
-		}	
-	} else if(Tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
+	} else if(tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
 		if(target!=undefined) combat(ACTIVE_MOB, target)
 		selectNextMob(ACTIVE_MOB);
 	}	
@@ -688,7 +675,6 @@ HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
 		
 		setTimeout(function(param) {
 			attacker.Tile = param.tile;
-			sendGameState();	
 			param.hexagon.refreshHexGrid();
 			if(param.isFinalStep) selectNextMob(attacker); 
 			}, i*500, param);	
@@ -707,7 +693,6 @@ HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
 		
 		setTimeout(function(param) {
 			target.Tile = param.tile;
-			sendGameState();
 			param.hexagon.refreshHexGrid();
 			}, i*500, param);	
 		}
@@ -753,7 +738,6 @@ function selectNextMob(warrior)
 	}
 	
 	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
-	else sendGameState();
 }
 
 	
