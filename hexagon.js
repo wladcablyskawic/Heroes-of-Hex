@@ -658,6 +658,7 @@ function combat(attacker, target) {
 				attacker.payThePiper(dmg);
 			}
 		}
+		
 }
 
 HexagonGrid.prototype.refreshHexGrid = function()

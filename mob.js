@@ -26,8 +26,6 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 		
 		setTimeout(function(param) {
 			param.mob.Tile = param.nextTile;
-			console.log(param.mob.name+' idzie do '+param.nextTile.getCoordinates());
-			console.log(param.endstep);
 			if(param.endstep) {
 			param.mob.isWorking=false;
 				if(target!=undefined && param.mob!=target) combat(param.mob, target)
@@ -105,8 +103,6 @@ Mob.prototype.calculateRangeDmg = function(target) {
 
 	// cover
 	var potentialCovers = getConnectedHexes(target.Tile);
-	console.log('potentialCovers:');
-	console.log(potentialCovers);
 	var minimumRange=999;
 	var minimumCount=0;	
 	for(tile of potentialCovers) {

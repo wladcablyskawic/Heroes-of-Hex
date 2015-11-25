@@ -138,24 +138,11 @@ function addMessage(message, className) {
   chatbox.appendChild(div);
 }
 
-function sendGameState() {
-	  skylink.sendP2PMessage(describeGame());
-}
-
 function sendChargeDeclaration(attacker, target, tile) {
 	var tmp=declareCharge(attacker, target, tile);
 	console.log(tmp);
 	  skylink.sendP2PMessage(tmp);
 }
-
-function describeGame() {
-	var game = {};
-	game.Action='synchronizeMobs';
-	game['ACTIVE_MOB']=ACTIVE_MOB;
-	game['MOBS']=MOBS;
-	return JSON.stringify(game); 
-}
-
 function sendShotCommunicate(shoter, target) {
 	var communicate = {};
 	communicate.Action='shot';

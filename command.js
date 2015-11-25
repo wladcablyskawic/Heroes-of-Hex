@@ -49,16 +49,13 @@ var commandManager = {
 		oponent = new Mob().parse(mess.oponent);
 		combat(agresor, oponent);
 		selectNextMob(agresor);
-		hexagonGrid.animateSho;
+		hexagonGrid.refreshHexGrid();
 
 	},	
 	
 	moveMob: function(mess) {
-	console.log('mess.tile');
-	console.log(mess.tile);
 		mob = new Mob().parse(mess.mob);
 		tile = new Tile().parse(mess.tile);
-		console.log(tile);
 		ACTIVE_MOB=mob;
 		var stepByStep = path(mob.Tile.row,mob.Tile.column, tile.row, tile.column);
 		mob.goToTile(stepByStep);
@@ -80,23 +77,7 @@ var commandManager = {
 		
 		
 		hexagonGrid.refreshHexGrid();
-	},
-	
-	synchronizeMobs: function(mess, isSelf) {
-		if(isSelf) return;
-		for(i=0; i<mess.MOBS.length; i++) {
-			MOBS[i].unitsize = mess.MOBS[i].unitsize;
-			MOBS[i].hp = mess.MOBS[i].hp;
-			MOBS[i].Tile.column = mess.MOBS[i].Tile.column;
-			MOBS[i].Tile.row = mess.MOBS[i].Tile.row;		
-			if(mess.ACTIVE_MOB.name==MOBS[i].name) {
-				ACTIVE_MOB=MOBS[i];
-			}
-		}
-		hexagonGrid.refreshHexGrid();
 	}
- 
- 
   };
   
 function compareMobs(a,b) {
