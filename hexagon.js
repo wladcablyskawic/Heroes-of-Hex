@@ -563,7 +563,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	&& target.isSurrounded()==false && isValidTile(tile)) {
 		sendChargeDeclaration(ACTIVE_MOB, target, tile);
 		alert('The charge was declared. Waiting for an opponent\'s respond.');
-		ACTIVE_MOB.isWorking=true;
+	//	ACTIVE_MOB.isWorking=true;
 		return;
 	}
 
@@ -576,8 +576,9 @@ HexagonGrid.prototype.clickEvent = function (e) {
 			alert('you cannot just go, you are fighting, lol');
 			return;
 		}
+		console.log('tile '+tile.getCoordinates());
 	
-		sendMobToTile(tile); // komunikat obslugiwany przez obu graczy
+		sendMobToTile(ACTIVE_MOB, tile); // komunikat obslugiwany przez obu graczy
 		
 	} else if(tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
 		if(target!=undefined) combat(ACTIVE_MOB, target)
@@ -641,23 +642,10 @@ HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
 		target=MOBS[i];
 	}	
 
-	attacker.isWorking=true;
-		var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
-		for(i=1; i<stepByStep.length; i++) {
-
-		var param = {hexagon:this, tile:stepByStep[i]};		
-		setTimeout(function(param) {
-			attacker.Tile = param.tile;
-			sendGameState();	
-			if(attacker.Tile.row==tile.row && attacker.Tile.column==tile.column) {
-				if(target!=undefined) combat(attacker, target)
-				selectNextMob(attacker);
-			}
-			param.hexagon.refreshHexGrid();
-			}, i*150, param);	
-		}
+	var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, tile.row, tile.column);
+	ACTIVE_MOB.goToTile(stepByStep, target);
 };
-
+/*
 HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
 	attacker = ACTIVE_MOB;
 	var target;
@@ -665,41 +653,22 @@ HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
 		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
 		target=MOBS[i];
 	}	
-		
-	attacker.isWorking=true;
-		var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
-		for(i=1; i<stepByStep.length; i++) {
+	console.log('target ='+target.name);
 
-			var param = {hexagon:this, tile:stepByStep[i]};
-			param.isFinalStep=(i==stepByStep.length-1)?true:false;
-		
-		setTimeout(function(param) {
-			attacker.Tile = param.tile;
-			param.hexagon.refreshHexGrid();
-			if(param.isFinalStep) selectNextMob(attacker); 
-			}, i*500, param);	
-		}
+		var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, tile.row, tile.column);
+		attacker.goToTile(stepByStep);
 
 		ACTIVE_MOB = target;
-		ACTIVE_MOB.neighbours = getPossibleMoves(100, target.Tile);		
 		var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
+		ACTIVE_MOB.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 		var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);
-		target.isWorking=true;
-		var fleeStepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);
-		ACTIVE_MOB=attacker;
-		for(i=1; i<fleeStepByStep.length; i++) {
 
-			var param = {hexagon:this, tile:fleeStepByStep[i]};
+		target.goToTile(fleeDestination);
 		
-		setTimeout(function(param) {
-			target.Tile = param.tile;
-			param.hexagon.refreshHexGrid();
-			}, i*500, param);	
-		}
 		
 		ACTIVE_MOB=attacker;
 };
-
+*/
 function combat(attacker, target) {	
 		if(target!=undefined) {
 			var dmg = attacker.calculateMeleeDmg(target);

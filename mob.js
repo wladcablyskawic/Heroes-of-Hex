@@ -18,20 +18,20 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 
 };
 
-Mob.prototype.goToTile = function(tile) {
-	console.log('start goToTile');
-		ACTIVE_MOB=this;
+Mob.prototype.goToTile = function(stepByStep, target) {
 		this.isWorking=true;
-		var stepByStep = path(this.Tile.row,this.Tile.column, tile.row, tile.column);
-		console.log(stepByStep);
 		for(i=1; i<stepByStep.length; i++) {
-
-			var param = {nextTile:stepByStep[i]};
+		var isFinal= (i==stepByStep.length-1)?true:false;
+		var param = {nextTile:stepByStep[i], mob:this, endstep:isFinal};
 		
 		setTimeout(function(param) {
-			ACTIVE_MOB.Tile = param.nextTile;
-			if(ACTIVE_MOB.Tile.getCoordinates()==tile.getCoordinates()) {
-				selectNextMob(ACTIVE_MOB);
+			param.mob.Tile = param.nextTile;
+			console.log(param.mob.name+' idzie do '+param.nextTile.getCoordinates());
+			console.log(param.endstep);
+			if(param.endstep) {
+			param.mob.isWorking=false;
+				if(target!=undefined && param.mob!=target) combat(param.mob, target)
+				if(param.mob!=target) selectNextMob(param.mob);
 			}
 			hexagonGrid.refreshHexGrid();
 			}, i*150, param);	

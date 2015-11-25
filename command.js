@@ -12,7 +12,7 @@ var commandManager = {
 			attacker = new Mob().parse(mess.attacker);
 		
 		if(mess.respond=='hold') {
-			if(isSelf) return;
+//			if(isSelf) return;
 			hexagonGrid.moveCharge(attacker, target, mess.tile);
 		}
 		else if(mess.respond=='sns') {
@@ -23,7 +23,18 @@ var commandManager = {
 
 		}
 		else if(mess.respond=='flee') {
-			hexagonGrid.moveFlee(target, mess.tile);
+			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
+			attacker.goToTile(stepByStep);
+
+			ACTIVE_MOB = target;
+			var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
+			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
+			var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);			
+			stepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);
+			target.goToTile(stepByStep, target);	
+			
+			ACTIVE_MOB=attacker;
+
 		}	
 	},
 	
@@ -34,9 +45,14 @@ var commandManager = {
 	},
 	
 	moveMob: function(mess) {
+	console.log('mess.tile');
+	console.log(mess.tile);
 		mob = new Mob().parse(mess.mob);
 		tile = new Tile().parse(mess.tile);
-		mob.goToTile(tile);
+		console.log(tile);
+		ACTIVE_MOB=mob;
+		var stepByStep = path(mob.Tile.row,mob.Tile.column, tile.row, tile.column);
+		mob.goToTile(stepByStep);
 	},
 	
 	showArmy: function(mess, isSelf) {
