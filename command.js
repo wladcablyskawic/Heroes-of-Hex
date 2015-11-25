@@ -10,6 +10,10 @@ var commandManager = {
 		//if(isSelf) return;	
 			target = new Mob().parse(mess.target);
 			attacker = new Mob().parse(mess.attacker);
+//			tile = new Tile().parse(mess.tile);
+			
+			console.log('charge respond tile:');
+			console.log(mess.tile);
 		
 		if(mess.respond=='hold') {
 //			if(isSelf) return;
@@ -23,14 +27,20 @@ var commandManager = {
 
 		}
 		else if(mess.respond=='flee') {
-			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, tile.row, tile.column);
+			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, mess.tile.row, mess.tile.column);
 			attacker.goToTile(stepByStep);
+			
+			console.log('stepyByStep1');
+			console.log(stepByStep);
 
 			ACTIVE_MOB = target;
 			var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);			
 			stepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);
+			console.log('stepyByStep2');
+			console.log(stepByStep);
+
 			target.goToTile(stepByStep, target);	
 			
 			ACTIVE_MOB=attacker;

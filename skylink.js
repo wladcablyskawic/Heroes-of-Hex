@@ -58,27 +58,44 @@ function startgame() {
 function respondCharge(mess) {
 		var tmp={};
 		tmp.Action = 'chargeRespond';
-		tmp['attacker']=mess.attacker;
-		tmp['target']=mess.target;
-		tmp['tile']=mess.tile;
+		tmp.attacker=mess.attacker;
+		tmp.target=mess.target;
+		tmp.tile=mess.tile;
 
-		
 		target = new Mob().parse(mess.target);
 		if(target.isSurrounded()==true) {
 			tmp.respond = 'hold';		
 			skylink.sendP2PMessage(JSON.stringify(tmp));	
 			return;
 		}		
-
-		alert(mess.attacker.type+'['+mess.attacker.Tile.column
+		var communicate = mess.attacker.type+'['+mess.attacker.Tile.column
 		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
 		+'['+mess.tile.column
-		+','+mess.tile.row+']');
-		var respond = prompt('Your decision? hold, flee, sns', 'hold');
-		tmp.respond = respond;
+		+','+mess.tile.row+']. What is your answer?';
 		
-		skylink.sendP2PMessage(JSON.stringify(tmp));	
+		$( "#chargeRespondDialog" ).text(communicate);
 
+		$( "#chargeRespondDialog" ).dialog({
+		modal:true,
+		buttons: {
+			'hold': function() {
+				tmp.respond='hold';
+				skylink.sendP2PMessage(JSON.stringify(tmp));
+				$(this).dialog('close');
+			},
+			'flee': function() {
+				tmp.respond='flee';
+				skylink.sendP2PMessage(JSON.stringify(tmp));
+				$(this).dialog('close');
+			},
+			'sns': function() {
+				tmp.respond='sns';
+				skylink.sendP2PMessage(JSON.stringify(tmp));
+				$(this).dialog('close');
+			}		
+		}
+		});
+		
 };
 
 skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456',
@@ -139,8 +156,8 @@ function addMessage(message, className) {
 }
 
 function sendChargeDeclaration(attacker, target, tile) {
+	//attacker.isWorking=true;
 	var tmp=declareCharge(attacker, target, tile);
-	console.log(tmp);
 	  skylink.sendP2PMessage(tmp);
 }
 function sendShotCommunicate(shoter, target) {

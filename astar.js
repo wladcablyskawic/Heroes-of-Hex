@@ -183,8 +183,8 @@
 			// Check cases path is impossible from the start.
 			var error=0;
 			if(start_x == end_x && start_y == end_y) { error=1; console.log('start point equal end point'); }
-			if(!hex_accessible(start_x,start_y)) { error=1; console.log('wrong start point'); }
-			if(!hex_accessible(end_x,end_y)) { error=1; console.log('wrong end point'); }
+			if(!hex_accessible(start_x,start_y)) { error=1; console.log('wrong start point'+end_y+','+end_x); }
+			if(!hex_accessible(end_x,end_y)) { error=1; console.log('wrong end point'+end_y+','+end_x); }
 			if(error==1) {
 				alert('Path is impossible to create.');
 				return false;

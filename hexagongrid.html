@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
     <title>Hex</title>
+	<link href="jquery-ui.css" rel="stylesheet">
 	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
     <script src="skylink.js"></script>
     <script src="hexagon.js"></script>
@@ -9,7 +10,12 @@
 	<script src="troops.js"></script>
 	<script src="command.js"></script>
 	<script src="randomgenerator.js"></script>	
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery-ui.js"></script>
+
 </head>
+
+
 
 <style>
 header {
@@ -101,4 +107,28 @@ header a:first-child {
 <img src="troops/Creature_Orc_2.gif" id="Image_Orc_2" style="display:none" >
 <img src="troops/Creature_Troll_2.gif" id="Image_Troll_2" style="display:none" >
 
+<div id="chargeRespondDialog" title="Decision time!" style="display: none;">
+  <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+</div>
+
+<script>
+
+		$( "#chargeRespondDialog" ).on('click', '#holdButton', function() 
+		{
+			tmp.respond='hold';
+			$( "#chargeRespondDialog" ).dialog('close');
+
+		});
+		$( "#chargeRespondDialog" ).on('click', '#fleeButton', function() 
+		{
+			tmp.respond='flee';
+			$( "#chargeRespondDialog" ).dialog('close');		
+		});
+		$( "#chargeRespondDialog" ).on('click', '#snsButton', function() 
+		{	
+			tmp.respond='sns';
+			$( "#chargeRespondDialog" ).dialog('close');			
+		});
+		</script>
+  
 </body>
