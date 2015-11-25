@@ -31,7 +31,7 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 			if(param.endstep) {
 			param.mob.isWorking=false;
 				if(target!=undefined && param.mob!=target) combat(param.mob, target)
-				if(param.mob!=target) selectNextMob(param.mob);
+				/*if(param.mob!=target)*/ selectNextMob(param.mob);
 			}
 			hexagonGrid.refreshHexGrid();
 			}, i*150, param);	

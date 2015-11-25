@@ -576,18 +576,21 @@ HexagonGrid.prototype.clickEvent = function (e) {
 			alert('you cannot just go, you are fighting, lol');
 			return;
 		}
-		console.log('tile '+tile.getCoordinates());
-	
+
+		if(target!=undefined)
+		sendChargeDeclaration(ACTIVE_MOB, target, tile);		
+		else
 		sendMobToTile(ACTIVE_MOB, tile); // komunikat obslugiwany przez obu graczy
 		
+		
 	} else if(tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
-		if(target!=undefined) combat(ACTIVE_MOB, target)
-		selectNextMob(ACTIVE_MOB);
+		if(target!=undefined) { 
+			sendCombatCommunicate(ACTIVE_MOB, target);
+		}
 	}	
 	else {
 		if(ACTIVE_MOB.isShotPossible(target)) {		
 			sendShotCommunicate(ACTIVE_MOB, target); 
-			//ACTIVE_MOB.shoot(target);
 		}
 	}
 	this.canvas.style.cursor = "default";
@@ -645,30 +648,7 @@ HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
 	var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, tile.row, tile.column);
 	ACTIVE_MOB.goToTile(stepByStep, target);
 };
-/*
-HexagonGrid.prototype.moveFlee = function (targetedMob, tile) {
-	attacker = ACTIVE_MOB;
-	var target;
-	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].isAlive() && MOBS[i].name == targetedMob.name)
-		target=MOBS[i];
-	}	
-	console.log('target ='+target.name);
 
-		var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, tile.row, tile.column);
-		attacker.goToTile(stepByStep);
-
-		ACTIVE_MOB = target;
-		var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
-		ACTIVE_MOB.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
-		var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);
-
-		target.goToTile(fleeDestination);
-		
-		
-		ACTIVE_MOB=attacker;
-};
-*/
 function combat(attacker, target) {	
 		if(target!=undefined) {
 			var dmg = attacker.calculateMeleeDmg(target);

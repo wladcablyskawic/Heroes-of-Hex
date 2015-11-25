@@ -16,7 +16,7 @@ var commandManager = {
 			hexagonGrid.moveCharge(attacker, target, mess.tile);
 		}
 		else if(mess.respond=='sns') {
-			if(isSelf) return;
+//			if(isSelf) return;
 			target.standAndShot(ACTIVE_MOB);
 			if(ACTIVE_MOB.unitsize>0)	hexagonGrid.moveCharge(ACTIVE_MOB, target, mess.tile);
 			else selectNextMob(ACTIVE_MOB);
@@ -43,6 +43,15 @@ var commandManager = {
 		ACTIVE_MOB.shoot(target);
 		hexagonGrid.animateShot(mess.shoter, target);
 	},
+
+	combat: function(mess, isSelf) {
+		agresor = new Mob().parse(mess.agresor); 
+		oponent = new Mob().parse(mess.oponent);
+		combat(agresor, oponent);
+		selectNextMob(agresor);
+		hexagonGrid.animateSho;
+
+	},	
 	
 	moveMob: function(mess) {
 	console.log('mess.tile');

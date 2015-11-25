@@ -56,17 +56,26 @@ function startgame() {
 }
 
 function respondCharge(mess) {
+		var tmp={};
+		tmp.Action = 'chargeRespond';
+		tmp['attacker']=mess.attacker;
+		tmp['target']=mess.target;
+		tmp['tile']=mess.tile;
+
+		
+		target = new Mob().parse(mess.target);
+		if(target.isSurrounded()==true) {
+			tmp.respond = 'hold';		
+			skylink.sendP2PMessage(JSON.stringify(tmp));	
+			return;
+		}		
+
 		alert(mess.attacker.type+'['+mess.attacker.Tile.column
 		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
 		+'['+mess.tile.column
 		+','+mess.tile.row+']');
 		var respond = prompt('Your decision? hold, flee, sns', 'hold');
-		var tmp={};
 		tmp.respond = respond;
-		tmp.Action = 'chargeRespond';
-		tmp['attacker']=mess.attacker;
-		tmp['target']=mess.target;
-		tmp['tile']=mess.tile;
 		
 		skylink.sendP2PMessage(JSON.stringify(tmp));	
 
@@ -152,6 +161,15 @@ function sendShotCommunicate(shoter, target) {
 	communicate.Action='shot';
 	communicate.shoter=shoter;
 	communicate.target=target;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 
+}
+
+
+function sendCombatCommunicate(agresor, oponent) {
+	var communicate = {};
+	communicate.Action='combat';
+	communicate.agresor=agresor;
+	communicate.oponent=oponent;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
