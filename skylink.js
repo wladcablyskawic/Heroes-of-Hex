@@ -75,9 +75,7 @@ function respondCharge(mess) {
 		
 		$( "#chargeRespondDialog" ).text(communicate);
 
-		$( "#chargeRespondDialog" ).dialog({
-		modal:true,
-		buttons: {
+		var buttons = {
 			'hold': function() {
 				tmp.respond='hold';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
@@ -87,13 +85,18 @@ function respondCharge(mess) {
 				tmp.respond='flee';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
-			},
-			'sns': function() {
+			}
+		};
+		
+		if(target.shots>0) buttons['sns'] = function() {
 				tmp.respond='sns';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
-			}		
-		}
+			};		
+		
+		$( "#chargeRespondDialog" ).dialog({
+		modal:true,
+		buttons: buttons
 		});
 		
 };

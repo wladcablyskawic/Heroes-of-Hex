@@ -562,7 +562,9 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
 	&& target.isSurrounded()==false && isValidTile(tile)) {
 		sendChargeDeclaration(ACTIVE_MOB, target, tile);
-	//	alert('The charge was declared. Waiting for an opponent\'s respond.');
+
+		$( "#chargeRespondDialog" ).text('The charge was declared. Waiting for an opponent\'s respond.');
+		$( "#chargeRespondDialog" ).dialog({buttons:{}});
 		ACTIVE_MOB.isWorking=true;
 		return;
 	}

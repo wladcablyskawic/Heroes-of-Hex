@@ -111,24 +111,5 @@ header a:first-child {
   <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
 </div>
 
-<script>
-
-		$( "#chargeRespondDialog" ).on('click', '#holdButton', function() 
-		{
-			tmp.respond='hold';
-			$( "#chargeRespondDialog" ).dialog('close');
-
-		});
-		$( "#chargeRespondDialog" ).on('click', '#fleeButton', function() 
-		{
-			tmp.respond='flee';
-			$( "#chargeRespondDialog" ).dialog('close');		
-		});
-		$( "#chargeRespondDialog" ).on('click', '#snsButton', function() 
-		{	
-			tmp.respond='sns';
-			$( "#chargeRespondDialog" ).dialog('close');			
-		});
-		</script>
   
 </body>

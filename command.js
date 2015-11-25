@@ -7,6 +7,7 @@ var commandManager = {
 	},
 	
 	chargeRespond: function(mess, isSelf) {
+	$( "#chargeRespondDialog" ).dialog('close');
 		//if(isSelf) return;	
 			target = new Mob().parse(mess.target);
 			attacker = new Mob().parse(mess.attacker);
