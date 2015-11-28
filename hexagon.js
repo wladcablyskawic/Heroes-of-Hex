@@ -562,10 +562,6 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	if(ACTIVE_MOB.isSurrounded()==false && target!=undefined && tile!=ACTIVE_MOB.Tile && !ACTIVE_MOB.isShotPossible(target)
 	&& target.isSurrounded()==false && isValidTile(tile)) {
 		sendChargeDeclaration(ACTIVE_MOB, target, tile);
-
-		$( "#chargeRespondDialog" ).text('The charge was declared. Waiting for an opponent\'s respond.');
-		$( "#chargeRespondDialog" ).dialog({buttons:{}});
-		ACTIVE_MOB.isWorking=true;
 		return;
 	}
 
@@ -693,13 +689,50 @@ function selectNextMob(warrior)
 	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);
 }
 
-	
-HexagonGrid.prototype.contextMenuEvent = function (e) {
-	selectNextMob(ACTIVE_MOB);
+	HexagonGrid.prototype.contextMenuEvent = function (e) {
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
 
+    var localX = mouseX - this.canvasOriginX;
+    var localY = mouseY - this.canvasOriginY;
+	
+    var tile = this.getSelectedTile(localX, localY);
+	
+	var target;
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==tile.getCoordinates())
+		target=MOBS[i];
+	}	
+	
+	if(target!=undefined) {
+		$(document).mousemove(function(e){ 
+			if(e.pageX!=mouseX && e.pageY!=mouseY) {
+				$("#chargeRespondDialog").dialog('close');
+				$(document).off('mousemove');
+			}
+		}); //end confirm dialog
+
+		$("#chargeRespondDialog").dialog({
+        modal: true,
+        title: target.type+" information",
+        open: function () {
+			var markup= '<tr><td>unitsize:</td><td>'+target.unitsize+'</td></tr>';
+            markup+= '<tr><td>speed:</td><td>'+target.speed+'</td></tr>';
+			markup+= '<tr><td>attack:</td><td>'+target.attack+'</td></tr>';
+			markup+= '<tr><td>defense:</td><td>'+target.defense+'</td></tr>';
+			markup+= '<tr><td>damage:</td><td>'+target.damage_min+'-'+target.damage_max+'</td></tr>';
+			markup+= '<tr><td>hp:</td><td>'+target.hp+'/'+target.max_hp+'</td></tr>';
+			markup+= '<tr><td>shots:</td><td>'+target.shots+(target.max_shots>0 ?'/'+target.max_shots+'</td></tr>' : '</td></tr>');
+            $(this).html(markup);
+        }
+    });
+	
+
+	}
+	
 	e.preventDefault();
 	return false;
-};
+}
 
 function getConnectedHexes(tile) {
 		potentialNeighbours = [];

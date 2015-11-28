@@ -56,6 +56,8 @@ function startgame() {
 }
 
 function respondCharge(mess) {
+
+
 		var tmp={};
 		tmp.Action = 'chargeRespond';
 		tmp.attacker=mess.attacker;
@@ -70,18 +72,27 @@ function respondCharge(mess) {
 			skylink.sendP2PMessage(JSON.stringify(tmp));	
 			return;
 		}		
+
+		autoRespond = setTimeout(function(){ 
+				tmp.respond='hold';
+				skylink.sendP2PMessage(JSON.stringify(tmp));
+				$("#chargeRespondDialog").dialog('close');				
+		}, 3000);
+
+		
 		var communicate = mess.attacker.type+'['+mess.attacker.Tile.column
 		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
 		+'['+mess.tile.column
 		+','+mess.tile.row+']. What is your answer?';
 		
-		$( "#chargeRespondDialog" ).text(communicate);
+		$("#chargeRespondDialog").text(communicate);
 
 		var buttons = {
 			'hold': function() {
 				tmp.respond='hold';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
+				clearTimeout(autoRespond);
 			}
 		};
 		
@@ -89,6 +100,7 @@ function respondCharge(mess) {
 				tmp.respond='flee';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
+				clearTimeout(autoRespond);				
 			};		
 		
 		
@@ -97,6 +109,7 @@ function respondCharge(mess) {
 				tmp.respond='sns';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
+				clearTimeout(autoRespond);				
 			};		
 		
 		$( "#chargeRespondDialog" ).dialog({
@@ -164,9 +177,18 @@ function addMessage(message, className) {
 }
 
 function sendChargeDeclaration(attacker, target, tile) {
-	//attacker.isWorking=true;
-	var tmp=declareCharge(attacker, target, tile);
-	  skylink.sendP2PMessage(tmp);
+
+		$( "#chargeRespondDialog" ).text('The charge was declared. Waiting for an opponent\'s respond.');
+		$( "#chargeRespondDialog" ).dialog({buttons:{}});
+		ACTIVE_MOB.isWorking=true;
+		
+		var charge = {};
+		charge.Action='chargeDeclaration';
+		charge['attacker']=attacker;
+		charge['target']=target;
+		charge['tile']=tile;
+	 	
+		skylink.sendP2PMessage(JSON.stringify(charge));
 }
 function sendShotCommunicate(shoter, target) {
 	var communicate = {};
@@ -184,15 +206,6 @@ function sendCombatCommunicate(agresor, oponent) {
 	communicate.oponent=oponent;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
-
-function declareCharge(attacker, target, tile) {
-	var charge = {};
-	charge.Action='chargeDeclaration';
-	charge['attacker']=attacker;
-	charge['target']=target;
-	charge['tile']=tile;
-	return JSON.stringify(charge); 	
-};
 
 function showArmyList(isSource) {
 	var army = {};

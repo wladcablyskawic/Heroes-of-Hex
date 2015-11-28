@@ -27,7 +27,7 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 		setTimeout(function(param) {
 			param.mob.Tile = param.nextTile;
 			if(param.endstep) {
-			param.mob.isWorking=false;
+				param.mob.isWorking=false;
 				if(target!=undefined && param.mob!=target) combat(param.mob, target)
 				if(target==undefined || param.mob.name!=target.name) selectNextMob(param.mob);
 			}
