@@ -142,7 +142,7 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
     }	
 	
 	for(var i=0; i<OBSTACLES.length; i++) {
-		this.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), OBSTACLES[i].name);
+		this.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), '');
 	}
 
 			
@@ -504,16 +504,6 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	
     var tile = this.getSelectedTile(localX, localY);
 
-	
-	
-	for(var i=0; i<OBSTACLES.length; i++) {
-		if(tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
-			message = OBSTACLES[i].hover;
-			writeMessage(this.context, message);
-			return;
-		}
-	}
-	
 	for(var i=0; i<MOBS.length; i++) {
 		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
@@ -524,15 +514,9 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 				} 
 				
 			}
-			
-		
-		  message = MOBS[i].hover;				
-   		  writeMessage(this.context, message);
  		  return;
 		}
 	}
-	message='';
-//	writeMessage(this.context, message);
 	this.canvas.style.cursor = "default";		
 };
 
@@ -703,8 +687,31 @@ function selectNextMob(warrior)
 		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==tile.getCoordinates())
 		target=MOBS[i];
 	}	
-	
+		
+	var markup = '';
+	var title='';
 	if(target!=undefined) {
+		title=target.type+'\'s details';
+			var markup= '<tr><td>unitsize:</td><td>'+target.unitsize+'</td></tr>';
+            markup+= '<tr><td>speed:</td><td>'+target.speed+'</td></tr>';
+			markup+= '<tr><td>attack:</td><td>'+target.attack+'</td></tr>';
+			markup+= '<tr><td>defense:</td><td>'+target.defense+'</td></tr>';
+			markup+= '<tr><td>damage:</td><td>'+target.damage_min+'-'+target.damage_max+'</td></tr>';
+			markup+= '<tr><td>hp:</td><td>'+target.hp+'/'+target.max_hp+'</td></tr>';
+			markup+= '<tr><td>shots:</td><td>'+target.shots+(target.max_shots>0 ?'/'+target.max_shots+'</td></tr>' : '</td></tr>');	
+	} else {
+	
+		for(var i=0; i<OBSTACLES.length; i++) {
+			if(tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
+			title=OBSTACLES[i].name+'\'s details';
+			markup=OBSTACLES[i].hover;
+		}
+	}
+
+	
+	}
+	
+	if(markup!='') {
 		$(document).mousemove(function(e){ 
 			if(e.pageX!=mouseX && e.pageY!=mouseY) {
 				$("#chargeRespondDialog").dialog('close');
@@ -714,19 +721,11 @@ function selectNextMob(warrior)
 
 		$("#chargeRespondDialog").dialog({
         modal: true,
-        title: target.type+" information",
+        title: title,
         open: function () {
-			var markup= '<tr><td>unitsize:</td><td>'+target.unitsize+'</td></tr>';
-            markup+= '<tr><td>speed:</td><td>'+target.speed+'</td></tr>';
-			markup+= '<tr><td>attack:</td><td>'+target.attack+'</td></tr>';
-			markup+= '<tr><td>defense:</td><td>'+target.defense+'</td></tr>';
-			markup+= '<tr><td>damage:</td><td>'+target.damage_min+'-'+target.damage_max+'</td></tr>';
-			markup+= '<tr><td>hp:</td><td>'+target.hp+'/'+target.max_hp+'</td></tr>';
-			markup+= '<tr><td>shots:</td><td>'+target.shots+(target.max_shots>0 ?'/'+target.max_shots+'</td></tr>' : '</td></tr>');
             $(this).html(markup);
         }
-    });
-	
+    });	
 
 	}
 	

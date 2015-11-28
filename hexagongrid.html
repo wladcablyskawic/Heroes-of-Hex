@@ -57,17 +57,18 @@ header a:first-child {
     <script>
         var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
 
-		hexagonGrid.addObstacle(2,4,'blokada','mountains', true, true);
-		hexagonGrid.addObstacle(2,3,'blokada','mountains', true, true);
-		hexagonGrid.addObstacle(3,4,'blokada','mountains', true, true);		
-		hexagonGrid.addObstacle(4,5,'blokada','mountains', true, true);
-		
-		hexagonGrid.addObstacle(3,1,'lake','ruch niemozliwy', false, true);
-		hexagonGrid.addObstacle(2,1,'lake','ruch niemozliwy', false, true);
-		hexagonGrid.addObstacle(2,0,'lake','ruch niemozliwy', false, true);
 
-		hexagonGrid.addObstacle(5,1,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
-		hexagonGrid.addObstacle(5,2,'forest','blokuje linie widzenia ale mozna przez niego przejsc', true, false);
+		hexagonGrid.addObstacle(2,4,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
+		hexagonGrid.addObstacle(2,3,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
+		hexagonGrid.addObstacle(3,4,'Impassable','As the title says -infinite height, impassable terrain.', true, true);		
+		hexagonGrid.addObstacle(4,5,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
+		
+		hexagonGrid.addObstacle(3,1,'Lake','Lakes are non-interfering terrain features.', false, true);
+		hexagonGrid.addObstacle(2,1,'Lake','Lakes are non-interfering terrain features.', false, true);
+		hexagonGrid.addObstacle(2,0,'Lake','Lakes are non-interfering terrain features.', false, true);
+
+		hexagonGrid.addObstacle(5,1,'Forest','Forests are Interfering terrain. For Line of Sight purposes Forests count as being of infinite height.', true, false);
+		hexagonGrid.addObstacle(5,2,'Forest','Forests are Interfering terrain. For Line of Sight purposes Forests count as being of infinite height. ', true, false);
 				
 		window.onload = function(){
 			hexagonGrid.drawHexGrid(50, 50, false);
