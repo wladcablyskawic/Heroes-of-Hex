@@ -8,13 +8,8 @@ var commandManager = {
 	
 	chargeRespond: function(mess, isSelf) {
 	$( "#chargeRespondDialog" ).dialog('close');
-		//if(isSelf) return;	
 			target = new Mob().parse(mess.target);
 			attacker = new Mob().parse(mess.attacker);
-//			tile = new Tile().parse(mess.tile);
-			
-			console.log('charge respond tile:');
-			console.log(mess.tile);
 		
 		if(mess.respond=='hold') {
 //			if(isSelf) return;
@@ -28,25 +23,40 @@ var commandManager = {
 
 		}
 		else if(mess.respond=='flee') {
+		
 			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, mess.tile.row, mess.tile.column);
 			attacker.goToTile(stepByStep);
-			
-			console.log('stepyByStep1');
-			console.log(stepByStep);
 
 			ACTIVE_MOB = target;
 			var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
-			var fleeDestination = getEscapeDestination(attacker.Tile, target.Tile, fleeDistance);			
-			stepByStep = path(target.Tile.row,target.Tile.column, fleeDestination.row, fleeDestination.column);
-			console.log('stepyByStep2');
-			console.log(stepByStep);
+			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
 
-			target.goToTile(stepByStep, target);	
+			target.goToTile(stepByStep, target);
+			target.isFleeing = true;
 			
 			ACTIVE_MOB=attacker;
 
 		}	
+	},
+	
+	reinforcement: function(mess) {
+		mob = new Mob().parse(mess.mob);
+		
+		$( "#chargeRespondDialog" ).text(mob.type+mob.Tile.getCoordinates()+' reinforcemented.');
+		var buttons = {
+			'ok': function() {
+				$(this).dialog('close');
+				mob.isFleeing=false;				
+				selectNextMob(mob);
+				hexagonGrid.refreshHexGrid();
+			}
+		};
+		$( "#chargeRespondDialog" ).dialog({
+		modal:true,
+		buttons: buttons
+		});
+				
 	},
 	
 	shot: function(mess, isSelf) {

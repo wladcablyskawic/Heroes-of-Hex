@@ -690,6 +690,7 @@ function selectNextMob(warrior)
 	}
 	
 	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
+	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);
 }
 
 	

@@ -63,6 +63,8 @@ function respondCharge(mess) {
 		tmp.tile=mess.tile;
 
 		target = new Mob().parse(mess.target);
+		attacker = new Mob().parse(mess.attacker);
+		
 		if(target.isSurrounded()==true) {
 			tmp.respond = 'hold';		
 			skylink.sendP2PMessage(JSON.stringify(tmp));	
@@ -80,13 +82,16 @@ function respondCharge(mess) {
 				tmp.respond='hold';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
-			},
-			'flee': function() {
+			}
+		};
+		
+		if(target.isFleePossible(mess.attacker.Tile)) buttons['flee'] = function() {
 				tmp.respond='flee';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
-			}
-		};
+			};		
+		
+		
 		
 		if(target.shots>0) buttons['sns'] = function() {
 				tmp.respond='sns';
@@ -204,4 +209,11 @@ function sendMobToTile(mob, tile) {
 	move['mob']=mob;
 	move['tile']=tile;
 	skylink.sendP2PMessage(JSON.stringify(move)); 	
+}
+
+function sendReinforcement(mob) {
+	var communicate = {}
+	communicate.Action='reinforcement';
+	communicate.mob=mob;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
 }

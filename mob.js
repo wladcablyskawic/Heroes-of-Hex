@@ -15,7 +15,7 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.speed=speed;	
 	this.shots=shots;
 	this.max_shots=max_shots;
-
+	this.isFleeing = false;
 };
 
 Mob.prototype.goToTile = function(stepByStep, target) {
@@ -29,7 +29,7 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 			if(param.endstep) {
 			param.mob.isWorking=false;
 				if(target!=undefined && param.mob!=target) combat(param.mob, target)
-				/*if(param.mob!=target)*/ selectNextMob(param.mob);
+				if(target==undefined || param.mob.name!=target.name) selectNextMob(param.mob);
 			}
 			hexagonGrid.refreshHexGrid();
 			}, i*150, param);	
@@ -57,6 +57,11 @@ Mob.prototype.isAlive = function() {
 	if(this.unitsize>0) return true;
 	else return false;
 };
+
+Mob.prototype.isFleePossible = function(fromWhere) {
+	return true;
+};
+
 
 Mob.prototype.isSurrounded = function() {
 	var neighbours = getConnectedHexes(this.Tile);

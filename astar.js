@@ -39,6 +39,9 @@
 		} 
 
 		function hex_accessible(x,y) {
+		
+		//return isValidTile(new Tile(y,x));
+		
 			if(mapArray[x] == undefined) return false;
 			if(mapArray[x][y] == undefined) return false;
 			if(mapArray[x][y] == 'hex_tree') return false;
@@ -81,7 +84,7 @@
 					a.z + (b.z-a.z)*t);
 	};
 	
-	function getEscapeDestination(a,b,n) {
+	function getEscapeDestination_old(a,b,n) {
 		var N = hex_distance(a.column, a.row, b.column, b.row);	
 		var results = [];
 		for(var i=n; i<=N+n; i++){
@@ -98,8 +101,30 @@
 				return results[i];
 			}
 		}
-		
+		console.log('error: wrong fleeDestination');
 		return null;	
+	}
+	
+	function getEscapePath(attacker,target,n) {
+		var path = [];
+		var currentTile=target;
+		var currentDistance = 0;
+		for(i=0; i<n; i++) {
+			path.push(currentTile);			
+			var neighbours = getNeighbours(currentTile);
+			currentTile=null;
+			currentDistance=0;
+
+				for(potentialTile of neighbours) {
+					var distance = hex_distance(attacker.column, attacker.row, potentialTile.column, potentialTile.row);
+					if(distance > currentDistance) {
+						currentDistance=distance;
+						currentTile = potentialTile;
+					}
+				}
+		}
+		
+		return path;
 	}
 	
 	function getLineOfSight(a,b) {
@@ -184,8 +209,8 @@
 			var error=0;
 			if(start_x == end_x && start_y == end_y) { error=1; console.log('start point equal end point'); }
 			if(!hex_accessible(start_x,start_y)) { error=1; console.log('wrong start point'+end_y+','+end_x); }
-			if(!hex_accessible(end_x,end_y)) { error=1; console.log('wrong end point'+end_y+','+end_x); }
 			if(error==1) {
+			if(!hex_accessible(end_x,end_y)) { error=1; console.log('wrong end point'+end_y+','+end_x); }
 				alert('Path is impossible to create.');
 				return false;
 			}
