@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
     <title>Hex</title>
+
 	<link href="jquery-ui.css" rel="stylesheet">
 	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
     <script src="skylink.js"></script>
@@ -12,48 +13,73 @@
 	<script src="randomgenerator.js"></script>	
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery-ui.js"></script>
+    <script src="js/jquery.tabSlideOut.v1.3.js"></script>
 
+	<script>
+	
+         $(function(){
+             $('.slide-out-div').tabSlideOut({
+                 tabHandle: '.handle',                              //class of the element that will be your tab
+                 pathToTabImage: 'images/contact_tab.gif',          //path to the image for the tab (optionaly can be set using css)
+                 imageHeight: '40px',                               //height of tab image
+                 imageWidth: '122px',                               //width of tab image    
+                 tabLocation: 'top',                               //side of screen where tab lives, top, right, bottom, or left
+                 speed: 300,                                        //speed of animation
+                 action: 'click',                                   //options: 'click' or 'hover', action to trigger animation
+                 topPos: '200px',                                   //position from the top
+                 fixedPosition: false                               //options: true makes it stick(fixed position) on scroll
+             });
+         });
+	</script>
 </head>
 
 
 
-<style>
-header {
-  background: #eee;
-  padding: 20px;
-  margin-bottom: .4em;
-  font-family: Helvetica, Arial, sans-serif;
-}
+    <style type="text/css" media="screen">
+    
+    .slide-out-div {
+       padding: 20px;
+        width: 450px;
+        background: #f2f2f2;
+        border: #29216d 2px solid;
+    }
+    
+	header {
+	  background: #eee;
+	  padding: 20px;
+	  margin-bottom: .4em;
+	  font-family: Helvetica, Arial, sans-serif;
+	}
 
-header a:first-child {
-  float: right;
-  margin: 0 0 20px 30px;
-}
+	header a:first-child {
+	  float: right;
+	  margin: 0 0 20px 30px;
+	}
 
-#container {
-  position: relative;
-  border: 1px #ddd solid;
-  height: 1180px;
-  overflow-y: auto;
-}
+	#container {
+	  position: relative;
+	  border: 1px #ddd solid;
+	  height: 300px;
+	  overflow-y: scroll;
+	}
 
-#chatbox {
-  position: absolute;
-  bottom: 0px;
-}
+	#chatbox {
+	  position: absolute;
+	  bottom: 0px;
+	}
 
-.action {
-  font-style: italic;
-  color: gray;
-}
+	.action {
+	  font-style: italic;
+	  color: gray;
+	}
 
-.you {
-  font-weight: bold;
-}
+	.you {
+	  font-weight: bold;
+	}
 </style>
 <body>
 
-	<canvas id="HexCanvas" width="1500" height="1000"></canvas>
+	<canvas id="HexCanvas" width="1500" height="1500"></canvas>
     <script>
         var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
 
@@ -77,18 +103,23 @@ header a:first-child {
 		setName();	
 		if(sessionStorage.getItem('player-number')=='1') bePlayer(1);
 		else if(sessionStorage.getItem('player-number')=='2') bePlayer(2);
+
 		</script>
+
+	<div class="slide-out-div">
+        <a class="handle" href="http://link-for-non-js-users">Content</a>
+		<button onclick="sendGameState()">synchronize games</button>	
+		<button onclick="skylink.sendP2PMessage(showArmyList())">start game</button>	
+
+		<br/>	
+		<input type="text" id="message" placeholder="My message" />
+		<button onclick="sendMessage()">Send message</button>
+		  <div id="container">
+		<div id="chatbox"></div>
+	  </div>
+    </div>
 		
 
-	<button onclick="sendGameState()">synchronize games</button>	
-    <button onclick="skylink.sendP2PMessage(showArmyList())">start game</button>	
-
-	<br/>	
-    <input type="text" id="message" placeholder="My message" />
-    <button onclick="sendMessage()">Send message</button>
-	  <div id="container">
-    <div id="chatbox"></div>
-  </div>
 		<br/><BR/><BR/>
 		
 <img src="troops/Creature_Pikeman_1.gif" id="Image_Pikeman_1" style="display:none" >

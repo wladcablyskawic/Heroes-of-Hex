@@ -496,6 +496,7 @@ HexagonGrid.prototype.recalculateChargeClick = function(Tile) {
 
 
 HexagonGrid.prototype.hoverEvent = function (e) {
+		
     var mouseX = e.pageX;
     var mouseY = e.pageY;
 
@@ -634,10 +635,15 @@ HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
 function combat(attacker, target) {	
 		if(target!=undefined) {
 			var dmg = attacker.calculateMeleeDmg(target);
+			addMessage(attacker.getDescribe()+' attacked '+ target.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
 			target.payThePiper(dmg);
+						
 			if(target.unitsize>0) { 
 				dmg = target.calculateMeleeDmg(attacker);
+				addMessage(target.getDescribe()+' stricted back '+ attacker.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
+
 				attacker.payThePiper(dmg);
+				
 			}
 		}
 		
@@ -697,7 +703,7 @@ function selectNextMob(warrior)
 			markup+= '<tr><td>attack:</td><td>'+target.attack+'</td></tr>';
 			markup+= '<tr><td>defense:</td><td>'+target.defense+'</td></tr>';
 			markup+= '<tr><td>damage:</td><td>'+target.damage_min+'-'+target.damage_max+'</td></tr>';
-			markup+= '<tr><td>hp:</td><td>'+target.hp+'/'+target.max_hp+'</td></tr>';
+			markup+= '<tr><td>hp:</td><td>'+Math.ceil(target.hp)+'/'+target.max_hp+'</td></tr>';
 			markup+= '<tr><td>shots:</td><td>'+target.shots+(target.max_shots>0 ?'/'+target.max_shots+'</td></tr>' : '</td></tr>');	
 	} else {
 	

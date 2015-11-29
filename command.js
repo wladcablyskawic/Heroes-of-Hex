@@ -1,6 +1,11 @@
 var commandManager = {
  
 	chargeDeclaration: function(mess, isSelf) {
+		var attacker = new Mob().parse(mess.attacker);
+		var target = new Mob().parse(mess.target);
+
+		addMessage(attacker.getDescribe()+' is charging '+target.getDescribe(), 'communicate');	
+
 		if(isSelf) return;
 		respondCharge(mess);
 		return;
@@ -10,7 +15,9 @@ var commandManager = {
 	$( "#chargeRespondDialog" ).dialog('close');
 			target = new Mob().parse(mess.target);
 			attacker = new Mob().parse(mess.attacker);
-		
+
+		addMessage(target.getDescribe()+' decided to '+mess.respond, 'communicate');	
+			
 		if(mess.respond=='hold') {
 //			if(isSelf) return;
 			hexagonGrid.moveCharge(attacker, target, mess.tile);
@@ -28,9 +35,10 @@ var commandManager = {
 			attacker.goToTile(stepByStep);
 
 			ACTIVE_MOB = target;
-			var fleeDistance = Math.floor((randomGenerator() * target.speed)+1);
+			var fleeDistance = Math.floor((randomGenerator() * (target.speed-1))+2);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
+			console.log(stepByStep);
 
 			target.goToTile(stepByStep, target);
 			target.isFleeing = true;
@@ -42,21 +50,11 @@ var commandManager = {
 	
 	reinforcement: function(mess) {
 		mob = new Mob().parse(mess.mob);
+		mob.isFleeing=false;				
 		
-		$( "#chargeRespondDialog" ).text(mob.type+mob.Tile.getCoordinates()+' reinforcemented.');
-		var buttons = {
-			'ok': function() {
-				$(this).dialog('close');
-				mob.isFleeing=false;				
-				selectNextMob(mob);
-				hexagonGrid.refreshHexGrid();
-			}
-		};
-		$( "#chargeRespondDialog" ).dialog({
-		modal:true,
-		buttons: buttons
-		});
-				
+		addMessage(mob.getDescribe()+' reinforcemented.', 'communicate');	
+		selectNextMob(mob);
+		hexagonGrid.refreshHexGrid();			
 	},
 	
 	shot: function(mess, isSelf) {

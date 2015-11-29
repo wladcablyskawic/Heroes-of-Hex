@@ -46,6 +46,10 @@ Mob.prototype.parse = function(newmob) {
 	return null;
 }
 
+Mob.prototype.getDescribe = function() {
+	return this.type+this.Tile.getCoordinates();
+}
+
 Mob.prototype.getImage = function() {
 	var img=document.getElementById("Image_"+this.type+'_'+this.player);
 	if(img!=undefined)
@@ -126,16 +130,17 @@ Mob.prototype.calculateRangeDmg = function(target) {
 		}
 	}
 	dmg = dmg/coverRatio;
-	
-	console.log('zadano ze strzelania '+dmg+' przy coverRatio='+coverRatio);
+	addMessage(this.getDescribe()+' shot to '+ target.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
 	
 	return dmg;
 };	
 
 Mob.prototype.isShotPossible = function(target) {
+	target = new Mob().parse(target);
 	if(this.shots==0) return false;
 	if(this.isSurrounded()) return false;
 	if(target.isSurrounded()) return false;
+	if(!checkLineOfSight(this.Tile, target.Tile)) return false;
 	
 	return true;
 }
@@ -162,7 +167,7 @@ Mob.prototype.standAndShot = function(target) {
 	var dmg = 0.5 * this.calculateRangeDmg(target);
 	target.payThePiper(dmg);
 	this.shots--;
-	console.log(this.name+' wykonuje SnS, zadajac '+dmg+' obrazen atakujacemu!');
+	addMessage(this.getDescribe()+' decided to stand&shoot and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
 }
 
 
@@ -182,5 +187,5 @@ Mob.prototype.payThePiper = function(dmg) {
 	}
 	
 	if(this.unitsize<0) this.unitsize=0;	
-	console.log(this.type + ' traci '+(tmp-this.unitsize)+' jednostek');
+	addMessage(this.getDescribe() +' lost '+(tmp-this.unitsize)+' troops');
 };

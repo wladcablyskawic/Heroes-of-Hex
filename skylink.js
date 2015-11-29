@@ -37,13 +37,14 @@ skylink.on('incomingMessage', function(message, peerId, peerInfo, isSelf) {
     user = peerInfo.userData.name || peerId;
     className = 'message';
   }
-  addMessage(user + ': ' + message.content, className);
   
 var mess = JSON.parse(message.content);
 	if(mess!=undefined) {
 	//	if(isSelf) return;
 		commandManager.execute(mess.Action, mess, isSelf);	
-	}
+	} else
+	  addMessage(user + ': ' + message.content, className);
+
 
 
 });
@@ -170,7 +171,7 @@ function sendMessage() {
 
 function addMessage(message, className) {
   var chatbox = document.getElementById('chatbox'),
-    div = document.createElement('div');
+  div = document.createElement('div');
   div.className = className;
   div.textContent = message;
   chatbox.appendChild(div);
