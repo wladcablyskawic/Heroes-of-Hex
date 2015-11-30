@@ -92,8 +92,12 @@ var commandManager = {
 	},
 	
 	showArmy: function(mess, isSelf) {
-		if(isSelf) return;
-		DEPLOYMENT=false;
+		if(isSelf) {
+			return;
+		}
+		
+		if(DEPLOYMENT) return;
+		$("#notify_wait").hide();
 		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
 		
 		for(i=0; i<mess.MOBS.length; i++) {

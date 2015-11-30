@@ -2,6 +2,7 @@
 <head>
     <title>Hex</title>
 
+	<link href="messages.css" rel="stylesheet">
 	<link href="jquery-ui.css" rel="stylesheet">
 	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
     <script src="skylink.js"></script>
@@ -14,6 +15,7 @@
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery-ui.js"></script>
     <script src="js/jquery.tabSlideOut.v1.3.js"></script>
+	<script src="messages.js"></script>
 
 	<script>
 	
@@ -36,7 +38,6 @@
 
 
     <style type="text/css" media="screen">
-    
     .slide-out-div {
        padding: 20px;
         width: 450px;
@@ -110,7 +111,9 @@
 	<div class="slide-out-div">
         <a class="handle" href="http://link-for-non-js-users">Content</a>
 		<button onclick="sendGameState()">synchronize games</button>	
-		<button onclick="skylink.sendP2PMessage(showArmyList())">start game</button>	
+		<button onclick="DEPLOYMENT=false;
+		skylink.sendP2PMessage(showArmyList())"
+		class="startGame">start game</button>	
 
 		<br/>	
 		<input type="text" id="message" placeholder="My message" />
@@ -145,5 +148,16 @@
   <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
 </div>
 
-  
+<div class="info message" id="notify_deployment">
+         <span class="icon"></span><h3>Prepare for the hex battle!</h3>
+         <p>It's time to deploy your troops, by drag'n'droping them in your deployment zone.
+		 <br/>When you will be ready go to the Console and press 'Start game'.</p>
+</div>
+
+<div class="info message" id="notify_wait">
+         <span class="icon"></span><h3>Prepare for the hex battle!</h3>
+         <p>Wait for your opponent.</p>
+</div>
+
+
 </body>

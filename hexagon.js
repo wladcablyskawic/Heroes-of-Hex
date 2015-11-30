@@ -586,7 +586,7 @@ HexagonGrid.prototype.upEvent = function (e) {
 		draggedMob.isDragged=false;
 		if(isValidTile(tile) && isInDeploymentZone(tile)) {
 		draggedMob.Tile=tile;
-		}
+		} else alert('You cannot deploy an unit outside your deployment zone');
 				
 		this.refreshHexGrid();
 	}

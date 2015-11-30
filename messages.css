@@ -1,0 +1,130 @@
+
+.message
+{
+           position: fixed;
+    border: 1px solid;
+    border-radius: 3px;
+    clear: both;
+
+
+     padding: 15px;
+    padding-left: 30px;
+  _position: absolute;
+    /* The inset shadow */
+    -webkit-box-shadow: inset 1px 1px 0px 0px rgba(255, 255, 255, 0.65);
+    -moz-box-shadow: inset 1px 1px 0px 0px rgba(255, 255, 255, 0.65);
+    box-shadow: inset 1px 1px 0px 0px rgba(255, 255, 255, 0.65);
+
+         width: 100%;
+         border: 1px solid;
+         color: #fff;
+       
+         display:none;
+}
+
+.info
+{
+
+border-color: #446d99;  
+color: #446d99;   background: #a5c8f4;
+}
+
+.error
+{
+          border-color: #EC9494;  color: #AB4343;   background: #f6a2a2;
+
+}
+         
+.warning
+{
+      border-color: #FFCA77;  color: #A96903;   background: #ffe8c3;
+  }
+
+.success
+{
+         background-color: #61b832;
+         border-color: #55a12c; 
+         color: #65715B;
+}
+
+.message h3
+{
+         margin: 0 0 5px 0;                                                     
+}
+
+.message p
+{
+         margin: 0;                                                     
+}
+.message span.icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    margin-top: -8px;
+
+}
+
+
+
+@-webkit-keyframes animate-bg
+{
+    from {
+        background-position: 0 0;
+    }
+    to {
+       background-position: -80px 0;
+    }
+}
+
+
+@-moz-keyframes animate-bg
+{
+    from {
+        background-position: 0 0;
+    }
+    to {
+       background-position: -80px 0;
+    }
+}
+
+
+#trigger-list
+{
+         text-align: center;
+         margin: 100px 0;
+         padding: 0;
+}
+
+#trigger-list li
+{
+         display: inline-block;
+         *display: inline;
+         zoom: 1;
+}
+
+#trigger-list a
+{
+         display: inline-block;
+         background: #ddd;
+         border: 1px solid #777;
+         padding: 10px 20px;
+         margin: 0 5px;
+         font: bold 12px Arial, Helvetica;
+         text-decoration: none;
+         color: #333;
+         -moz-border-radius: 3px;
+         -webkit-border-radius: 3px;
+         border-radius: 3px;
+}
+
+#trigger-list a:hover
+{
+        background: #f5f5f5;
+}
+
+
+
+
