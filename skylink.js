@@ -31,22 +31,10 @@ skylink.on('peerLeft', function(peerId, peerInfo, isSelf) {
 });
 
 skylink.on('incomingMessage', function(message, peerId, peerInfo, isSelf) {
-  var user = 'You',
-      className = 'you';
-  if(!isSelf) {
-    user = peerInfo.userData.name || peerId;
-    className = 'message';
-  }
-  
-var mess = JSON.parse(message.content);
+	var mess = JSON.parse(message.content);
 	if(mess!=undefined) {
-	//	if(isSelf) return;
-		commandManager.execute(mess.Action, mess, isSelf);	
-	} else
-	  addMessage(user + ': ' + message.content, className);
-
-
-
+		commandManager.execute(mess.Action, mess, isSelf, peerId, peerInfo);	
+	} 
 });
 
 
@@ -106,7 +94,7 @@ function respondCharge(mess) {
 		
 		
 		
-		if(target.shots>0) buttons['sns'] = function() {
+		if(target.shots>0) buttons['stand&shoot'] = function() {
 				tmp.respond='sns';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');
@@ -164,7 +152,10 @@ function leaveRoom() {
 
 function sendMessage() {
   var input = document.getElementById('message');
-  skylink.sendP2PMessage(input.value);
+  var communicate = {};
+  communicate.Action = 'chat';
+  communicate.message = input.value;
+  skylink.sendP2PMessage(JSON.stringify(communicate));
   input.value = '';
   input.select();
 }

@@ -1,4 +1,15 @@
 var commandManager = {
+
+	chat: function(mess, isSelf, peerId, peerInfo) {
+	  var user = 'You',
+      className = 'you';
+	  if(!isSelf) {
+		user = peerInfo.userData.name || peerId;
+		className = 'message';
+	  }	
+	  
+	  addMessage(user + ': ' + mess.message, className);
+	},
  
 	chargeDeclaration: function(mess, isSelf) {
 		var attacker = new Mob().parse(mess.attacker);
@@ -82,6 +93,7 @@ var commandManager = {
 	
 	showArmy: function(mess, isSelf) {
 		if(isSelf) return;
+		DEPLOYMENT=false;
 		if(mess.isSource==undefined) skylink.sendP2PMessage(showArmyList(true));
 		
 		for(i=0; i<mess.MOBS.length; i++) {

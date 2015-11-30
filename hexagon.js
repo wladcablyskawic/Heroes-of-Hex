@@ -7,6 +7,9 @@ var OBSTACLES = [];
 var MOBS = [];
 var ACTIVE_MOB;
 
+var DEPLOYMENT=true;
+var drag=false;
+
 HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
@@ -98,6 +101,7 @@ function HexagonGrid(canvasId, radius, rows, cols) {
     this.canvasOriginY = 0;
     
     this.canvas.addEventListener("mousedown", this.clickEvent.bind(this), false);
+    this.canvas.addEventListener("mouseup", this.upEvent.bind(this), false);
     this.canvas.addEventListener("mousemove", this.hoverEvent.bind(this), false);
     this.canvas.addEventListener("contextmenu", this.contextMenuEvent.bind(this), false);	
 
@@ -141,21 +145,29 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
         offsetColumn = !offsetColumn;
     }	
 	
+	if(DEPLOYMENT==true) {
+		deploymentZone = getDeploymentZone();
+		for(zone of deploymentZone) {
+			hexagonGrid.drawHexAtColRow(zone.column, zone.row, 'rgba(165,43,43,0.3)',  //'');
+			zone.getCoordinates());
+		}	
+	}
+	
 	for(var i=0; i<OBSTACLES.length; i++) {
 		this.drawHexAtColRow(OBSTACLES[i].Tile.column, OBSTACLES[i].Tile.row, OBSTACLES[i].getColor(), '');
 	}
 
 			
 	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].player==PLAYER_NAME && MOBS[i].isAlive()) 
+		if(MOBS[i].player==PLAYER_NAME && MOBS[i].isAlive() && MOBS[i].isDragged!=true) 
 			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
-		else if(MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()) 
+		else if(MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive() && DEPLOYMENT==false) 
 			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
 	 }
 	
 
 
-	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player ) 
+	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false) 
 	{
 		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded()) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
@@ -168,7 +180,42 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
 	}
 	
+	
 };
+
+function getDeploymentZone() {
+	var deployment_width = 3;
+	
+	var start_row = 0;
+	var end_row=start_row+deployment_width;	
+	var start_column = 0;
+	var end_column = MAX_COLUMN;
+	
+	if(PLAYER_NAME=='2') {
+		start_row = MAX_ROW - deployment_width;
+		end_row = MAX_ROW;
+	}
+	
+	zone = [];
+	
+	for(i=start_column; i<end_column; i++) {
+		for(j=start_row; j<end_row; j++) {
+			zone.push(new Tile(j,i));
+		}
+	}
+	
+	return zone;
+};
+
+function isInDeploymentZone(tile) {
+	var deploymentZone = getDeploymentZone();
+	
+	for(zone of deploymentZone) {
+		if(tile.getCoordinates()==zone.getCoordinates()) return true;
+	}
+	return false;
+};
+
  function writeMessage(context, message){
 	console.log(message);
 	context.fillText(message, 10, 25);
@@ -505,6 +552,12 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	
     var tile = this.getSelectedTile(localX, localY);
 
+	if(drag!=undefined && drag==true) {
+		this.refreshHexGrid();
+		this.drawHex(localX, localY, 'yellow', '['+draggedMob.unitsize+']', draggedMob.getImage());
+		return;
+	}
+	
 	for(var i=0; i<MOBS.length; i++) {
 		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
 			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
@@ -520,13 +573,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	}
 	this.canvas.style.cursor = "default";		
 };
-
-
-HexagonGrid.prototype.clickEvent = function (e) {
-	if(ACTIVE_MOB.player != PLAYER_NAME) return;
-	if(e.which != 1) return; // just left click
-	
-	if(ACTIVE_MOB.isWorking==true) return;
+HexagonGrid.prototype.upEvent = function (e) {
     var mouseX = e.pageX;
     var mouseY = e.pageY;
 
@@ -534,6 +581,43 @@ HexagonGrid.prototype.clickEvent = function (e) {
     var localY = mouseY - this.canvasOriginY;
 	
     var tile = this.getSelectedTile(localX, localY);
+	
+	if(drag==true) {
+		draggedMob.isDragged=false;
+		if(isValidTile(tile) && isInDeploymentZone(tile)) {
+		draggedMob.Tile=tile;
+		}
+				
+		this.refreshHexGrid();
+	}
+	drag=false;
+};
+
+HexagonGrid.prototype.clickEvent = function (e) {
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
+
+    var localX = mouseX - this.canvasOriginX;
+    var localY = mouseY - this.canvasOriginY;
+	
+    var tile = this.getSelectedTile(localX, localY);
+
+	if(DEPLOYMENT==true) {
+		for(mob of MOBS) {
+			if(mob.Tile.getCoordinates() == tile.getCoordinates()) {
+				drag = true;
+				draggedMob = mob;
+				mob.isDragged=true;
+			}		
+		}
+
+		return;
+	}
+
+	if(ACTIVE_MOB.player != PLAYER_NAME) return;
+	if(e.which != 1) return; // just left click
+	
+	if(ACTIVE_MOB.isWorking==true) return;
 	
 
 	var target;
@@ -709,7 +793,7 @@ function selectNextMob(warrior)
 	
 		for(var i=0; i<OBSTACLES.length; i++) {
 			if(tile.getCoordinates()==OBSTACLES[i].Tile.getCoordinates()) {
-			title=OBSTACLES[i].name+'\'s details';
+			title='Terrain: '+OBSTACLES[i].name;
 			markup=OBSTACLES[i].hover;
 		}
 	}
@@ -726,11 +810,12 @@ function selectNextMob(warrior)
 		}); //end confirm dialog
 
 		$("#chargeRespondDialog").dialog({
-        modal: true,
-        title: title,
-        open: function () {
-            $(this).html(markup);
-        }
+			modal: true,
+			title: title,
+			buttons: {},
+			open: function () {
+				$(this).html(markup);
+			}
     });	
 
 	}
