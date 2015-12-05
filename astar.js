@@ -137,7 +137,7 @@
 		return results;
 	};		
 	
-	function checkLineOfSight(observer, target) {
+/*	function checkLineOfSight(observer, target) {
 		var tiles = getLineOfSight(observer, target);
 		
 		var answer=true;
@@ -160,7 +160,7 @@
 		}
 		
 		return answer;
-	}	
+	}	*/
 	
 	function checkTileVisibility(tile) {
 		var answer=true;

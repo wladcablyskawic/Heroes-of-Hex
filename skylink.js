@@ -94,7 +94,7 @@ function respondCharge(mess) {
 		
 		
 		
-		if(target.shots>0) buttons['stand&shoot'] = function() {
+		if(target.shots>0 && target.checkLOS(attacker.Tile)) buttons['stand&shoot'] = function() {
 				tmp.respond='sns';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
 				$(this).dialog('close');

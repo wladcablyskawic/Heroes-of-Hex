@@ -13,9 +13,17 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.hp = hp;
 	this.max_hp=max_hp;
 	this.speed=speed;	
+	this.max_speed=speed;	
 	this.shots=shots;
 	this.max_shots=max_shots;
 	this.isFleeing = false;
+	this.front = Math.random() * Math.PI*2;
+	this.hasMoved=false;
+
+};
+
+Mob.prototype.getFront = function() {
+	return Raphael.rad(front*30) * this.front;
 };
 
 Mob.prototype.goToTile = function(stepByStep, target) {
@@ -25,10 +33,14 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 		var param = {nextTile:stepByStep[i], mob:this, endstep:isFinal};
 		
 		setTimeout(function(param) {
+			param.mob.turnToHexagon(param.nextTile);
 			param.mob.Tile = param.nextTile;
 			if(param.endstep) {
 				param.mob.isWorking=false;
-				if(target!=undefined && param.mob!=target) combat(param.mob, target)
+				if(target!=undefined && param.mob!=target) { 
+					param.mob.turnToHexagon(target.Tile);
+					combat(param.mob, target);
+				}
 				if(target==undefined || param.mob.name!=target.name) selectNextMob(param.mob);
 			}
 			hexagonGrid.refreshHexGrid();
@@ -130,6 +142,9 @@ Mob.prototype.calculateRangeDmg = function(target) {
 		}
 	}
 	dmg = dmg/coverRatio;
+	
+	if(this.hasMoved==true) dmg = dmg*0.5;
+	
 	addMessage(this.getDescribe()+' shot to '+ target.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
 	
 	return dmg;
@@ -140,10 +155,20 @@ Mob.prototype.isShotPossible = function(target) {
 	if(this.shots==0) return false;
 	if(this.isSurrounded()) return false;
 	if(target.isSurrounded()) return false;
-	if(!checkLineOfSight(this.Tile, target.Tile)) return false;
+	if(!this.checkLOS(target.Tile)) return false;
 	
 	return true;
 }
+
+Mob.prototype.checkLOS = function(target) {
+	fov = this.FOV();	
+	for(tile of fov) {
+		if(tile.getCoordinates()==target.getCoordinates()) {
+			return true;
+		}
+	}
+	return false;
+};
 
 Mob.prototype.shoot = function(target) {
 	if(this.shots==0) return;
@@ -188,4 +213,59 @@ Mob.prototype.payThePiper = function(dmg) {
 	
 	if(this.unitsize<0) this.unitsize=0;	
 	addMessage(this.getDescribe() +' lost '+(tmp-this.unitsize)+' troops');
+};
+
+    // turn player to a hexagon
+Mob.prototype.turnToHexagon = function (h, callback) {
+        var i = h.column, j = h.row, new_direction;
+        
+        if (this.Tile.column !== i || this.Tile.row !== j) {
+            new_direction = this.directionFromAngle(DUELO.board.angle(
+                [this.Tile.column, this.Tile.row], 
+                [i, j]
+            ));
+            this.turn(new_direction, callback);
+        }
+};
+
+Mob.prototype.directionFromAngle = function (a) {
+        return Math.round(Raphael.deg(a) / 30) % 12;
+};
+
+Mob.prototype.turn = function (new_direction, callback) {
+        var current_angle, delta, new_angle, time, transform_angle;
+        current_angle = this.angle();
+
+        new_angle = this.angleFromDirection(new_direction);
+        delta = new_angle - this.angle();       
+        
+        transform_angle = (Math.abs(delta) > 180) ? 
+                          (new_angle - 360 * delta / Math.abs(delta))
+                          : new_angle;
+        time = Math.abs(transform_angle - current_angle) * 2;
+		this.front = new_direction;
+};
+
+    // angle player if facing
+Mob.prototype.angle = function () {
+        return this.angleFromDirection(this.front);
+};
+    
+    // angle from a given direction
+Mob.prototype.angleFromDirection = function (d) {
+        return d * 30;
+};
+
+Mob.prototype.FOV = function() {
+	var myPlayer = DUELO.player(this.Tile, this.front);
+
+	fov = DUELO.board.FOV(myPlayer.getPos(), myPlayer.angleOfView());
+	
+	fovTiles = [];
+	for(i=0; i<fov.length; i++) {
+			tmpTile = new Tile(fov[i][0], fov[i][1]);
+			if(tmpTile.row>=0 && tmpTile.row <MAX_ROW && tmpTile.column>=0 && tmpTile.column<MAX_COLUMN) 
+			fovTiles.push(tmpTile); 
+	}			
+	return fovTiles;
 };

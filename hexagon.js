@@ -10,6 +10,7 @@ var ACTIVE_MOB;
 var DEPLOYMENT=true;
 var drag=false;
 
+
 HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
 	OBSTACLES.push(new Obstacle(new Tile(column, row), name, hover, isBlockingLoS, isBlockingMovement));
@@ -85,6 +86,7 @@ Tile.prototype.isNeighbour = function(tile) {
 };
 
 function HexagonGrid(canvasId, radius, rows, cols) {
+	
 	MAX_COLUMN=cols;
 	MAX_ROW=rows;
 	
@@ -160,16 +162,16 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 			
 	for(var i=0; i<MOBS.length; i++) {
 		if(MOBS[i].player==PLAYER_NAME && MOBS[i].isAlive() && MOBS[i].isDragged!=true) 
-			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
+			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'yellow', '['+MOBS[i].unitsize+']', MOBS[i].getImage(), MOBS[i].front);
 		else if(MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive() && DEPLOYMENT==false) 
-			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage());
+			this.drawHexAtColRow(MOBS[i].Tile.column, MOBS[i].Tile.row,'red', '['+MOBS[i].unitsize+']', MOBS[i].getImage(), MOBS[i].front);
 	 }
 	
 
 
 	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false) 
 	{
-		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded()) {
+		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded() && $( ":checkbox[name='MovementSettings']" )[0].checked) {
 			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
 			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)',  //'');
@@ -178,8 +180,16 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 		}
 		
 		hexagonGrid.highlightHex('red', ACTIVE_MOB.Tile);
-	}
+
 	
+		if($( ":checkbox[name='FOVSettings']" )[0].checked) {
+			fov = ACTIVE_MOB.FOV();
+			
+			for(i=0; i<fov.length; i++) {
+				hexagonGrid.drawHexAtColRow(fov[i].column, fov[i].row, 'rgba(165,143,43,0.3)',  '');				
+			}		
+		}
+	}
 	
 };
 
@@ -222,12 +232,11 @@ function isInDeploymentZone(tile) {
  }
 
 
-HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText, img) {
+HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText, img, front) {
     var drawx = (column * this.side) + this.canvasOriginX;
     var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
 
-
-    this.drawHex(drawx, drawy, color, debugText, img);
+    this.drawHex(drawx, drawy, color, debugText, img, front);
 };
 
 function pDistance(x, y, x1, y1, x2, y2) {
@@ -332,7 +341,7 @@ HexagonGrid.prototype.calculateAttackVector = function(mousex, mousey, tile) {
 
 
 
-HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText, image) {
+HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText, image, front) {
     this.context.strokeStyle = "#000";
 	this.context.lineWidth=1;
 	
@@ -348,12 +357,24 @@ HexagonGrid.prototype.drawHex = function(x0, y0, fillColor, debugText, image) {
     this.context.closePath();
     this.context.stroke();
 
+	
+	if(front!=undefined) {
+		front = Raphael.rad(front*30);
+		this.context.fillStyle = "#999900";
+		this.context.beginPath();
+		this.context.arc(x0 + (this.width / 2),y0 + (this.height / 2), this.side/2, front - Raphael.rad(45), front + Raphael.rad(45), false); 
+		this.context.closePath();
+		this.context.fill();
+			
+	}
+	
     if (debugText) {
         this.context.font = "6px";
         this.context.fillStyle = "#000";
         this.context.fillText(debugText, x0 + (this.width * 0.7) - (this.width/3), y0 + (this.height * 0.9));
-    }
-	
+    }	
+
+
 	if(image) {
 		this.context.drawImage(image,x0+(this.width / 5),y0 + this.height*0.05, this.radius*1.25, this.radius*1.25);
 	}
@@ -485,6 +506,7 @@ HexagonGrid.prototype.isPointInTriangle = function isPointInTriangle(pt, v1, v2,
 };
 
 HexagonGrid.prototype.isChargePossible = function(offensive, target) {
+	if(offensive.hasMoved) return false;
 	if(offensive.Tile.isNeighbour(target.Tile)) return true;
 
 	var potentialFields = getNeighbours(target.Tile);
@@ -493,7 +515,7 @@ HexagonGrid.prototype.isChargePossible = function(offensive, target) {
 	for(var i=0; i<moves.length; i++) {
 		for(var j=0; j<potentialFields.length; j++)
 		if(moves[i].getCoordinates()==potentialFields[j].getCoordinates()
-		&& checkLineOfSight(offensive.Tile, moves[i])) 
+		&& offensive.checkLOS(moves[i])) 
 			return true;
 	}
 	
@@ -560,7 +582,7 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	
 	for(var i=0; i<MOBS.length; i++) {
 		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
-			if(checkLineOfSight(ACTIVE_MOB.Tile, MOBS[i].Tile)) {
+			if(ACTIVE_MOB.checkLOS(MOBS[i].Tile)) {
 			if(ACTIVE_MOB.isShotPossible(MOBS[i])) this.canvas.style.cursor = 'crosshair';	
 			else if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
 					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
@@ -617,8 +639,16 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	if(ACTIVE_MOB.player != PLAYER_NAME) return;
 	if(e.which != 1) return; // just left click
 	
-	if(ACTIVE_MOB.isWorking==true) return;
 	
+	if(ACTIVE_MOB.isWorking==true) return;
+
+    if (e.shiftKey) {
+        ACTIVE_MOB.turnToHexagon(tile);
+		ACTIVE_MOB.speed = Math.floor(ACTIVE_MOB.max_speed/2);
+		ACTIVE_MOB.hasMoved=true;
+		hexagonGrid.refreshHexGrid();
+		return;
+    }	
 
 	var target;
 	for(var i=0; i<MOBS.length; i++) {
@@ -740,6 +770,8 @@ HexagonGrid.prototype.refreshHexGrid = function()
 
 function selectNextMob(warrior)
 {
+	ACTIVE_MOB.speed=ACTIVE_MOB.max_speed;
+	ACTIVE_MOB.hasMoved=false;
 	warrior.isWorking=false;
 	
 	for(i=0; i<MOBS.length; i++) 
@@ -761,6 +793,7 @@ function selectNextMob(warrior)
 	
 	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
 	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);
+
 }
 
 	HexagonGrid.prototype.contextMenuEvent = function (e) {
