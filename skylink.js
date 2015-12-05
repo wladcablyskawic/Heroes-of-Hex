@@ -80,7 +80,7 @@ function respondCharge(mess) {
 			'hold': function() {
 				tmp.respond='hold';
 				skylink.sendP2PMessage(JSON.stringify(tmp));
-				$(this).dialog('close');
+//				$(this).dialog('close');
 				clearTimeout(autoRespond);
 			}
 		};
