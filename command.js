@@ -49,22 +49,22 @@ var commandManager = {
 			var fleeDistance = Math.floor((randomGenerator() * (target.speed-1))+2);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
-			console.log(stepByStep);
 
 			target.goToTile(stepByStep, target);
-			target.isFleeing = true;
-			
+			target.isFleeing = true;			
 			ACTIVE_MOB=attacker;
-
+			
+			selectNextMob(ACTIVE_MOB);
 		}	
 	},
 	
 	reinforcement: function(mess) {
 		mob = new Mob().parse(mess.mob);
 		mob.isFleeing=false;				
-		
+		mob.isReinforcemented=true;
+		mob.speed=0;
 		addMessage(mob.getDescribe()+' reinforcemented.', 'communicate');	
-		selectNextMob(mob);
+		//selectNextMob(mob);
 		hexagonGrid.refreshHexGrid();			
 	},
 	
@@ -89,6 +89,19 @@ var commandManager = {
 		ACTIVE_MOB=mob;
 		var stepByStep = path(mob.Tile.row,mob.Tile.column, tile.row, tile.column);
 		mob.goToTile(stepByStep);
+	},
+	
+	pivotMob: function(mess) {
+		mob = new Mob().parse(mess.mob);
+		tile = new Tile().parse(mess.tile);
+		ACTIVE_MOB=mob;		
+		ACTIVE_MOB.pivot(tile);
+	},
+	
+	finishTurn: function(mess) {
+		mob = new Mob().parse(mess.mob);
+		selectNextMob(mob);	
+		hexagonGrid.refreshHexGrid();
 	},
 	
 	showArmy: function(mess, isSelf) {

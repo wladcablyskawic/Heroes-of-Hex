@@ -14,17 +14,39 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.max_hp=max_hp;
 	this.speed=speed;	
 	this.max_speed=speed;	
+	this.halfSpeed=Math.ceil(this.max_speed/2);	
 	this.shots=shots;
 	this.max_shots=max_shots;
 	this.isFleeing = false;
-	this.front = Math.random() * Math.PI*2;
+	this.isReinforcemented = false;
+	this.front = player==1 ? 0 : 6;
 	this.hasMoved=false;
 
 };
 
+
+
 Mob.prototype.getFront = function() {
 	return Raphael.rad(front*30) * this.front;
 };
+
+Mob.prototype.pivot = function(tile) {
+		if(this.isPivotPossible()) {
+			this.turnToHexagon(tile);
+			this.speed -= this.halfSpeed;
+			this.hasMoved=true;
+			if(this.speed==0) selectNextMob(this);			
+			hexagonGrid.refreshHexGrid();			
+			return;
+		} 
+};
+
+Mob.prototype.isPivotPossible = function() {
+	if(this.speed >= this.halfSpeed) return true;
+	if(this.isReinforcemented) return true;
+	
+	return false;
+}
 
 Mob.prototype.goToTile = function(stepByStep, target) {
 		this.isWorking=true;
@@ -35,13 +57,16 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 		setTimeout(function(param) {
 			param.mob.turnToHexagon(param.nextTile);
 			param.mob.Tile = param.nextTile;
+			param.mob.speed--;
+			param.mob.hasMoved=true;
 			if(param.endstep) {
 				param.mob.isWorking=false;
 				if(target!=undefined && param.mob!=target) { 
 					param.mob.turnToHexagon(target.Tile);
 					combat(param.mob, target);
 				}
-				if(target==undefined || param.mob.name!=target.name) selectNextMob(param.mob);
+				if(param.mob.speed==0 || (target!=undefined && param.mob.name!=target.name)) selectNextMob(param.mob);
+						
 			}
 			hexagonGrid.refreshHexGrid();
 			}, i*150, param);	
@@ -151,9 +176,11 @@ Mob.prototype.calculateRangeDmg = function(target) {
 };	
 
 Mob.prototype.isShotPossible = function(target) {
-	target = new Mob().parse(target);
+	if(this.speed < this.halfSpeed) return false;
 	if(this.shots==0) return false;
 	if(this.isSurrounded()) return false;
+	
+	target = new Mob().parse(target);
 	if(target.isSurrounded()) return false;
 	if(!this.checkLOS(target.Tile)) return false;
 	

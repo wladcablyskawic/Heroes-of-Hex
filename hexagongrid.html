@@ -46,6 +46,17 @@
         border: #29216d 2px solid;
 		
     }
+	
+#actionsmenu {
+       position:fixed;
+       top: 0;
+       margin:auto;
+       left: 0;
+       right: 0;
+       width: 100%;
+    height: 50px;
+    background-color: #4861A3;
+      }	
     
 	header {
 	  background: #eee;
@@ -82,6 +93,19 @@
 </style>
 <body>
 
+<div id="actionsmenu">
+	<button type="button" name='nextMob'>Next mob</button>
+	<button type="button" name='undo'>Undo</button>
+	
+		<script>
+		$( document ).ready(function() {
+			$('button[name=nextMob]').click(function() { 
+				finishTurn();
+			});	
+		});
+		</script>	
+</div>
+
 	<canvas id="HexCanvas" width="700" height="800"></canvas>
 
     <script>
@@ -114,7 +138,7 @@
 	<div class="slide-out-div">
         <a class="handle" href="http://link-for-non-js-users">Content</a>
 		
-		<input type="checkbox" name="MovementSettings" checked disabled>movement<br>
+		<input type="checkbox" name="MovementSettings" checked>movement<br>
 		<input type="checkbox" name="FOVSettings">field of view<br>
 		<script>
 		$( document ).ready(function() {
@@ -124,7 +148,6 @@
 		});
 		</script>
   
-		<button onclick="sendGameState()">synchronize games</button>	
 		<button onclick="DEPLOYMENT=false;
 		skylink.sendP2PMessage(showArmyList())"
 		class="startGame">start game</button>	
@@ -140,7 +163,7 @@
 		
 
 		<br/><BR/><BR/>
-<div id="canvas" style="display: none;">
+<div id="canvas" style="display:none" >
 <img src="troops/Creature_Pikeman_1.gif" id="Image_Pikeman_1" style="display:none" >
 <img src="troops/Creature_Archer_1.gif" id="Image_Archer_1" style="display:none" >
 <img src="troops/Creature_Swordsman_1.gif" id="Image_Swordsman_1" style="display:none" >

@@ -85,6 +85,14 @@ Tile.prototype.isNeighbour = function(tile) {
 	return false;
 };
 
+Tile.prototype.isFarFromEnemy = function() {
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].isAlive() && MOBS[i].Tile.isNeighbour(this)	&& MOBS[i].player!=PLAYER_NAME) return false;
+	}	
+	return true;
+	
+};
+
 function HexagonGrid(canvasId, radius, rows, cols) {
 	
 	MAX_COLUMN=cols;
@@ -171,11 +179,15 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 
 	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false) 
 	{
+		ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);	
 		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded() && $( ":checkbox[name='MovementSettings']" )[0].checked) {
-			ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);
 			for(neighbour of ACTIVE_MOB.neighbours) {
-			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, 'rgba(165,43,43,0.3)',  //'');
-			neighbour.getCoordinates()+ hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row));
+			
+			
+			var hex_color = 'rgba(165,43,43,0.3)';
+			if(hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row) <= Math.floor(ACTIVE_MOB.max_speed/2)) hex_color = 'rgba(165,43,43,0.5)';
+			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, hex_color,  //'');
+			neighbour.getCoordinates());
 			};
 		}
 		
@@ -643,11 +655,8 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	if(ACTIVE_MOB.isWorking==true) return;
 
     if (e.shiftKey) {
-        ACTIVE_MOB.turnToHexagon(tile);
-		ACTIVE_MOB.speed = Math.floor(ACTIVE_MOB.max_speed/2);
-		ACTIVE_MOB.hasMoved=true;
-		hexagonGrid.refreshHexGrid();
-		return;
+		pivotMob(ACTIVE_MOB, tile); 
+		return;		
     }	
 
 	var target;
@@ -676,12 +685,14 @@ HexagonGrid.prototype.clickEvent = function (e) {
 
 		if(target!=undefined)
 		sendChargeDeclaration(ACTIVE_MOB, target, tile);		
-		else
+		else if(tile.isFarFromEnemy())
 		sendMobToTile(ACTIVE_MOB, tile); // komunikat obslugiwany przez obu graczy
+		else alert('this field is too close to your enemy, you should charge him');
 		
 		
 	} else if(tile.getCoordinates() == ACTIVE_MOB.Tile.getCoordinates()) {
 		if(target!=undefined) { 
+			pivotMob(ACTIVE_MOB, target.Tile); 			
 			sendCombatCommunicate(ACTIVE_MOB, target);
 		}
 	}	
@@ -770,8 +781,6 @@ HexagonGrid.prototype.refreshHexGrid = function()
 
 function selectNextMob(warrior)
 {
-	ACTIVE_MOB.speed=ACTIVE_MOB.max_speed;
-	ACTIVE_MOB.hasMoved=false;
 	warrior.isWorking=false;
 	
 	for(i=0; i<MOBS.length; i++) 
@@ -790,6 +799,8 @@ function selectNextMob(warrior)
 			
 		}
 	}
+	ACTIVE_MOB.speed=ACTIVE_MOB.max_speed;
+	ACTIVE_MOB.hasMoved=false;
 	
 	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
 	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);
@@ -890,6 +901,8 @@ function getNeighbours(tile) {
 };
 
 function getPossibleMoves(range, tile) {
+	if(range<=0 || range==undefined) return [];
+	
 	var visited = new Set();
 	var coordinates = new Set();
 	visited.add(tile);

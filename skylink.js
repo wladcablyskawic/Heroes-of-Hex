@@ -46,28 +46,22 @@ function startgame() {
 
 function respondCharge(mess) {
 
-
-		var tmp={};
-		tmp.Action = 'chargeRespond';
-		tmp.attacker=mess.attacker;
-		tmp.target=mess.target;
-		tmp.tile=mess.tile;
+		var chargeRespond={};
+		chargeRespond.Action = 'chargeRespond';
+		chargeRespond.attacker=mess.attacker;
+		chargeRespond.target=mess.target;
+		chargeRespond.tile=mess.tile;
 
 		target = new Mob().parse(mess.target);
 		attacker = new Mob().parse(mess.attacker);
 		
 		if(target.isSurrounded()==true) {
-			tmp.respond = 'hold';		
-			skylink.sendP2PMessage(JSON.stringify(tmp));	
+			chargeRespond.respond = 'hold';		
+			skylink.sendP2PMessage(JSON.stringify(chargeRespond));	
 			return;
 		}		
 
-		autoRespond = setTimeout(function(){ 
-				tmp.respond='hold';
-				skylink.sendP2PMessage(JSON.stringify(tmp));
-				$("#chargeRespondDialog").dialog('close');				
-		}, 3000);
-
+		autoRespond = null;
 		
 		var communicate = mess.attacker.type+'['+mess.attacker.Tile.column
 		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
@@ -77,29 +71,39 @@ function respondCharge(mess) {
 		$("#chargeRespondDialog").text(communicate);
 
 		var buttons = {
-			'hold': function() {
-				tmp.respond='hold';
-				skylink.sendP2PMessage(JSON.stringify(tmp));
-//				$(this).dialog('close');
-				clearTimeout(autoRespond);
-			}
 		};
 		
-		if(target.isFleePossible(mess.attacker.Tile)) buttons['flee'] = function() {
-				tmp.respond='flee';
-				skylink.sendP2PMessage(JSON.stringify(tmp));
+		if(target.isFleeing==false) {
+			if(autoRespond==null) setAutoRespond(chargeRespond, 'hold');
+			buttons['hold'] = function() {
+				chargeRespond.respond='hold';
+				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
+				$(this).dialog('close');
+				clearTimeout(autoRespond);				
+			};			
+		}
+		
+		if(target.isFleePossible(mess.attacker.Tile)) {
+			if(autoRespond==null) setAutoRespond(chargeRespond, 'flee');
+			buttons['flee'] = function() {
+				chargeRespond.respond='flee';
+				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
+				$(this).dialog('close');
+				clearTimeout(autoRespond);				
+			};
+		}			
+		
+		
+		
+		if(target.shots>0 && target.checkLOS(attacker.Tile)) {
+			if(autoRespond==null) setAutoRespond(chargeRespond, 'sns');			
+			buttons['stand&shoot'] = function() {
+				chargeRespond.respond='sns';
+				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
 				$(this).dialog('close');
 				clearTimeout(autoRespond);				
 			};		
-		
-		
-		
-		if(target.shots>0 && target.checkLOS(attacker.Tile)) buttons['stand&shoot'] = function() {
-				tmp.respond='sns';
-				skylink.sendP2PMessage(JSON.stringify(tmp));
-				$(this).dialog('close');
-				clearTimeout(autoRespond);				
-			};		
+		}
 		
 		$( "#chargeRespondDialog" ).dialog({
 		modal:true,
@@ -107,6 +111,14 @@ function respondCharge(mess) {
 		});
 		
 };
+
+function setAutoRespond(chargeRespond, answer) {
+		autoRespond = setTimeout(function(){ 
+				chargeRespond.respond=answer;
+				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
+				$("#chargeRespondDialog").dialog('close');				
+		}, 7000);
+}
 
 skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456',
 			defaultroom:'testroom2'}, function()
@@ -216,9 +228,30 @@ function sendMobToTile(mob, tile) {
 	skylink.sendP2PMessage(JSON.stringify(move)); 	
 }
 
+function pivotMob(mob, tile) {
+	if(mob.isPivotPossible()) {
+		var move = {};
+		move.Action='pivotMob';
+		move['mob']=mob;
+		move['tile']=tile;		
+		skylink.sendP2PMessage(JSON.stringify(move)); 	
+	} else {
+		alert('Turn is not possible because of not enough movement');
+	}
+};
+
+function finishTurn() {
+	if(ACTIVE_MOB.player==PLAYER_NAME) {
+		var move = {};
+		move.Action='finishTurn';
+		move['mob']=ACTIVE_MOB;
+		skylink.sendP2PMessage(JSON.stringify(move)); 	
+	} else alert('Its not your turn, you cannot finish it');
+};
+
 function sendReinforcement(mob) {
 	var communicate = {}
 	communicate.Action='reinforcement';
 	communicate.mob=mob;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
-}
+};

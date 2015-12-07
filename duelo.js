@@ -389,6 +389,21 @@ DUELO.board = (function () {
         });
     };
     
+    function createObstacles() {
+		DUELO.board.obstacles = [];
+		for(var i=0; i<OBSTACLES.length; i++) {
+			if(OBSTACLES[i].blockingLoS)
+            DUELO.board.obstacles.push([OBSTACLES[i].Tile.column,
+                                        OBSTACLES[i].Tile.row]);		
+
+		}	
+
+		for(var i=0; i<MOBS.length; i++) {
+				DUELO.board.obstacles.push([MOBS[i].Tile.column,
+											MOBS[i].Tile.row]);	
+		 }		
+		
+    }  	
     
     /*
      *  Return all hexagons that are in current field of view.
@@ -401,7 +416,8 @@ DUELO.board = (function () {
      * 
      */
     that.FOV = function (h, arc) {        
-        
+        createObstacles();
+		
         var i, j,
             h2,
             fov = [],
@@ -416,12 +432,14 @@ DUELO.board = (function () {
             in_radius = that.hexagonsInDistance(h, radius);
             for (i = 0; i < in_radius.length; i += 1) {
                 h2 = in_radius[i];
+				//console.log('testuje '+h2);
 
                 angle_corners = that.angleHexagons(h, h2);
                 arc_corners = DUELO.arc(angle_corners[0], angle_corners[1]);
 
 
                 if (angle_of_view.overlaps(arc_corners)) {
+				//console.log('+++dodaje '+h2);
                     fov.push(h2);
                     for (j = 0; j < that.obstacles.length; j += 1) {                        
                         if ((h2[0] === that.obstacles[j][0]) && 
@@ -429,7 +447,7 @@ DUELO.board = (function () {
                             angle_of_view.remove(arc_corners);
                         }
                     }
-                }
+                } //else console.log('---odrzucam '+h2);
             }
         } while (in_radius.length > 0);
         return fov;
