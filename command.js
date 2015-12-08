@@ -46,7 +46,7 @@ var commandManager = {
 			attacker.goToTile(stepByStep);
 
 			ACTIVE_MOB = target;
-			var fleeDistance = Math.floor((randomGenerator() * (target.speed-1))+2);
+			var fleeDistance = Math.floor((randomGenerator() * (target.max_speed-1))+2);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
 
