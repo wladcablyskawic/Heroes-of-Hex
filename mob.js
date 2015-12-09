@@ -19,7 +19,7 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.max_shots=max_shots;
 	this.isFleeing = false;
 	this.isReinforcemented = false;
-	this.front = player==1 ? 0 : 6;
+	this.front = player==1 ? 3 : 9;
 	this.hasMoved=false;
 
 };

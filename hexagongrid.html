@@ -7,7 +7,9 @@
 	<script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
     <script src="skylink.js"></script>
     <script src="hexagon.js"></script>
-	<script src="mob.js"></script>		
+	<script src="mob.js"></script>	
+	<script src="hero.js"></script>		
+	<script src="spell.js"></script>		
 	<script src="astar.js"></script>	
 	<script src="troops.js"></script>
 	<script src="command.js"></script>
@@ -17,12 +19,23 @@
     <script src="js/jquery.tabSlideOut.v1.3.js"></script>
 	<script src="messages.js"></script>
 	<script src="raphael-min.js"></script>	
+	<script src="maps.js"></script>
+	
+    <script src="dice/three.min.js"></script>
+    <script src="dice/cannon.min.js"></script>
+    <script type="text/javascript" src="dice/teal.js"></script>
+    <script type="text/javascript" src="dice/dice.js"></script>
+    <script type="text/javascript" src="dice/main.js"></script>
 
+	<style type="text/css">@import "dice/main.css";</style>
+	<style type="text/css">@import "dice/dice.css";</style>
+	
+	
 	<script>
 	
          $(function(){
-             $('.slide-out-div').tabSlideOut({
-                 tabHandle: '.handle',                              //class of the element that will be your tab
+             $('.console-div').tabSlideOut({
+                 tabHandle: '.console-handle',                              //class of the element that will be your tab
                  pathToTabImage: 'images/console_tab.jpg',          //path to the image for the tab (optionaly can be set using css)
                  imageHeight: '40px',                               //height of tab image
                  imageWidth: '122px',                               //width of tab image    
@@ -32,6 +45,20 @@
                  topPos: '200px',                                   //position from the top
                  fixedPosition: false                               //options: true makes it stick(fixed position) on scroll
              });
+			 
+             $('.magic-div').tabSlideOut({
+                 tabHandle: '.magic-handle',                              //class of the element that will be your tab
+                 pathToTabImage: 'images/magic_tab.jpg',          //path to the image for the tab (optionaly can be set using css)
+                 imageHeight: '140px',                               //height of tab image
+                 imageWidth: '122px',                               //width of tab image    
+                 tabLocation: 'left',                               //side of screen where tab lives, top, right, bottom, or left
+                 speed: 300,                                        //speed of animation
+                 action: 'click',                                   //options: 'click' or 'hover', action to trigger animation
+                 topPos: '100px',                                   //position from the top
+                 fixedPosition: false                               //options: true makes it stick(fixed position) on scroll
+             });	
+
+			dice_initialize(document.body, 300, 300);			 
          });
 	</script>
 </head>
@@ -39,13 +66,19 @@
 
 
     <style type="text/css" media="screen">
-    .slide-out-div {
+    .console-div {
        padding: 20px;
         width: 450px;
         background: #f2f2f2;
         border: #29216d 2px solid;
-		
     }
+    .magic-div {
+       padding: 20px;
+        width: 450px;
+		height: 450px;
+        background: #f2f2f2;
+        border: #29216d 2px solid;
+    }	
 	
 #actionsmenu {
        position:fixed;
@@ -96,6 +129,7 @@
 <div id="actionsmenu">
 	<button type="button" name='nextMob'>Next mob</button>
 	<button type="button" name='undo'>Undo</button>
+	<button type="button" name='magic'>Magic</button>
 	
 		<script>
 		$( document ).ready(function() {
@@ -109,21 +143,9 @@
 	<canvas id="HexCanvas" width="1700" height="800"></canvas>
 
     <script>
-        var hexagonGrid = new HexagonGrid("HexCanvas", 40, 10,10);
+        var hexagonGrid = new HexagonGrid("HexCanvas", 25, 10,20);
 
-
-		hexagonGrid.addObstacle(2,4,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
-		hexagonGrid.addObstacle(2,3,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
-		hexagonGrid.addObstacle(3,4,'Impassable','As the title says -infinite height, impassable terrain.', true, true);		
-		hexagonGrid.addObstacle(4,5,'Impassable','As the title says -infinite height, impassable terrain.', true, true);
-		
-		hexagonGrid.addObstacle(3,1,'Lake','Lakes are non-interfering terrain features.', false, true);
-		hexagonGrid.addObstacle(2,1,'Lake','Lakes are non-interfering terrain features.', false, true);
-		hexagonGrid.addObstacle(2,0,'Lake','Lakes are non-interfering terrain features.', false, true);
-
-		hexagonGrid.addObstacle(5,1,'Forest','Forests are Interfering terrain. For Line of Sight purposes Forests count as being of infinite height.', true, false);
-		hexagonGrid.addObstacle(5,2,'Forest','Forests are Interfering terrain. For Line of Sight purposes Forests count as being of infinite height. ', true, false);
-				
+		new Map('CorsicanDefense');
 		window.onload = function(){
 			hexagonGrid.drawHexGrid(50, 50, false);
 		
@@ -135,8 +157,8 @@
 
 		</script>
 
-	<div class="slide-out-div">
-        <a class="handle" href="http://link-for-non-js-users">Content</a>
+	<div class="console-div">
+        <a class="console-handle" href="http://link-for-non-js-users">Content</a>
 		
 		<input type="checkbox" name="MovementSettings" checked>movement<br>
 		<input type="checkbox" name="FOVSettings">field of view<br>
@@ -160,6 +182,73 @@
 		</div>
 	  </div>
     </div>
+	
+	<div class="magic-div">
+        <a class="magic-handle" href="http://link-for-non-js-users">Content</a>
+		
+		Choose spell:</br>
+		<div id="spellsMenu" height="200">
+
+		</div>
+		
+		
+		<script> 
+		$( document ).ready(function() {
+			var tmphero = new Hero(1, 'human', 4, 10);
+			var tmpspells = tmphero.getSpells();
+			for(spell of tmpspells) {
+				var img = spell.getImage();
+				$('#spellsMenu').append(img);
+				$('#Image_'+spell.apiname).bind("contextmenu", function(e) {
+					e.preventDefault();
+					if(e.button==2) showSpellDialog(e);			  
+					  return false;	
+				}).click(function() {
+					$('.spell').css('border', '0'); 
+					$(this).css('border', '3px solid black'); 
+				});	
+					
+			}
+		});		
+		
+
+		</script>		
+    <div id="info_div" style="display: none">
+        <div class="center_field">
+            <span id="label"></span>
+        </div>
+        <div class="center_field">
+            <div class="bottom_field">
+                <span id="labelhelp">click to continue or tap and drag again</span>
+            </div>
+        </div>
+    </div>
+    <div id="selector_div" style="display: none">
+        <div class="center_field">
+            <div id="sethelp">
+                choose your dice set by direct input of notation,<br/>
+                tap and drag on free space of screen or hit throw button to roll
+            </div>
+        </div>
+        <div class="center_field" width="400" height="400">
+			<input type="number" id="dicecount" min="1" max="4" value="1"/>	
+			<button id="throw">throw</button>
+			<script>
+			$( document ).ready(function() {
+			$('#dicecount').change(function() {
+				$('#set').val($('#dicecount').val()+'d6');
+				});
+			});
+			</script>
+            <input type="text" id="set" value="1d6"></input><br/>
+            <button id="clear" style="display: none;">clear</button>
+
+        </div>
+    </div>
+    <div id="magic-canvas" width="400" height="400" ></div>
+	
+    </div>
+			
 		
 
 		<br/><BR/><BR/>
@@ -180,6 +269,12 @@
 <img src="troops/Creature_Goblin_2.gif" id="Image_Goblin_2" style="display:none" >
 <img src="troops/Creature_Orc_2.gif" id="Image_Orc_2" style="display:none" >
 <img src="troops/Creature_Troll_2.gif" id="Image_Troll_2" style="display:none" >
+<img class="spell" src="spells/Bloodlust.png" id="Image_Bloodlust" name="Bloodlust">
+<img class="spell" src="spells/Cure.png" id="Image_Cure" name="Cure">
+<img class="spell"  src="spells/Curse.png" id="Image_Curse" name="Curse">
+<img class="spell" src="spells/Magic_Arrow.png" id="Image_Magic_Arrow" name="Magic Arrow">
+<img class="spell" src="spells/Shield.png" id="Image_Shield" name="Shield">
+
 </div>
 <div id="chargeRespondDialog" title="Decision time!" style="display: none;">
   <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>

@@ -36,23 +36,6 @@ HexagonGrid.prototype.selectMob = function(name)
 	}
 }
 
-var Obstacle = function(Tile, name, hover, blockingLoS, blockingMovement)
-{
-	this.Tile=Tile;
-	this.name=name;
-	this.hover=hover;
-	this.blockingLoS = blockingLoS;
-	this.blockingMovement=blockingMovement;
-}
-
-Obstacle.prototype.getColor = function()
-{
-	if(this.blockingLoS==true && this.blockingMovement==true) return 'black'; // mountains
-	else if(this.blockingLoS==true && this.blockingMovement==false) return 'green'; // forest
-	else if (this.blockingLoS==false && this.blockingMovement==true) return 'blue'; // lake
-	else return 'pink';
-}
-
 var Tile = function(column, row)
 {
 	this.column=column;
@@ -97,6 +80,7 @@ function HexagonGrid(canvasId, radius, rows, cols) {
 	
 	MAX_COLUMN=cols;
 	MAX_ROW=rows;
+	HEX_RADIUS = radius;
 	
     this.radius = radius;
 
@@ -222,7 +206,7 @@ function getDeploymentZone() {
 	
 	for(i=start_column; i<end_column; i++) {
 		for(j=start_row; j<end_row; j++) {
-			zone.push(new Tile(j,i));
+			zone.push(new Tile(i,j));
 		}
 	}
 	
@@ -582,13 +566,13 @@ HexagonGrid.prototype.hoverEvent = function (e) {
     var mouseY = e.pageY;
 
     var localX = mouseX - this.canvasOriginX;
-    var localY = mouseY - this.canvasOriginY;
+    var localY = mouseY- this.canvasOriginY;
 	
     var tile = this.getSelectedTile(localX, localY);
 
 	if(drag!=undefined && drag==true) {
 		this.refreshHexGrid();
-		this.drawHex(localX, localY, 'yellow', '['+draggedMob.unitsize+']', draggedMob.getImage());
+		this.drawHex(e.pageX-HEX_RADIUS, e.pageY-HEX_RADIUS, 'yellow', '['+draggedMob.unitsize+']', draggedMob.getImage());
 		return;
 	}
 	
@@ -793,6 +777,8 @@ function selectNextMob(warrior)
 				break;
 			}
 			else {
+				addMessage('-----NEW TURN HAS BEGUN-----', 'communicate');	
+						
 				ACTIVE_MOB=MOBS[0]; 
 				break;
 			}
@@ -827,7 +813,7 @@ function selectNextMob(warrior)
 	if(target!=undefined) {
 		title=target.type+'\'s details';
 			var markup= '<tr><td>unitsize:</td><td>'+target.unitsize+'</td></tr>';
-            markup+= '<tr><td>speed:</td><td>'+target.speed+'</td></tr>';
+            markup+= '<tr><td>speed:</td><td>'+target.speed+'/'+target.max_speed+'</td></tr>';
 			markup+= '<tr><td>attack:</td><td>'+target.attack+'</td></tr>';
 			markup+= '<tr><td>defense:</td><td>'+target.defense+'</td></tr>';
 			markup+= '<tr><td>damage:</td><td>'+target.damage_min+'-'+target.damage_max+'</td></tr>';
@@ -859,8 +845,7 @@ function selectNextMob(warrior)
 			buttons: {},
 			open: function () {
 				$(this).html(markup);
-			}
-    });	
+			}});	
 
 	}
 	

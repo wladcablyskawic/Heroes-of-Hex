@@ -136,32 +136,7 @@
 		}
 		return results;
 	};		
-	
-/*	function checkLineOfSight(observer, target) {
-		var tiles = getLineOfSight(observer, target);
-		
-		var answer=true;
-		for(i=1; i<tiles.length-1; i++) {
-			if(checkTileVisibility(tiles[i])==false) 
-			{
-				if(observer.row==target.row && i%2==1) {
-					var secondOption = tiles[i];
-					secondOption.row++;
-					if(isValidTile(secondOption)==false ||
-						checkTileVisibility(secondOption)==false) {
-						answer=false;
-						break;
-					}
-				} else {
-				answer=false;
-				break;
-				}
-			}
-		}
-		
-		return answer;
-	}	*/
-	
+
 	function checkTileVisibility(tile) {
 		var answer=true;
 			for(j=0; j<OBSTACLES.length; j++) {
@@ -331,12 +306,7 @@
 			var fullPath = [];
 			while(counter!=0) {
 			fullPath.push(new Tile(path[counter][2], path[counter][1]));
-			//fullPath+='next step: ['+path[counter][2] + ',' + path[counter][1]+'],';
-//				document.getElementById('hex_' + path[counter][1] + '_' + path[counter][2]).className = 'hex_blue';
 				counter--;
 			}
-//			console.log(fullPath);
 			return fullPath;
-
-//			alert(fullPath);
 		}				

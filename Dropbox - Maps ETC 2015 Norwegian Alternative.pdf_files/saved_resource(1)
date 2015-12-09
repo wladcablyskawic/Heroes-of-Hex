@@ -1,0 +1,18 @@
+var nm_mt_rand = '1435639376';
+var nm_tag_uri = 'https://';
+var nm_query_str = 'aid=3808&siclientid=&ref=http%3A%2F%2Fwarhammer.org.uk%2FphpBB%2Fviewtopic.php%3Ft%3D127909%26f%3D18';
+
+
+if (document.getElementById && document.createElement && document.body) {
+  var i=document.createElement('IFRAME');
+  var axel = Math.random() + '';        
+  var a = axel * 10000000000000; 
+  i.src='//4727608.fls.doubleclick.net/activityi;src=4727608;type=invmedia;cat=7ltetgda;ord=' + a + '?';
+  i.width=1;
+  i.height=1;
+  i.frameBorder=0;
+  document.body.appendChild(i);
+}
+
+var i=document.createElement('IMG'); i.src='//ums.adtechus.com/mapuser?providerid=1024;userid=bkxzme9vhk0nn'; i.width=1; i.height=1; document.body.appendChild(i);
+ 

@@ -152,7 +152,7 @@ function bePlayer(which) {
 			if(which=='1') row++;
 			else row--;
 		}
-		hexagonGrid.addMob(which, mobs[i].product, row,column,'mob'+which+i,mobs[i].qty);	
+		hexagonGrid.addMob(which, mobs[i].product, column, row,'mob'+which+i,mobs[i].qty);	
 	}
 	
 	hexagonGrid.refreshHexGrid();	
