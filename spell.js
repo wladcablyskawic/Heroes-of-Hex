@@ -1,13 +1,36 @@
 var Spell = function(name) {
 	this.name=name;
-	this.apiname =this.name.replace(' ','_');
+	if(this.name!=undefined) this.apiname =this.name.replace(' ','_');
 	
 	if(name=='Shield') this.createShield();
 	else if(name=='Bloodlust') this.createBloodlust();
 	else if(name=='Cure') this.createCure();
 	else if(name=='Curse') this.createCurse();
-	else this.createMagicArrow();
+	else if(name=='Magic Arrow') this.createMagicArrow();
 
+}
+
+Spell.prototype.tryCast = function(dice) {
+	var sum = 0;
+	for(i=0; i<dice.length; i++) sum+=dice[i];
+	
+	var communicate = {};
+	communicate.Action='castSpell';
+	communicate.spell=this.name;
+	communicate.castingValue=this.castingValue;
+	communicate.rolled = sum;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 
+}
+
+Spell.prototype.dispel = function(dice, threshold) {
+	var sum = 0;
+	for(i=0; i<dice.length; i++) sum+=dice[i];
+	
+	var communicate = {};
+	communicate.Action='dispel';
+	communicate.threshold=threshold;
+	communicate.rolled = sum;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
 Spell.prototype.getImage = function() {

@@ -43,6 +43,7 @@ function dice_initialize(container, w, h) {
     }
 
     function after_roll(notation, result) {
+		RollManager.DispatchRoll(result);
         var res = result.join(' ');
         if (notation.constant) res += ' +' + notation.constant;
         if (result.length > 1) res += ' = ' + 

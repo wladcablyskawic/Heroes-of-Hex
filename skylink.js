@@ -112,6 +112,35 @@ function respondCharge(mess) {
 		
 };
 
+
+function respondSpell(mess, message) {
+		var buttons = {};
+		message+=' What is your answer?';
+		$("#chargeRespondDialog").text(message);
+		$("#chargeRespondDialog").append($('#selector_div')).append($('#magic-canvas'));
+
+		RollManager.Dispel(mess.rolled);
+		
+		buttons['do nothing'] = function() {	
+				$(this).dialog('close');
+		};	
+
+		
+		$( "#chargeRespondDialog" ).dialog({
+			modal:true,
+			buttons: buttons,
+			beforeClose: function() {
+				$('.magic-div').append($('#selector_div')).append($('#magic-canvas'));
+				console.log(RollManager.isAnswerSend());
+				if(RollManager.isAnswerSend()==false) {
+					var communicate = {};
+					communicate.Action='takeSpell';
+					skylink.sendP2PMessage(JSON.stringify(communicate)); 				
+				}
+			}
+		});
+}
+
 function setAutoRespond(chargeRespond, answer) {
 		autoRespond = setTimeout(function(){ 
 				chargeRespond.respond=answer;
@@ -119,6 +148,8 @@ function setAutoRespond(chargeRespond, answer) {
 				$("#chargeRespondDialog").dialog('close');				
 		}, 7000);
 }
+
+
 
 skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456',
 			defaultroom:'testroom2'}, function()
@@ -254,4 +285,12 @@ function sendReinforcement(mob) {
 	communicate.Action='reinforcement';
 	communicate.mob=mob;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
+};
+
+function sendCast(spell, result) 
+{
+	var communicate = {};
+	communicate.Action='castSpell';
+	communicate.spell=spell;
+	communicate.castingValue=result;
 };

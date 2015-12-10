@@ -10,6 +10,57 @@ var commandManager = {
 	  
 	  addMessage(user + ': ' + mess.message, className);
 	},
+	
+	castSpell: function(mess, isSelf, peerId, peerInfo) {
+	  var user = 'You',
+      className = 'you';
+	  if(!isSelf) {
+		user = peerInfo.userData.name || peerId;
+		className = 'message';
+	  }	
+		var message = user+' tried to cast '+mess.spell +'(CV:'+mess.castingValue+') and rolled '+mess.rolled;
+		var success = mess.rolled>=mess.castingValue;
+		message+= '. Spell '+ (success? ' casted successfully.':' failed.');
+		addMessage(message, 'communicate');		  
+		
+		if(isSelf) return;
+		if(success) respondSpell(mess, message);		
+	},
+	
+	dispel: function(mess, isSelf, peerId, peerInfo) {
+	  var user = 'You',
+      className = 'you';
+	  if(!isSelf) {
+		user = peerInfo.userData.name || peerId;
+		className = 'message';
+	  }	
+		var message = user+' tried to dispel and rolled '+mess.rolled;	  
+	    var success = mess.threshold <= mess.rolled;
+		message+= '. Dispel'+ (success? ' successfully.':' failed.');
+		addMessage(message, 'communicate');	
+
+		if(isSelf) return;
+		if(!success) {
+			$('a.magic-handle').trigger('click');		
+
+			}
+	},	
+	
+	takeSpell: function(mess, isSelf, peerId, peerInfo) {
+	  var user = 'You',
+      className = 'you';
+	  if(!isSelf) {
+		user = peerInfo.userData.name || peerId;
+		className = 'message';
+	  }	
+		var message = user+' decided to take a spell.';	
+		addMessage(message, 'communicate');	
+		
+		if(isSelf) return;
+		$('a.magic-handle').trigger('click');	
+	
+	},
+	
  
 	chargeDeclaration: function(mess, isSelf) {
 		var attacker = new Mob().parse(mess.attacker);

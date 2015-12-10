@@ -305,6 +305,7 @@
             notation += dict[i] + i;
         }
         if (nn.constant) notation += ' + ' + nn.constant;
+		
         return notation;
     }
 
@@ -427,7 +428,7 @@
         var res = true;
         var e = 6;
         var time = (new Date()).getTime();
-        if (time - this.running < 10000) {
+        if (time - this.running < 2000) {
             for (var i = 0; i < this.dices.length; ++i) {
                 var dice = this.dices[i];
                 if (dice.dice_stopped == true) continue;
@@ -632,6 +633,7 @@
             box.rolling = true;
             if (before_roll) before_roll.call(box, vectors, notation);
             if (after_roll) {
+		
                 box.clear();
                 box.roll(vectors, function(result) {
                     if (after_roll) after_roll.call(box, notation, result);

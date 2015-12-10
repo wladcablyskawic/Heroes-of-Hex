@@ -20,6 +20,7 @@
 	<script src="messages.js"></script>
 	<script src="raphael-min.js"></script>	
 	<script src="maps.js"></script>
+	<script src="rollmanager.js"></script>
 	
     <script src="dice/three.min.js"></script>
     <script src="dice/cannon.min.js"></script>
@@ -206,6 +207,7 @@
 				}).click(function() {
 					$('.spell').css('border', '0'); 
 					$(this).css('border', '3px solid black'); 
+					RollManager.Cast(this.name);
 				});	
 					
 			}
