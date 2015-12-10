@@ -432,14 +432,14 @@ DUELO.board = (function () {
             in_radius = that.hexagonsInDistance(h, radius);
             for (i = 0; i < in_radius.length; i += 1) {
                 h2 = in_radius[i];
-				console.log('testuje '+h2);
+				//console.log('testuje '+h2);
 
                 angle_corners = that.angleHexagons(h, h2);
                 arc_corners = DUELO.arc(angle_corners[0], angle_corners[1]);
 
 
                 if (angle_of_view.overlaps(arc_corners)) {
-				console.log('+++dodaje '+h2);
+				//console.log('+++dodaje '+h2);
                     fov.push(h2);
                     for (j = 0; j < that.obstacles.length; j += 1) {                        
                         if ((h2[0] === that.obstacles[j][0]) && 
@@ -447,7 +447,7 @@ DUELO.board = (function () {
                             angle_of_view.remove(arc_corners);
                         }
                     }
-                } else console.log('---odrzucam '+h2);
+                } //else console.log('---odrzucam '+h2);
             }
         } while (in_radius.length > 0);
         return fov;

@@ -23,11 +23,11 @@ $.fn.notify = function(settings_overwrite){
 -------------------------------------**/
 $(document).ready(function ($) {
     $('.message').on('click', (function () {
-        $(this).fadeTo('slow', 0, function() {
-            $(this).slideUp("slow", function() {
-                $(this).remove();
-            });
-        });
+        //$(this).fadeTo('slow', 0, function() {
+           // $(this).slideUp("slow", function() {
+                $(this).hide();
+            //});
+        //});
     }));
 });
 

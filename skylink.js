@@ -54,7 +54,10 @@ function respondCharge(mess) {
 
 		target = new Mob().parse(mess.target);
 		attacker = new Mob().parse(mess.attacker);
-		
+
+		hexagonGrid.highlightHex('yellow', attacker.Tile);
+		hexagonGrid.highlightHex('red', target.Tile);
+			
 		if(target.isSurrounded()==true) {
 			chargeRespond.respond = 'hold';		
 			skylink.sendP2PMessage(JSON.stringify(chargeRespond));	
@@ -142,11 +145,11 @@ function respondSpell(mess, message) {
 }
 
 function setAutoRespond(chargeRespond, answer) {
-		autoRespond = setTimeout(function(){ 
+/*		autoRespond = setTimeout(function(){ 
 				chargeRespond.respond=answer;
 				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
 				$("#chargeRespondDialog").dialog('close');				
-		}, 7000);
+		}, 7000);*/
 }
 
 
@@ -285,12 +288,4 @@ function sendReinforcement(mob) {
 	communicate.Action='reinforcement';
 	communicate.mob=mob;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
-};
-
-function sendCast(spell, result) 
-{
-	var communicate = {};
-	communicate.Action='castSpell';
-	communicate.spell=spell;
-	communicate.castingValue=result;
 };

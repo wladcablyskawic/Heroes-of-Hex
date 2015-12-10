@@ -42,8 +42,9 @@ var commandManager = {
 		if(isSelf) return;
 		if(!success) {
 			$('a.magic-handle').trigger('click');		
-
+			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power!" });
 			}
+		else   $.growl.error({ title: "Spell dispelled", message: "Opponent stopped your spell" });
 	},	
 	
 	takeSpell: function(mess, isSelf, peerId, peerInfo) {
@@ -58,6 +59,7 @@ var commandManager = {
 		
 		if(isSelf) return;
 		$('a.magic-handle').trigger('click');	
+		$.growl.notice({ title: "Spell casted succesfully", message: "Opponent has taken your spell" });
 	
 	},
 	
@@ -109,14 +111,19 @@ var commandManager = {
 		}	
 	},
 	
-	reinforcement: function(mess) {
+	reinforcement: function(mess, isSelf) {
+		if(!isSelf) return;
 		mob = new Mob().parse(mess.mob);
 		mob.isFleeing=false;				
 		mob.isReinforcemented=true;
 		mob.speed=0;
 		addMessage(mob.getDescribe()+' reinforcemented.', 'communicate');	
-		//selectNextMob(mob);
-		hexagonGrid.refreshHexGrid();			
+		hexagonGrid.refreshHexGrid();	
+
+		if(mob.player==PLAYER_NAME) $.growl.notice({ title: mob.getDescribe()+' reinforcemented.', message: "You can turn it now." });
+		else $.growl.warning({ message: mob.getDescribe()+' reinforcemented.' });
+	
+		
 	},
 	
 	shot: function(mess, isSelf) {
