@@ -618,6 +618,10 @@
             box.mouse_start = { x: ev.clientX, y: ev.clientY };
         });
         $t.bind(container, ['mouseup', 'touchend', 'touchcancel'], function(ev) {
+			if(!HEROES[0].isRollPossible($('#dicecount').val())) {
+				alert('you dont have enough dice!');
+				return;
+			}				
             if (box.rolling) return;
             var vector = { x: ev.clientX - box.mouse_start.x, y: -(ev.clientY - box.mouse_start.y) };
             var dist = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
@@ -647,6 +651,10 @@
 
         var box = this;
         $t.bind(button, ['mouseup', 'touchend', 'touchcancel'], function(ev) {
+			if(!HEROES[0].isRollPossible($('#dicecount').val())) {
+				alert('you dont have enough dice!');
+				return;
+			}
             if (box.rolling) return;
             ev.stopPropagation();
             var vector = { x: (rnd() * 2 - 1) * box.w, y: -(rnd() * 2 - 1) * box.h };

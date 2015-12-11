@@ -41,6 +41,7 @@ skylink.on('incomingMessage', function(message, peerId, peerInfo, isSelf) {
 
 function startgame() {
 	hexagonGrid.selectMob('mob10');
+	HEROES[0].prepareForNewTurn();	
 	hexagonGrid.refreshHexGrid();
 }
 
@@ -145,11 +146,11 @@ function respondSpell(mess, message) {
 }
 
 function setAutoRespond(chargeRespond, answer) {
-/*		autoRespond = setTimeout(function(){ 
+		autoRespond = setTimeout(function(){ 
 				chargeRespond.respond=answer;
 				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
 				$("#chargeRespondDialog").dialog('close');				
-		}, 7000);*/
+		}, 7000);
 }
 
 
@@ -188,6 +189,8 @@ function bePlayer(which) {
 		}
 		hexagonGrid.addMob(which, mobs[i].product, column, row,'mob'+which+i,mobs[i].qty);	
 	}
+	
+	hexagonGrid.addHero(which, 'wizzard', 4, 2, 10);	
 	
 	hexagonGrid.refreshHexGrid();	
 }

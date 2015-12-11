@@ -1,9 +1,14 @@
-var Hero = function(player, type, mana, leadership) {
+var Hero = function(player, type, castingDice, dispelDice, leadership) {
 	this.player=player;
 	this.type=type;
-	this.mana=mana;
-	this.max_mana=mana;
+	this.castingDice=castingDice;
+	this.max_castingDice=castingDice;
+	this.dispelDice=dispelDice;
+	this.max_dispelDice=dispelDice;
 	this.leadership=leadership;	
+	
+	this.isCasting=false;
+	this.isDispeling=false;
 };
 
 Hero.prototype.getSpells = function() {
@@ -17,3 +22,21 @@ Hero.prototype.getSpells = function() {
 	return spells;
 };
 
+Hero.prototype.isRollPossible = function(diceCount) {
+
+	if((HEROES[0].isCasting && diceCount>HEROES[0].castingDice) ||
+	   (HEROES[0].isDispeling && diceCount>HEROES[0].dispelDice)) return false;
+	   
+	return true;
+
+}
+
+Hero.prototype.prepareForNewTurn = function() {
+	RollManager.reset();
+	this.castingDice=this.max_castingDice;
+	this.dispelDice=this.max_dispelDice;
+	this.isCasting = (ACTIVE_MOB.player==this.player);
+	this.isDispeling = !this.isCasting;
+	
+
+}

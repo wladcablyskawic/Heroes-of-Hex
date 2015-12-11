@@ -5,11 +5,15 @@ var MAX_ROW;
 
 var OBSTACLES = [];
 var MOBS = [];
+var HEROES = [];
 var ACTIVE_MOB;
 
 var DEPLOYMENT=true;
 var drag=false;
 
+HexagonGrid.prototype.addHero = function(player, type, castingDice, dispelDice, leadership) {
+	HEROES.push(new Hero(player, type, castingDice, dispelDice, leadership));
+}
 
 HexagonGrid.prototype.addObstacle = function(column, row, name, hover, isBlockingLoS, isBlockingMovement) 
 {
@@ -778,8 +782,7 @@ function selectNextMob(warrior)
 			}
 			else {
 				addMessage('-----NEW TURN HAS BEGUN-----', 'communicate');	
-						
-				ACTIVE_MOB=MOBS[0]; 
+				ACTIVE_MOB=MOBS[0]; 					
 				break;
 			}
 			
@@ -787,6 +790,11 @@ function selectNextMob(warrior)
 	}
 	ACTIVE_MOB.speed=ACTIVE_MOB.max_speed;
 	ACTIVE_MOB.hasMoved=false;
+	
+	if(ACTIVE_MOB.player != warrior.player) {
+		HEROES[0].prepareForNewTurn();		
+	}
+
 	
 	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
 	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);

@@ -199,9 +199,7 @@
 		
 		<script> 
 		$( document ).ready(function() {
-			var tmphero = new Hero(1, 'human', 4, 10);
-			var tmpspells = tmphero.getSpells();
-			for(spell of tmpspells) {
+			for(spell of HEROES[0].getSpells()) {
 				var img = spell.getImage();
 				$('#spellsMenu').append(img);
 				$('#Image_'+spell.apiname).bind("contextmenu", function(e) {
@@ -209,9 +207,11 @@
 					if(e.button==2) showSpellDialog(e);			  
 					  return false;	
 				}).click(function() {
-					$('.spell').css('border', '0'); 
-					$(this).css('border', '3px solid black'); 
-					RollManager.Cast(this.name);
+					$('.spell').css('border', '0'); 				
+					if(HEROES[0].isCasting) {					
+						RollManager.Cast(this.name);
+						$(this).css('border', '3px solid black'); 
+					}
 				});	
 					
 			}
@@ -232,18 +232,24 @@
     <div id="selector_div" style="display: none">
         <div class="center_field">
             <div id="sethelp">
-                choose your dice set by direct input of notation,<br/>
-                tap and drag on free space of screen or hit throw button to roll
+                how many dice?
             </div>
         </div>
         <div class="center_field" width="400" height="400">
-			<input type="number" id="dicecount" min="1" max="4" value="1"/>	
+			<input type="number" id="dicecount" min="0" value="0"/>	
 			<button id="throw">throw</button>
 			<script>
 			$( document ).ready(function() {
 			$('#dicecount').change(function() {
+				if(HEROES[0].isCasting && $('#dicecount').val()>HEROES[0].castingDice)
+					$('#dicecount').val(HEROES[0].castingDice);
+				else if(HEROES[0].isDispeling && $('#dicecount').val()>HEROES[0].dispelDice)
+					$('#dicecount').val(HEROES[0].dispelDice);
+				else if(!HEROES[0].isCasting && !HEROES[0].isDispeling)
+					$('#dicecount').val(0);
+					
 				$('#set').val($('#dicecount').val()+'d6');
-				});
+				});	
 			});
 			</script>
             <input type="text" id="set" value="1d6"></input><br/>

@@ -52,7 +52,7 @@ function dice_initialize(container, w, h) {
         info_div.style.display = 'inline-block';
     }
 
-    box.bind_mouse(container, notation_getter, before_roll, after_roll);
+   // box.bind_mouse(container, notation_getter, before_roll, after_roll);
     box.bind_throw($t.id('throw'), notation_getter, before_roll, after_roll);
 
     $t.bind(container, ['mouseup', 'touchend', 'touchcancel'], function(ev) {
