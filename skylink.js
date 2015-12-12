@@ -118,7 +118,18 @@ function respondCharge(mess) {
 
 
 function respondSpell(mess, message) {
+		if(!HEROES[0].isDispelPossible()) {
+			var communicate = {};
+			communicate.Action='takeSpell';
+			skylink.sendP2PMessage(JSON.stringify(communicate)); 				
+			return;
+		}
+		
 		var buttons = {};
+		autoRespond = setTimeout(function(){ 
+			$("#chargeRespondDialog").dialog('close');				
+			}, 7000);
+
 		message+=' What is your answer?';
 		$("#chargeRespondDialog").text(message);
 		$("#chargeRespondDialog").append($('#selector_div')).append($('#magic-canvas'));
@@ -135,20 +146,20 @@ function respondSpell(mess, message) {
 			buttons: buttons,
 			beforeClose: function() {
 				$('.magic-div').append($('#selector_div')).append($('#magic-canvas'));
-				console.log(RollManager.isAnswerSend());
-				if(RollManager.isAnswerSend()==false) {
+					if(RollManager.isAnswerSend()==false) {
 					var communicate = {};
 					communicate.Action='takeSpell';
 					skylink.sendP2PMessage(JSON.stringify(communicate)); 				
 				}
+				clearTimeout(autoRespond);								
 			}
 		});
 }
 
-function setAutoRespond(chargeRespond, answer) {
+function setAutoRespond(communicate, answer) {
 		autoRespond = setTimeout(function(){ 
-				chargeRespond.respond=answer;
-				skylink.sendP2PMessage(JSON.stringify(chargeRespond));
+				communicate.respond=answer;
+				skylink.sendP2PMessage(JSON.stringify(communicate));
 				$("#chargeRespondDialog").dialog('close');				
 		}, 7000);
 }
@@ -291,4 +302,12 @@ function sendReinforcement(mob) {
 	communicate.Action='reinforcement';
 	communicate.mob=mob;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
+};
+
+function sendSpell(spell, target) {
+	var communicate = {}
+	communicate.Action='spellEffect';
+	communicate.target=target;
+	communicate.spell=spell;
+	skylink.sendP2PMessage(JSON.stringify(communicate)); 			
 };

@@ -22,13 +22,17 @@ Hero.prototype.getSpells = function() {
 	return spells;
 };
 
+Hero.prototype.isDispelPossible = function() {
+	if(HEROES[0].isDispeling && HEROES[0].dispelDice>0) return true;
+	return false;
+};
+
 Hero.prototype.isRollPossible = function(diceCount) {
 
 	if((HEROES[0].isCasting && diceCount>HEROES[0].castingDice) ||
 	   (HEROES[0].isDispeling && diceCount>HEROES[0].dispelDice)) return false;
 	   
 	return true;
-
 }
 
 Hero.prototype.prepareForNewTurn = function() {
@@ -36,7 +40,5 @@ Hero.prototype.prepareForNewTurn = function() {
 	this.castingDice=this.max_castingDice;
 	this.dispelDice=this.max_dispelDice;
 	this.isCasting = (ACTIVE_MOB.player==this.player);
-	this.isDispeling = !this.isCasting;
-	
-
+	this.isDispeling = !this.isCasting;	
 }

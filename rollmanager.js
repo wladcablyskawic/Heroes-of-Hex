@@ -38,6 +38,12 @@ const RollManager = (function(){
 			$('.spell').css('border', '0'); 
 		},
 		
+		getSpellName: function() {
+			if(this.action=='Cast')
+				return this.spellName;
+			else return null;
+		},
+		
 		isAnswerSend: function() {
 			return this.sendedAnswer;
 		},

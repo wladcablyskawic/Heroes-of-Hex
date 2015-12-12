@@ -18,13 +18,14 @@ var commandManager = {
 		user = peerInfo.userData.name || peerId;
 		className = 'message';
 	  }	
-		var message = user+' tried to cast '+mess.spell +'(CV:'+mess.castingValue+') and rolled '+mess.rolled;
+		var castMessage = user+' tried to cast '+mess.spell +'(CV:'+mess.castingValue+') and rolled '+mess.rolled +' on '+mess.dice+' dice';
 		var success = mess.rolled>=mess.castingValue;
-		message+= '. Spell '+ (success? ' casted successfully.':' failed.');
-		addMessage(message, 'communicate');		  
+		castMessage+= '. Spell '+ (success? ' casted successfully.':' failed.');
+		addMessage(castMessage, 'communicate');		  
 		
 		if(isSelf) return;
-		if(success) respondSpell(mess, message);		
+		if(success) respondSpell(mess, castMessage);		
+		else $.growl.notice({ title: "Enemy wizzard is weak", message: castMessage });
 	},
 	
 	dispel: function(mess, isSelf, peerId, peerInfo) {
@@ -34,7 +35,7 @@ var commandManager = {
 		user = peerInfo.userData.name || peerId;
 		className = 'message';
 	  }	
-		var message = user+' tried to dispel and rolled '+mess.rolled;	  
+		var message = user+' tried to dispel and rolled '+mess.rolled  +' on '+mess.dice+' dice';
 	    var success = mess.threshold <= mess.rolled;
 		message+= '. Dispel'+ (success? ' successfully.':' failed.');
 		addMessage(message, 'communicate');	
@@ -43,6 +44,8 @@ var commandManager = {
 		if(!success) {
 			$('a.magic-handle').trigger('click');		
 			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power!" });
+			MAGIC_PHASE=true;
+			hexagonGrid.refreshHexGrid();
 			}
 		else   $.growl.error({ title: "Spell dispelled", message: "Opponent stopped your spell" });
 	},	
@@ -60,9 +63,21 @@ var commandManager = {
 		if(isSelf) return;
 		$('a.magic-handle').trigger('click');	
 		$.growl.notice({ title: "Spell casted succesfully", message: "Opponent has taken your spell" });
-	
+		MAGIC_PHASE=true;
+		hexagonGrid.refreshHexGrid();
 	},
 	
+	spellEffect: function(mess, isSelf) {
+		target = new Mob().parse(mess.target);
+		spell = new Spell(mess.spell);
+		var castMessage = spell.effect(target);
+		hexagonGrid.refreshHexGrid();		
+		if(isSelf)
+			$.growl.notice({ title: "Spell effect", message: castMessage });
+		else 
+			$.growl.error({ title: "Spell effect", message: castMessage });
+
+	},
  
 	chargeDeclaration: function(mess, isSelf) {
 		var attacker = new Mob().parse(mess.attacker);

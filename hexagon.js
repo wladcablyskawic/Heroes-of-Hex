@@ -9,6 +9,7 @@ var HEROES = [];
 var ACTIVE_MOB;
 
 var DEPLOYMENT=true;
+var MAGIC_PHASE = false;
 var drag=false;
 
 HexagonGrid.prototype.addHero = function(player, type, castingDice, dispelDice, leadership) {
@@ -165,7 +166,7 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	
 
 
-	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false) 
+	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false && MAGIC_PHASE==false) 
 	{
 		ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);	
 		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded() && $( ":checkbox[name='MovementSettings']" )[0].checked) {
@@ -581,8 +582,17 @@ HexagonGrid.prototype.hoverEvent = function (e) {
 	}
 	
 	for(var i=0; i<MOBS.length; i++) {
-		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].player!=PLAYER_NAME && MOBS[i].isAlive()==true) {
-			if(ACTIVE_MOB.checkLOS(MOBS[i].Tile)) {
+		if(tile.getCoordinates()==MOBS[i].Tile.getCoordinates() && MOBS[i].isAlive()==true) {
+		
+		if(MAGIC_PHASE==true) {
+				var spell = new Spell(RollManager.getSpellName());
+				if(spell.validateTarget(MOBS[i]))
+					this.canvas.style.cursor = 'all-scroll';	  			
+				
+				return;
+			}
+		
+			if(ACTIVE_MOB.checkLOS(MOBS[i].Tile) && MOBS[i].player!=PLAYER_NAME) {
 			if(ACTIVE_MOB.isShotPossible(MOBS[i])) this.canvas.style.cursor = 'crosshair';	
 			else if(hexagonGrid.isChargePossible(ACTIVE_MOB, MOBS[i])) {
 					var attackDirection=this.calculateAttackVector(mouseX, mouseY, MOBS[i].Tile);
@@ -639,6 +649,25 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	if(ACTIVE_MOB.player != PLAYER_NAME) return;
 	if(e.which != 1) return; // just left click
 	
+	var target;
+	for(var i=0; i<MOBS.length; i++) {
+		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==tile.getCoordinates())
+		target=MOBS[i];
+	}	
+
+	
+	if(MAGIC_PHASE==true) {
+		var spell = new Spell(RollManager.getSpellName());
+
+		if(spell.validateTarget(target)) {
+			MAGIC_PHASE=false;
+			sendSpell(spell.name, target)
+			hexagonGrid.refreshHexGrid();			
+		}			
+		return; 
+	}
+	
+	if(target!=undefined && target.player==PLAYER_NAME) target=undefined;
 	
 	if(ACTIVE_MOB.isWorking==true) return;
 
@@ -647,11 +676,6 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		return;		
     }	
 
-	var target;
-	for(var i=0; i<MOBS.length; i++) {
-		if(MOBS[i].isAlive() && MOBS[i].Tile.getCoordinates()==tile.getCoordinates()	&& MOBS[i].player!=PLAYER_NAME)
-		target=MOBS[i];
-	}	
 		
 	this.recalculateChargeClick(tile);
 
@@ -847,7 +871,7 @@ function selectNextMob(warrior)
 			}
 		}); //end confirm dialog
 
-		$("#chargeRespondDialog").dialog({
+		$('<div></div>').dialog({
 			modal: true,
 			title: title,
 			buttons: {},

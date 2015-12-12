@@ -8,8 +8,12 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.unitsize=unitsize;
 	this.attack=attack;
 	this.defense=defense;
+	this._attack=attack;
+	this._defense=defense;
 	this.damage_min = damage_min;
+	this._damage_min = damage_min;
 	this.damage_max = damage_max;
+	this._damage_max = damage_max;
 	this.hp = hp;
 	this.max_hp=max_hp;
 	this.speed=speed;	
@@ -176,6 +180,8 @@ Mob.prototype.calculateRangeDmg = function(target) {
 };	
 
 Mob.prototype.isShotPossible = function(target) {
+	if(target==undefined) return false;
+	
 	if(this.speed < this.halfSpeed) return false;
 	if(this.shots==0) return false;
 	if(this.isSurrounded()) return false;
