@@ -227,12 +227,6 @@ function isInDeploymentZone(tile) {
 	return false;
 };
 
- function writeMessage(context, message){
-	console.log(message);
-	context.fillText(message, 10, 25);
- }
-
-
 HexagonGrid.prototype.drawHexAtColRow = function(column, row, color, debugText, img, front) {
     var drawx = (column * this.side) + this.canvasOriginX;
     var drawy = column % 2 == 0 ? (row * this.height) + this.canvasOriginY : (row * this.height) + this.canvasOriginY + (this.height / 2);
@@ -698,7 +692,7 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		if(target!=undefined)
 		sendChargeDeclaration(ACTIVE_MOB, target, tile);		
 		else if(tile.isFarFromEnemy())
-		sendMobToTile(ACTIVE_MOB, tile); // komunikat obslugiwany przez obu graczy
+		sendMobToTile(ACTIVE_MOB, tile); 
 		else alert('this field is too close to your enemy, you should charge him');
 		
 		
@@ -715,6 +709,14 @@ HexagonGrid.prototype.clickEvent = function (e) {
 	}
 	this.canvas.style.cursor = "default";
 	this.refreshHexGrid();
+};
+
+HexagonGrid.prototype.animateSpell = function(spell, target) {
+	this.drawHexAtColRow(target.Tile.column, target.Tile.row, 'pink', '');
+	setTimeout(function() {
+		hexagonGrid.refreshHexGrid();
+	}, 500);
+	
 };
 
 HexagonGrid.prototype.animateShot = function(shoter, target) {

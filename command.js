@@ -43,7 +43,7 @@ var commandManager = {
 		if(isSelf) return;
 		if(!success) {
 			$('a.magic-handle').trigger('click');		
-			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power!" });
+			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power! Choose a target." });
 			MAGIC_PHASE=true;
 			hexagonGrid.refreshHexGrid();
 			}
@@ -62,7 +62,7 @@ var commandManager = {
 		
 		if(isSelf) return;
 		$('a.magic-handle').trigger('click');	
-		$.growl.notice({ title: "Spell casted succesfully", message: "Opponent has taken your spell" });
+		$.growl.notice({ title: "Spell casted succesfully", message: "Opponent has taken your spell. Choose a target." });
 		MAGIC_PHASE=true;
 		hexagonGrid.refreshHexGrid();
 	},
@@ -71,7 +71,8 @@ var commandManager = {
 		target = new Mob().parse(mess.target);
 		spell = new Spell(mess.spell);
 		var castMessage = spell.effect(target);
-		hexagonGrid.refreshHexGrid();		
+		hexagonGrid.refreshHexGrid();
+		hexagonGrid.animateSpell(spell, target);
 		if(isSelf)
 			$.growl.notice({ title: "Spell effect", message: castMessage });
 		else 
