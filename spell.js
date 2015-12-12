@@ -30,6 +30,7 @@ Spell.prototype.tryCast = function(dice) {
 	communicate.castingValue=this.castingValue;
 	communicate.rolled = sum;
 	communicate.dice=dice.length;
+	communicate.randomSeed=randomSeed;
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
@@ -42,6 +43,7 @@ Spell.prototype.dispel = function(dice, threshold) {
 	communicate.threshold=threshold;
 	communicate.rolled = sum;
 	communicate.dice=dice.length;
+	communicate.randomSeed=randomSeed;	
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
@@ -64,12 +66,12 @@ showSpellDialog = function(ev) {
 
 		$(document).mousemove(function(ev){ 
 			if(ev.pageX!=mouseX && ev.pageY!=mouseY) {
-				$("#chargeRespondDialog").dialog('close');
+				$("#magicRespondDialog").dialog('close');
 				$(document).off('mousemove');
 			}
 		}); //end confirm dialog
 
-		$("#chargeRespondDialog").dialog({
+		$("#magicRespondDialog").dialog({
 			modal: true,
 			title: title,
 			buttons: {},

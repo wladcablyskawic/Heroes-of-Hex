@@ -127,12 +127,12 @@ function respondSpell(mess, message) {
 		
 		var buttons = {};
 		autoRespond = setTimeout(function(){ 
-			$("#chargeRespondDialog").dialog('close');				
+			$("#magicRespondDialog").dialog('close');				
 			}, 7000);
 
 		message+=' What is your answer?';
-		$("#chargeRespondDialog").text(message);
-		$("#chargeRespondDialog").append($('#selector_div')).append($('#magic-canvas'));
+		$("#magicRespondDialog").text(message);
+		$("#magicRespondDialog").append($('#selector_div')).append($('#magic-canvas'));
 
 		RollManager.Dispel(mess.rolled);
 		
@@ -141,7 +141,7 @@ function respondSpell(mess, message) {
 		};	
 
 		
-		$( "#chargeRespondDialog" ).dialog({
+		$( "#magicRespondDialog" ).dialog({
 			modal:true,
 			buttons: buttons,
 			beforeClose: function() {
@@ -160,13 +160,13 @@ function setAutoRespond(communicate, answer) {
 		autoRespond = setTimeout(function(){ 
 				communicate.respond=answer;
 				skylink.sendP2PMessage(JSON.stringify(communicate));
-				$("#chargeRespondDialog").dialog('close');				
+				$("#magicRespondDialog").dialog('close');				
 		}, 7000);
 }
 
 
 
-skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456',
+skylink.init({apiKey:'ed9ef9c2-ad9d-4240-9b95-bc779f497242',
 			defaultroom:'testroom2'}, function()
 			{
 				skylink.joinRoom('room3')

@@ -12,6 +12,7 @@ var commandManager = {
 	},
 	
 	castSpell: function(mess, isSelf, peerId, peerInfo) {
+	  randomSeed=mess.randomSeed;
 	  var user = 'You',
       className = 'you';
 	  if(!isSelf) {
@@ -29,6 +30,7 @@ var commandManager = {
 	},
 	
 	dispel: function(mess, isSelf, peerId, peerInfo) {
+	  randomSeed=mess.randomSeed;
 	  var user = 'You',
       className = 'you';
 	  if(!isSelf) {
@@ -41,6 +43,7 @@ var commandManager = {
 		addMessage(message, 'communicate');	
 
 		if(isSelf) return;
+
 		if(!success) {
 			$('a.magic-handle').trigger('click');		
 			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power! Choose a target." });
