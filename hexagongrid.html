@@ -133,8 +133,16 @@
 
 <div id="actionsmenu">
 	<button type="button" name='nextMob'>Next mob</button>
-	<button type="button" name='undo'>Undo</button>
-	<button type="button" name='magic'>Magic</button>
+	<input type="checkbox" name="MovementSettings" checked>movement
+	<input type="checkbox" name="FOVSettings">field of view
+		<script>
+		$( document ).ready(function() {
+			$( ":checkbox" ).click(function() {
+				hexagonGrid.refreshHexGrid();
+			});		
+		});
+		</script>
+	
 	
 		<script>
 		$( document ).ready(function() {
@@ -163,18 +171,7 @@
 		</script>
 
 	<div class="console-div">
-        <a class="console-handle" href="http://link-for-non-js-users">Content</a>
-		
-		<input type="checkbox" name="MovementSettings" checked>movement<br>
-		<input type="checkbox" name="FOVSettings">field of view<br>
-		<script>
-		$( document ).ready(function() {
-			$( ":checkbox" ).click(function() {
-				hexagonGrid.refreshHexGrid();
-			});		
-		});
-		</script>
-  
+        <a class="console-handle" href="http://link-for-non-js-users">Content</a>  
 		<button onclick="DEPLOYMENT=false;
 		skylink.sendP2PMessage(showArmyList())"
 		class="startGame">start game</button>	
@@ -288,13 +285,6 @@
 <img class="spell" src="spells/Shield.png" id="Image_Shield" name="Shield">
 
 </div>
-<div id="chargeRespondDialog" title="Decision time!" style="display: none;">
-  <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-<div id="magicRespondDialog" title="Decision time!" style="display: none;">
-  <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-</div>
-
 
 <div class="info message" id="notify_deployment">
          <span class="icon"></span><h3>Prepare for the hex battle!</h3>

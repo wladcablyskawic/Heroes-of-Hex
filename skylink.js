@@ -71,9 +71,7 @@ function respondCharge(mess) {
 		+','+mess.attacker.Tile.row+'] is charging '+mess.target.type
 		+'['+mess.tile.column
 		+','+mess.tile.row+']. What is your answer?';
-		
-		$("#chargeRespondDialog").text(communicate);
-
+				
 		var buttons = {
 		};
 		
@@ -109,9 +107,13 @@ function respondCharge(mess) {
 			};		
 		}
 		
-		$( "#chargeRespondDialog" ).dialog({
-		modal:true,
-		buttons: buttons
+		$("<div class='chargeRespondDialog'></div>").dialog({
+			modal:true,
+			title:'Decision time!',
+			buttons: buttons,
+			open: function () {
+				$(this).text(communicate);
+			}
 		});
 		
 };
@@ -127,12 +129,10 @@ function respondSpell(mess, message) {
 		
 		var buttons = {};
 		autoRespond = setTimeout(function(){ 
-			$("#magicRespondDialog").dialog('close');				
+			$(".magicRespondDialog").dialog('close');				
 			}, 7000);
 
 		message+=' What is your answer?';
-		$("#magicRespondDialog").text(message);
-		$("#magicRespondDialog").append($('#selector_div')).append($('#magic-canvas'));
 
 		RollManager.Dispel(mess.rolled);
 		
@@ -141,9 +141,13 @@ function respondSpell(mess, message) {
 		};	
 
 		
-		$( "#magicRespondDialog" ).dialog({
+		$("<div class='magicRespondDialog'></div>").dialog({
 			modal:true,
 			buttons: buttons,
+			title:'Decision time!',
+			open: function () {
+				$(this).text(message);
+			},
 			beforeClose: function() {
 				$('.magic-div').append($('#selector_div')).append($('#magic-canvas'));
 					if(RollManager.isAnswerSend()==false) {
@@ -153,18 +157,21 @@ function respondSpell(mess, message) {
 				}
 				clearTimeout(autoRespond);								
 			}
-		});
+		}).append($('#selector_div')).append($('#magic-canvas'));
+		
 }
 
 function setAutoRespond(communicate, answer) {
 		autoRespond = setTimeout(function(){ 
 				communicate.respond=answer;
 				skylink.sendP2PMessage(JSON.stringify(communicate));
-				$("#magicRespondDialog").dialog('close');				
+				$(".chargeRespondDialog").dialog('close');				
 		}, 7000);
 }
 
 
+//prv.pl : 8079fc56-2654-4d2d-8504-72a4b96d5456
+//localhost: ed9ef9c2-ad9d-4240-9b95-bc779f497242
 
 skylink.init({apiKey:'ed9ef9c2-ad9d-4240-9b95-bc779f497242',
 			defaultroom:'testroom2'}, function()
@@ -229,9 +236,6 @@ function addMessage(message, className) {
 }
 
 function sendChargeDeclaration(attacker, target, tile) {
-
-		$( "#chargeRespondDialog" ).text('The charge was declared. Waiting for an opponent\'s respond.');
-		$( "#chargeRespondDialog" ).dialog({buttons:{}});
 		ACTIVE_MOB.isWorking=true;
 		
 		var charge = {};

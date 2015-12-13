@@ -28,7 +28,7 @@ const RollManager = (function(){
 				var spell = new Spell();
 				spell.dispel(result, this.threshold);				
 				this.sendedAnswer=true;
-				$( "#magicRespondDialog" ).dialog('close');				
+				$(".magicRespondDialog" ).dialog('close');				
 			}
 		},
 		

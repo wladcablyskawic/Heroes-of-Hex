@@ -89,44 +89,48 @@ var commandManager = {
 
 		addMessage(attacker.getDescribe()+' is charging '+target.getDescribe(), 'communicate');	
 
-		if(isSelf) return;
+		if(isSelf) { 
+			$.growl.notice({ title: "The charge was declared.", message: "Waiting for an opponent\'s respond." });		
+			return;
+		}
 		respondCharge(mess);
 		return;
 	},
 	
 	chargeRespond: function(mess, isSelf) {
-	$( "#chargeRespondDialog" ).dialog('close');
+	$( ".chargeRespondDialog" ).dialog('close');
 			target = new Mob().parse(mess.target);
 			attacker = new Mob().parse(mess.attacker);
 
 		addMessage(target.getDescribe()+' decided to '+mess.respond, 'communicate');	
 			
 		if(mess.respond=='hold') {
-//			if(isSelf) return;
 			hexagonGrid.moveCharge(attacker, target, mess.tile);
+			selectNextMob(ACTIVE_MOB);
+			hexagonGrid.refreshHexGrid();						
 		}
 		else if(mess.respond=='sns') {
-//			if(isSelf) return;
 			target.standAndShot(ACTIVE_MOB);
 			if(ACTIVE_MOB.unitsize>0)	hexagonGrid.moveCharge(ACTIVE_MOB, target, mess.tile);
-			else selectNextMob(ACTIVE_MOB);
-
+			
+			selectNextMob(ACTIVE_MOB);
+			hexagonGrid.refreshHexGrid();			
 		}
-		else if(mess.respond=='flee') {
-		
+		else if(mess.respond=='flee') {		
 			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, mess.tile.row, mess.tile.column);
-			attacker.goToTile(stepByStep);
+			attacker.goToTile(stepByStep, undefined, true);
 
 			ACTIVE_MOB = target;
 			var fleeDistance = Math.floor((randomGenerator() * (target.max_speed-1))+2);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
 
-			target.goToTile(stepByStep, target);
+			target.goToTile(stepByStep, undefined, true);
 			target.isFleeing = true;			
 			ACTIVE_MOB=attacker;
 			
 			selectNextMob(ACTIVE_MOB);
+			hexagonGrid.refreshHexGrid();			
 		}	
 	},
 	
@@ -141,8 +145,6 @@ var commandManager = {
 
 		if(mob.player==PLAYER_NAME) $.growl.notice({ title: mob.getDescribe()+' reinforcemented.', message: "You can turn it now." });
 		else $.growl.warning({ message: mob.getDescribe()+' reinforcemented.' });
-	
-		
 	},
 	
 	shot: function(mess, isSelf) {
@@ -157,7 +159,6 @@ var commandManager = {
 		combat(agresor, oponent);
 		selectNextMob(agresor);
 		hexagonGrid.refreshHexGrid();
-
 	},	
 	
 	moveMob: function(mess) {
@@ -166,6 +167,7 @@ var commandManager = {
 		ACTIVE_MOB=mob;
 		var stepByStep = path(mob.Tile.row,mob.Tile.column, tile.row, tile.column);
 		mob.goToTile(stepByStep);
+		selectNextMob(mob);
 	},
 	
 	pivotMob: function(mess) {
@@ -196,11 +198,8 @@ var commandManager = {
 			mess.MOBS[i].Tile.column,mess.MOBS[i].Tile.row,mess.MOBS[i].name, mess.MOBS[i].unitsize);	
 			}
 		}
-			console.log(MOBS.length);
 			MOBS.sort(compareMobs);
-			startgame();
-		
-		
+			startgame();		
 		hexagonGrid.refreshHexGrid();
 	}
   };

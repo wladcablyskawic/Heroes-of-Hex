@@ -623,6 +623,7 @@ function game(tile, dir) {
 		}	
 
 		for(var i=0; i<MOBS.length; i++) {
+			if(MOBS[i].isAlive())		
 				DUELO.board.obstacles.push([MOBS[i].Tile.column,
 											MOBS[i].Tile.row]);	
 		 }		

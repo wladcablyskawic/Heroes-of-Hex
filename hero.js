@@ -14,11 +14,11 @@ var Hero = function(player, type, castingDice, dispelDice, leadership) {
 Hero.prototype.getSpells = function() {
 
 	var spells = [];
-	spells.push(new Spell('Bloodlust'));
 	spells.push(new Spell('Cure'));
-	spells.push(new Spell('Magic Arrow'));
+	spells.push(new Spell('Bloodlust'));
 	spells.push(new Spell('Shield'));
 	spells.push(new Spell('Curse'));	
+	spells.push(new Spell('Magic Arrow'));
 	return spells;
 };
 

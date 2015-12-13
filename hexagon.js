@@ -868,12 +868,12 @@ function selectNextMob(warrior)
 	if(markup!='') {
 		$(document).mousemove(function(e){ 
 			if(e.pageX!=mouseX && e.pageY!=mouseY) {
-				$("#chargeRespondDialog").dialog('close');
+				$(".mobDetails").dialog('close');
 				$(document).off('mousemove');
 			}
 		}); //end confirm dialog
 
-		$('<div></div>').dialog({
+		$("<div class='mobDetails'></div>").dialog({
 			modal: true,
 			title: title,
 			buttons: {},

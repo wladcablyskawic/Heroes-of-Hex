@@ -68,8 +68,9 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 				if(target!=undefined && param.mob!=target) { 
 					param.mob.turnToHexagon(target.Tile);
 					combat(param.mob, target);
+					hexagonGrid.refreshHexGrid();					
+					return;
 				}
-				if(param.mob.speed==0 || (target!=undefined && param.mob.name!=target.name)) selectNextMob(param.mob);
 						
 			}
 			hexagonGrid.refreshHexGrid();

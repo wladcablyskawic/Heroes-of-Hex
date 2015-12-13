@@ -66,12 +66,12 @@ showSpellDialog = function(ev) {
 
 		$(document).mousemove(function(ev){ 
 			if(ev.pageX!=mouseX && ev.pageY!=mouseY) {
-				$("#magicRespondDialog").dialog('close');
+				$(".spellHover").dialog('close');
 				$(document).off('mousemove');
 			}
 		}); //end confirm dialog
 
-		$("#magicRespondDialog").dialog({
+		$("<div class='spellHover'></div>").dialog({
 			modal: true,
 			title: title,
 			buttons: {},
@@ -126,6 +126,13 @@ Spell.prototype.createMagicArrow = function() {
 		target = new Mob().parse(target);
 		target.payThePiper(40);
 		return target.type +' has been hitten by magical arrow and received 40dmg';
+	}
+	
+	this.validateTarget = function(target) {
+		if(target==undefined) return false;
+		mob = new Mob().parse(target);
+		if(mob.player!=HEROES[0].player && mob.isSurrounded()==false) return true;
+		return false;
 	}
 
 };
