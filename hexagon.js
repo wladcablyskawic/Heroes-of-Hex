@@ -136,7 +136,7 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
             }
 
             if (isDebug) {
-                debugText = '['+col + "," + row+']' + 	hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,col,row);
+                debugText = '['+col + "," + row+']' + 	hex_distance(ACTIVE_MOB.Tile, new Tile(col,row));
             }
 
             this.drawHex(currentHexX, currentHexY, "#ddd", debugText);
@@ -166,7 +166,7 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 	
 
 
-	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false && MAGIC_PHASE==false) 
+	if(ACTIVE_MOB != null  && PLAYER_NAME==ACTIVE_MOB.player && DEPLOYMENT==false && MAGIC_PHASE==false && ACTIVE_MOB.hasFinishedTurn==false) 
 	{
 		ACTIVE_MOB.neighbours = getPossibleMoves(ACTIVE_MOB.speed, ACTIVE_MOB.Tile);	
 		if(ACTIVE_MOB.isWorking!=true && !ACTIVE_MOB.isSurrounded() && $( ":checkbox[name='MovementSettings']" )[0].checked) {
@@ -174,7 +174,7 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 			
 			
 			var hex_color = 'rgba(165,43,43,0.3)';
-			if(hex_distance(ACTIVE_MOB.Tile.column, ACTIVE_MOB.Tile.row,neighbour.column, neighbour.row) <= Math.floor(ACTIVE_MOB.max_speed/2)) hex_color = 'rgba(165,43,43,0.5)';
+			if(hex_distance(ACTIVE_MOB.Tile,neighbour) <= Math.floor(ACTIVE_MOB.max_speed/2)) hex_color = 'rgba(165,43,43,0.5)';
 			hexagonGrid.drawHexAtColRow(neighbour.column, neighbour.row, hex_color,  //'');
 			neighbour.getCoordinates());
 			};
@@ -660,8 +660,16 @@ HexagonGrid.prototype.clickEvent = function (e) {
 		}			
 		return; 
 	}
-	
-	if(target!=undefined && target.player==PLAYER_NAME) target=undefined;
+		
+	if(target!=undefined && target.player==PLAYER_NAME) {
+		if(target.hasFinishedTurn==false) {
+			ACTIVE_MOB=target;
+			hexagonGrid.refreshHexGrid();					
+			return;
+		} else {
+			target=undefined;
+		}
+	}
 	
 	if(ACTIVE_MOB.isWorking==true) return;
 
@@ -720,7 +728,7 @@ HexagonGrid.prototype.animateSpell = function(spell, target) {
 };
 
 HexagonGrid.prototype.animateShot = function(shoter, target) {
-	var count = 2* hex_distance(shoter.Tile.column, shoter.Tile.row,target.Tile.column,target.Tile.row);
+	var count = 2* hex_distance(shoter.Tile,target.Tile);
 	var startX = (shoter.Tile.column * this.side) + 0.5*this.side + this.canvasOriginX;
 	var startY = shoter.Tile.column % 2 == 0 ? 
 			(shoter.Tile.row * this.height) + this.canvasOriginY + (this.height / 2): 
@@ -767,7 +775,7 @@ HexagonGrid.prototype.moveCharge = function (attackertmp, targetedMob, tile) {
 		target=MOBS[i];
 	}	
 
-	var stepByStep = path(ACTIVE_MOB.Tile.row,ACTIVE_MOB.Tile.column, tile.row, tile.column);
+	var stepByStep = path(ACTIVE_MOB, tile);
 	ACTIVE_MOB.goToTile(stepByStep, target);
 };
 
@@ -780,12 +788,9 @@ function combat(attacker, target) {
 			if(target.unitsize>0) { 
 				dmg = target.calculateMeleeDmg(attacker);
 				addMessage(target.getDescribe()+' stricted back '+ attacker.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
-
-				attacker.payThePiper(dmg);
-				
+				attacker.payThePiper(dmg);				
 			}
 		}
-		
 }
 
 HexagonGrid.prototype.refreshHexGrid = function()
@@ -793,38 +798,43 @@ HexagonGrid.prototype.refreshHexGrid = function()
 	this.drawHexGrid(this.canvasOriginX, this.canvasOriginY,  false);    
 }
 
+function nextPlayer() {
+	var newActiveMob=null;
+	
+	for(playerMob of MOBS) {
+		if(playerMob.player==ACTIVE_MOB.player || playerMob.isAlive()==false) continue;
+		playerMob.hasFinishedTurn=false;
+		playerMob.isWorking=false;
+		playerMob.speed=playerMob.max_speed;
+		playerMob.hasMoved=false;
+
+		if(playerMob.isFleeing) {
+			playerMob.tryReinforcement();
+		}
+		if(newActiveMob==null && playerMob.isFleeing==false) 
+			newActiveMob=playerMob;				
+	}
+
+	ACTIVE_MOB=newActiveMob;
+	HEROES[0].prepareForNewTurn();		
+}
+
 function selectNextMob(warrior)
 {
-	warrior.isWorking=false;
-	
+	var potentialNextMobs = [];
 	for(i=0; i<MOBS.length; i++) 
 	{
-		if(ACTIVE_MOB.name==MOBS[i].name) 
-		{
-			if(i<MOBS.length-1) 
-			{ 
-				ACTIVE_MOB=MOBS[i+1]; 
-				break;
+		if(MOBS[i].player==ACTIVE_MOB.player && MOBS[i].hasFinishedTurn==false &&
+			MOBS[i].isAlive() && MOBS[i].isFleeing==false) {
+				if(ACTIVE_MOB.name<MOBS[i].name) {
+					ACTIVE_MOB=MOBS[i];
+					return;
+				}
+				potentialNextMobs.push(MOBS[i]);
 			}
-			else {
-				addMessage('-----NEW TURN HAS BEGUN-----', 'communicate');	
-				ACTIVE_MOB=MOBS[0]; 					
-				break;
-			}
-			
-		}
 	}
-	ACTIVE_MOB.speed=ACTIVE_MOB.max_speed;
-	ACTIVE_MOB.hasMoved=false;
-	
-	if(ACTIVE_MOB.player != warrior.player) {
-		HEROES[0].prepareForNewTurn();		
-	}
-
-	
-	if(ACTIVE_MOB.isAlive()==false) selectNextMob(ACTIVE_MOB);
-	else if(ACTIVE_MOB.isFleeing) sendReinforcement(ACTIVE_MOB);
-
+	if(potentialNextMobs.length>0) ACTIVE_MOB=potentialNextMobs[0];
+	else if(HEROES[0].castingDice==0) finishTurn();
 }
 
 	HexagonGrid.prototype.contextMenuEvent = function (e) {

@@ -25,6 +25,7 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.isReinforcemented = false;
 	this.front = player==1 ? 3 : 9;
 	this.hasMoved=false;
+	this.hasFinishedTurn=false;
 
 };
 
@@ -38,8 +39,12 @@ Mob.prototype.pivot = function(tile) {
 		if(this.isPivotPossible()) {
 			this.turnToHexagon(tile);
 			this.speed -= this.halfSpeed;
+			if(this.speed<0) this.speed=0;
 			this.hasMoved=true;
-			if(this.speed==0) selectNextMob(this);			
+			if(this.speed==0) {
+				this.hasFinishedTurn=true; 
+				selectNextMob(this);			
+			}
 			hexagonGrid.refreshHexGrid();			
 			return;
 		} 
@@ -51,6 +56,7 @@ Mob.prototype.isPivotPossible = function() {
 	
 	return false;
 }
+
 
 Mob.prototype.goToTile = function(stepByStep, target) {
 		this.isWorking=true;
@@ -65,7 +71,7 @@ Mob.prototype.goToTile = function(stepByStep, target) {
 			param.mob.hasMoved=true;
 			if(param.endstep) {
 				param.mob.isWorking=false;
-				if(target!=undefined && param.mob!=target) { 
+				if(target!=undefined && param.mob!=target && target.Tile.isNeighbour(param.mob.Tile)) { 
 					param.mob.turnToHexagon(target.Tile);
 					combat(param.mob, target);
 					hexagonGrid.refreshHexGrid();					
@@ -149,7 +155,7 @@ Mob.prototype.calculateRangeDmg = function(target) {
 		return 0;
 	}
 	var dmg = this.calculateBasicDmg(target);
-	var distance = hex_distance(this.column,this.row,target.column, target.row);
+	var distance = hex_distance(this.Tile,target.Tile);
 	if(distance>=10) dmg=dmg*0.5;
 
 	// cover
@@ -157,7 +163,7 @@ Mob.prototype.calculateRangeDmg = function(target) {
 	var minimumRange=999;
 	var minimumCount=0;	
 	for(tile of potentialCovers) {
-		tile.distance = hex_distance(this.Tile.column,this.Tile.row,tile.column, tile.row);
+		tile.distance = hex_distance(this.Tile,tile);
 		if(tile.distance<minimumRange) {
 			minimumRange=tile.distance;
 			minimumCount=1;
@@ -216,9 +222,9 @@ Mob.prototype.shoot = function(target) {
 	var dmg = this.calculateRangeDmg(target);
 	target.payThePiper(dmg);
 	this.shots--;
-	selectNextMob(ACTIVE_MOB);
-	ACTIVE_MOB.isWorking=false;			
-			
+	this.hasFinishedTurn=true;
+	this.isWorking=false;						
+	selectNextMob(this);
 }
 
 Mob.prototype.standAndShot = function(target) {
@@ -302,4 +308,45 @@ Mob.prototype.FOV = function() {
 			fovTiles.push(tmpTile); 
 	}			
 	return fovTiles;
+};
+
+Mob.prototype.tryReinforcement = function() {
+		if(randomGenerator()*10 > HEROES[0].leadership) {
+			if(this.isFleeing==false) return;
+			
+			var fleeDistance = Math.floor((randomGenerator() * (this.max_speed-1))+2);
+			stepByStep = getPathToBattlefieldBorder(this.Tile, fleeDistance);			
+			this.goToTile(stepByStep);
+			this.isFleeing = true;	
+
+			if(!isValidTile(stepByStep[stepByStep.length-1])) {
+				addMessage(this.getDescribe()+' escaped from the battlefield!', 'communicate');	
+				if(this.player==PLAYER_NAME) 
+				$.growl.error({ title: 'Leadership test failed',
+					message: this.getDescribe()+'\s unit escaped from the battlefield!'});
+				else $.growl.notice({ title: 'Chickens', 
+						message: this.getDescribe()+'\s unit escaped from the battlefield!' });			
+						
+				setTimeout(function(mob) {
+					mob.unitsize=0;					
+					hexagonGrid.refreshHexGrid();
+				}, (fleeDistance+1)*150, this);							
+			} else {			
+				addMessage(this.getDescribe()+' is still fleeing!', 'communicate');	
+				if(this.player==PLAYER_NAME) 
+				$.growl.error({ title: 'Leadership test failed',
+					message: this.getDescribe()+'\s unit is fleeing to the battlefield border'});
+				else $.growl.notice({ title: 'Chickens', 
+						message: this.getDescribe()+'\s unit is fleeing to the battlefield border' });
+			}						
+		} else {		
+			this.isFleeing=false;				
+			this.isReinforcemented=true;
+			this.speed=0;
+			addMessage(this.getDescribe()+' reinforcemented.', 'communicate');	
+			hexagonGrid.refreshHexGrid();	
+
+			if(this.player==PLAYER_NAME) $.growl.notice({ title: this.getDescribe()+' reinforcemented.', message: "You can turn it now." });
+			else $.growl.warning({ message: this.getDescribe()+' reinforcemented.' });
+		}
 };

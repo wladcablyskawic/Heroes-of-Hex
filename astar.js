@@ -9,19 +9,25 @@
 			}
 		}
 		
-		function recalculateMapArray()
+		function recalculateMapArray(mob, ignoredMob)
 		{
-		for (x=0; x  < MAX_ROW; x++) {
-			for (y=0; y < MAX_COLUMN; y++) {
-				mapArray[x][y] = "hex_tree";
+			for (x=0; x  < MAX_ROW; x++) {
+				for (y=0; y < MAX_COLUMN; y++) {
+					mapArray[x][y] = "hex_green";
 				}
 			}		
-			for(neighbour of ACTIVE_MOB.neighbours) {
-			mapArray[neighbour.row][neighbour.column]="hex_green";
-			}
 			
-			mapArray[ACTIVE_MOB.Tile.row][ACTIVE_MOB.Tile.column]="hex_green";
-					
+			for(var i=0; i<OBSTACLES.length; i++) {
+				if(OBSTACLES[i].blockingMovement) 
+					mapArray[OBSTACLES[i].Tile.row][OBSTACLES[i].Tile.column] = "hex_tree";
+			}
+
+			for(var i=0; i<MOBS.length; i++) {
+				if(MOBS[i].isAlive() && MOBS[i].name!=mob.name) {
+						if(ignoredMob==undefined || MOBS[i].name!=ignoredMob.name)
+						mapArray[MOBS[i].Tile.row][MOBS[i].Tile.column] = "hex_tree";
+					}
+			}								
 		}
 
 		// function found on developerfusion.com
@@ -84,39 +90,18 @@
 					a.z + (b.z-a.z)*t);
 	};
 	
-	function getEscapeDestination_old(a,b,n) {
-		var N = hex_distance(a.column, a.row, b.column, b.row);	
-		var results = [];
-		for(var i=n; i<=N+n; i++){
-		var cube = cube_round(cube_lerp(a, b, 1.0/(n) *i));
-			var tile = convertCubeToTile(cube);
-			results.push(tile);
-		}
-		
-		console.log(results);
-		
-		for(var i=results.length-1; i>0; i--) {
-			if(isValidTile(results[i])) {
-				console.log(results[i]);
-				return results[i];
-			}
-		}
-		console.log('error: wrong fleeDestination');
-		return null;	
-	}
-	
-	function getEscapePath(attacker,target,n) {
+	function getEscapePath(attackerTile,targetTile,movement) {
 		var path = [];
-		var currentTile=target;
+		var currentTile=targetTile;
 		var currentDistance = 0;
-		for(i=0; i<n; i++) {
+		for(i=0; i<movement; i++) {
 			path.push(currentTile);			
 			var neighbours = getNeighbours(currentTile);
 			currentTile=null;
 			currentDistance=0;
 
 				for(potentialTile of neighbours) {
-					var distance = hex_distance(attacker.column, attacker.row, potentialTile.column, potentialTile.row);
+					var distance = hex_distance(attackerTile, potentialTile);
 					if(distance > currentDistance) {
 						currentDistance=distance;
 						currentTile = potentialTile;
@@ -127,8 +112,66 @@
 		return path;
 	}
 	
+	function getPathToBattlefieldBorder(targetTile, movement) {
+		var closestBorder = getClosestBattlefieldBorder(targetTile);	
+
+		var path = [];
+		var currentTile=targetTile;
+		var currentDistance;
+		for(i=0; i<movement; i++) {
+			path.push(currentTile);	
+			if(currentTile.getCoordinates()==closestBorder.getCoordinates())
+			{
+				currentTile = getTileOutsideBattlefield(closestBorder);
+				path.push(currentTile);		
+				return path;
+			}
+			var neighbours = getNeighbours(currentTile);
+			currentTile=null;
+			currentDistance=999;
+				for(potentialTile of neighbours) {
+					var distance = hex_distance(closestBorder, potentialTile);
+					if(distance < currentDistance) {
+						currentDistance=distance;
+						currentTile = potentialTile;
+					}
+				}
+		}
+				
+		return path;
+	}
+		
+	
+	function getClosestBattlefieldBorder(targetTile) {
+		var tile;
+		var distance=999;
+		
+		var endpoints = [new Tile(targetTile.column, 0),
+						new Tile(targetTile.column, MAX_ROW-1),
+						new Tile(0, targetTile.row),
+						new Tile(MAX_COLUMN-1, targetTile.row)]
+						
+		for(endpoint of endpoints) {
+			var distanceToBorder = hex_distance(targetTile, endpoint);
+			if(distanceToBorder < distance) {
+				distance = distanceToBorder;
+				tile=endpoint;
+			}
+		}
+		
+		return tile;
+	}
+	
+	function getTileOutsideBattlefield(borderTile) {
+		if(borderTile.row==0) return new Tile(borderTile.column, -1);
+		if(borderTile.row==MAX_ROW-1) return new Tile(borderTile.column, MAX_ROW);
+		if(borderTile.column==0) return new Tile(-1, borderTile.row);
+		if(borderTile.column==MAX_COLUMN-1) return new Tile(MAX_COLUMN, borderTile.row);
+		console.log('error: wrong borderTile');
+	}
+	
 	function getLineOfSight(a,b) {
-		var N = hex_distance(a.column, a.row, b.column, b.row);
+		var N = hex_distance(a, b);
 		var results = [];
 		for(var i=0; i<=N; i++){
 		var cube = cube_round(cube_lerp(a, b, 1.0/N *i));
@@ -167,9 +210,9 @@
 		return new Tile(col, row);
 	}
 		
-	function hex_distance(col1,row1,col2,row2) {
-		Cube1 = convertTileToCube(new Tile(col1, row1));
-		Cube2 = convertTileToCube(new Tile(col2, row2));
+	function hex_distance(tile1,tile2) {
+		Cube1 = convertTileToCube(tile1);
+		Cube2 = convertTileToCube(tile2);
 		
 		var ans = (Math.abs(Cube1.x - Cube2.x) + Math.abs(Cube1.y - Cube2.y) 
 					+ Math.abs(Cube1.z - Cube2.z)) / 2;
@@ -178,8 +221,12 @@
 	}		
 		
 // A* Pathfinding with Manhatan Heuristics for Hexagons.
-		function path(start_x, start_y, end_x, end_y) {
-		recalculateMapArray();
+		function path(mob, tile, ignoredMobs) {
+		start_x=mob.Tile.row;
+		start_y=mob.Tile.column;
+		end_x=tile.row;
+		end_y=tile.column;
+		recalculateMapArray(mob, ignoredMobs);
 			// Check cases path is impossible from the start.
 			var error=0;
 			if(start_x == end_x && start_y == end_y) { error=1; console.log('start point equal end point'); }
@@ -278,7 +325,7 @@
 						  if ( ydist < 0 ) ydist = ydist*-1;
 						  var xdist = end_x - node_x;
 						  if ( xdist < 0 ) xdist = xdist*-1;		
-						  openlist_h[node_x][node_y] = hex_distance(node_x,node_y,end_x,end_y);// * 10;
+						  openlist_h[node_x][node_y] = hex_distance(new Tile(node_x,node_y),new Tile(end_x,end_y));// * 10;
 						  if(openlist_h[node_x][node_y]==0) break;
 						  openlist_g[node_x][node_y] = openlist_g[lowest_x][lowest_y] + 10;
 						  openlist_f[node_x][node_y] = openlist_g[node_x][node_y] + openlist_h[node_x][node_y];

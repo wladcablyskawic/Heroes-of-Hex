@@ -169,11 +169,8 @@ function setAutoRespond(communicate, answer) {
 		}, 7000);
 }
 
-
-//prv.pl : 8079fc56-2654-4d2d-8504-72a4b96d5456
-//localhost: ed9ef9c2-ad9d-4240-9b95-bc779f497242
-
-skylink.init({apiKey:'ed9ef9c2-ad9d-4240-9b95-bc779f497242',
+skylink.init({apiKey:'ed9ef9c2-ad9d-4240-9b95-bc779f497242', //localhost
+//skylink.init({apiKey:'8079fc56-2654-4d2d-8504-72a4b96d5456', //prv.pl : 
 			defaultroom:'testroom2'}, function()
 			{
 				skylink.joinRoom('room3')
@@ -208,7 +205,7 @@ function bePlayer(which) {
 		hexagonGrid.addMob(which, mobs[i].product, column, row,'mob'+which+i,mobs[i].qty);	
 	}
 	
-	hexagonGrid.addHero(which, 'wizzard', 4, 2, 10);	
+	hexagonGrid.addHero(which, 'wizzard', 4, 2, 8);	
 	
 	hexagonGrid.refreshHexGrid();	
 }
@@ -293,19 +290,12 @@ function pivotMob(mob, tile) {
 };
 
 function finishTurn() {
-	if(ACTIVE_MOB.player==PLAYER_NAME) {
+	if(ACTIVE_MOB.player==PLAYER_NAME) {	
 		var move = {};
 		move.Action='finishTurn';
 		move['mob']=ACTIVE_MOB;
 		skylink.sendP2PMessage(JSON.stringify(move)); 	
-	} else alert('Its not your turn, you cannot finish it');
-};
-
-function sendReinforcement(mob) {
-	var communicate = {}
-	communicate.Action='reinforcement';
-	communicate.mob=mob;
-	skylink.sendP2PMessage(JSON.stringify(communicate)); 		
+	} // else alert('Its not your turn, you cannot finish it');
 };
 
 function sendSpell(spell, target) {

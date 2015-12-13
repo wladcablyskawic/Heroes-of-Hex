@@ -105,51 +105,68 @@ var commandManager = {
 		addMessage(target.getDescribe()+' decided to '+mess.respond, 'communicate');	
 			
 		if(mess.respond=='hold') {
-			hexagonGrid.moveCharge(attacker, target, mess.tile);
-			selectNextMob(ACTIVE_MOB);
+			var stepByStep = path(attacker, mess.tile);
+			attacker.goToTile(stepByStep, target);
+			
+			attacker.hasFinishedTurn=true;
+			selectNextMob(attacker);
 			hexagonGrid.refreshHexGrid();						
 		}
 		else if(mess.respond=='sns') {
-			target.standAndShot(ACTIVE_MOB);
-			if(ACTIVE_MOB.unitsize>0)	hexagonGrid.moveCharge(ACTIVE_MOB, target, mess.tile);
-			
-			selectNextMob(ACTIVE_MOB);
+			target.standAndShot(attacker);
+			if(attacker.unitsize>0)	{
+				var stepByStep = path(attacker, mess.tile);
+				attacker.goToTile(stepByStep, target);
+			}			
+			attacker.hasFinishedTurn=true;
+			selectNextMob(attacker);
 			hexagonGrid.refreshHexGrid();			
 		}
 		else if(mess.respond=='flee') {		
-			var stepByStep = path(attacker.Tile.row,attacker.Tile.column, mess.tile.row, mess.tile.column);
-			attacker.goToTile(stepByStep, undefined, true);
-
-			ACTIVE_MOB = target;
 			var fleeDistance = Math.floor((randomGenerator() * (target.max_speed-1))+2);
 			target.neighbours = getPossibleMoves(fleeDistance, target.Tile);		
 			stepByStep = getEscapePath(attacker.Tile, target.Tile, fleeDistance);
-
-			target.goToTile(stepByStep, undefined, true);
+			target.goToTile(stepByStep);
 			target.isFleeing = true;			
-			ACTIVE_MOB=attacker;
+
+			var stepByStep = path(attacker, stepByStep[stepByStep.length-1], target);
+			var chaseDistance = Math.floor((randomGenerator() * (attacker.max_speed-1))+2); 
+			console.log('chase Distance ' +chaseDistance);
+			console.log('stepByStep.length '+stepByStep.length);
 			
-			selectNextMob(ACTIVE_MOB);
+			if(chaseDistance >= stepByStep.length) {
+				attacker.goToTile(stepByStep,target);
+				setTimeout(function(mob) {
+					mob.unitsize=0;					
+					hexagonGrid.refreshHexGrid();
+				}, (chaseDistance+1)*150, target);							
+				
+				var chasedMessage = target.getDescribe()+' tried to flee but was chased and destroyed by '+attacker.getDescribe();
+				addMessage(chasedMessage, 'communicate');	
+				if(isSelf) 
+				$.growl.error({ title: 'Unit destroyed',
+					message: chasedMessage});
+				else $.growl.notice({ title: 'United destroyed', 
+						message: chasedMessage});
+				
+			} else {
+				stepByStep = stepByStep.slice(0, chaseDistance);
+				attacker.goToTile(stepByStep, target);
+				console.log('chasing to:');
+				console.log(stepByStep[stepByStep.length-1]);
+			}
+
+			
+			attacker.hasFinishedTurn=true;
+			selectNextMob(attacker);
 			hexagonGrid.refreshHexGrid();			
 		}	
 	},
-	
-	reinforcement: function(mess, isSelf) {
-		if(!isSelf) return;
-		mob = new Mob().parse(mess.mob);
-		mob.isFleeing=false;				
-		mob.isReinforcemented=true;
-		mob.speed=0;
-		addMessage(mob.getDescribe()+' reinforcemented.', 'communicate');	
-		hexagonGrid.refreshHexGrid();	
-
-		if(mob.player==PLAYER_NAME) $.growl.notice({ title: mob.getDescribe()+' reinforcemented.', message: "You can turn it now." });
-		else $.growl.warning({ message: mob.getDescribe()+' reinforcemented.' });
-	},
-	
+		
 	shot: function(mess, isSelf) {
 		target = new Mob().parse(mess.target);
-		ACTIVE_MOB.shoot(target);
+		shoter = new Mob().parse(mess.shoter);
+		shoter.shoot(target);
 		hexagonGrid.animateShot(mess.shoter, target);
 	},
 
@@ -157,6 +174,7 @@ var commandManager = {
 		agresor = new Mob().parse(mess.agresor); 
 		oponent = new Mob().parse(mess.oponent);
 		combat(agresor, oponent);
+		agresor.hasFinishedTurn=true;
 		selectNextMob(agresor);
 		hexagonGrid.refreshHexGrid();
 	},	
@@ -164,22 +182,22 @@ var commandManager = {
 	moveMob: function(mess) {
 		mob = new Mob().parse(mess.mob);
 		tile = new Tile().parse(mess.tile);
-		ACTIVE_MOB=mob;
-		var stepByStep = path(mob.Tile.row,mob.Tile.column, tile.row, tile.column);
+		var stepByStep = path(mob, tile);
 		mob.goToTile(stepByStep);
-		selectNextMob(mob);
+		if(mob.speed+1==stepByStep.length) {
+			mob.hasFinishedTurn=true;
+			selectNextMob(mob);
+		}
 	},
 	
 	pivotMob: function(mess) {
 		mob = new Mob().parse(mess.mob);
 		tile = new Tile().parse(mess.tile);
-		ACTIVE_MOB=mob;		
-		ACTIVE_MOB.pivot(tile);
+		mob.pivot(tile);
 	},
 	
 	finishTurn: function(mess) {
-		mob = new Mob().parse(mess.mob);
-		selectNextMob(mob);	
+		nextPlayer();
 		hexagonGrid.refreshHexGrid();
 	},
 	

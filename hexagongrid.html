@@ -132,7 +132,7 @@
 <body>
 
 <div id="actionsmenu">
-	<button type="button" name='nextMob'>Next mob</button>
+	<button type="button" name='nextMob'>Finish turn</button>
 	<input type="checkbox" name="MovementSettings" checked>movement
 	<input type="checkbox" name="FOVSettings">field of view
 		<script>
@@ -147,6 +147,16 @@
 		<script>
 		$( document ).ready(function() {
 			$('button[name=nextMob]').click(function() { 
+			
+				if(ACTIVE_MOB.player!=PLAYER_NAME) {
+					alert('Its not your turn, you cannot finish it');
+					return;
+				}
+				if(HEROES[0].castingDice>0) {
+					var conf = confirm('You still have unused Casting Dice. Do you really want end turn?');					
+					if(conf==false) return;
+				}		
+			
 				finishTurn();
 			});	
 		});
