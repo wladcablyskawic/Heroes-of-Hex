@@ -11,7 +11,8 @@ function createGoblin(player, Tile, name, unitsize){
 	/*hp*/			5,
 	/*max_hp*/		5,
 	/*shots*/		0,
-	/*max_shots*/	0);
+	/*max_shots*/	0,
+	/*shooting_range*/ 0);
 	return mob;
 
 };
@@ -29,7 +30,8 @@ function createOrc(player, Tile, name, unitsize){
 	/*hp*/			15,
 	/*max_hp*/		15,
 	/*shots*/		12,
-	/*max_shots*/	12);
+	/*max_shots*/	12,
+	/*shooting_range*/ 8);
 	return mob;
 
 };
@@ -47,7 +49,8 @@ function createTroll(player, Tile, name, unitsize){
 	/*hp*/			40,
 	/*max_hp*/		40,
 	/*shots*/		0,
-	/*max_shots*/	0);
+	/*max_shots*/	0,
+	/*shooting_range*/ 0);
 	return mob;
 
 };
@@ -65,7 +68,8 @@ function createPikeman(player, Tile, name, unitsize){
 	/*hp*/			10,
 	/*max_hp*/		10,
 	/*shots*/		0,
-	/*max_shots*/	0);
+	/*max_shots*/	0,
+	/*shooting_range*/ 0);
 	return mob;
 };
 
@@ -82,7 +86,8 @@ function createSwordsman(player, Tile, name, unitsize){
 	/*hp*/			35,
 	/*max_hp*/		35,
 	/*shots*/		0,
-	/*max_shots*/	0);
+	/*max_shots*/	0,
+	/*shooting_range*/ 0);
 	return mob;
 
 };
@@ -100,7 +105,8 @@ function createArcher(player, Tile, name, unitsize){
 	/*hp*/			10,
 	/*max_hp*/		10,
 	/*shots*/		12,
-	/*max_shots*/	12);
+	/*max_shots*/	12,
+	/*shooting_range*/ 12);
 	return mob;
 
 };

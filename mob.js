@@ -1,4 +1,4 @@
-var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, damage_min, damage_max, hp, max_hp, shots, max_shots)
+var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, damage_min, damage_max, hp, max_hp, shots, max_shots, shooting_range)
 {
 	this.Tile = Tile;
 	this.name=name;
@@ -24,6 +24,8 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.halfSpeed=Math.ceil(this.max_speed/2);	
 	this.shots=shots;
 	this.max_shots=max_shots;
+	this.shooting_range=shooting_range;
+	this.short_range = Math.ceil(this.shooting_range/2);	
 	this.isFleeing = false;
 	this.isReinforcemented = false;
 	this.front = player==1 ? 3 : 9;
@@ -159,7 +161,7 @@ Mob.prototype.calculateRangeDmg = function(target) {
 	}
 	var dmg = this.calculateBasicDmg(target);
 	var distance = hex_distance(this.Tile,target.Tile);
-	if(distance>=10) dmg=dmg*0.5;
+	if(distance>this.short_range) dmg=dmg*0.5;
 
 	// cover
 	var potentialCovers = getConnectedHexes(target.Tile);
@@ -199,6 +201,8 @@ Mob.prototype.isShotPossible = function(target) {
 	target = new Mob().parse(target);
 	if(target.isSurrounded()) return false;
 	if(!this.checkLOS(target.Tile)) return false;
+	
+	if(hex_distance(this.Tile,target.Tile) > this.shooting_range) return false;
 	
 	return true;
 }
@@ -369,4 +373,29 @@ Mob.prototype.flee = function() {
 		else $.growl.notice({ title: 'Chickens', 
 			 message: this.getDescribe()+' is fleeing to the battlefield border' });
 	}
+}
+
+Mob.prototype.getLongRangeRing = function() {
+	return this.getRangeRing(this.shooting_range+1, true);
+}
+
+Mob.prototype.getShortRangeRing = function() {
+	return this.getRangeRing(this.short_range, false);
+}
+
+Mob.prototype.getRangeRing = function(range, onTop) {
+	if(this.shooting_range==0) return [];
+	var hexes = DUELO.board.hexagonsInDistance([this.Tile.column,this.Tile.row],range);
+	var tiles = [];
+		
+	for(hex of hexes) {
+		var potentialTile = new Tile(hex[0], hex[1]);
+		if(isValidTile(potentialTile) || onTop) tiles.push(potentialTile);
+	}
+		
+	return tiles.filter(function l(h) {
+            return (h.column >= 0 && h.column < MAX_COLUMN &&
+                    h.row >= 0 && h.row < MAX_ROW);
+        });
+
 }

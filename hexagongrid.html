@@ -132,20 +132,18 @@
 <body>
 
 <div id="actionsmenu">
-	<button type="button" name='nextMob'>Finish turn</button>
-	<input type="checkbox" name="MovementSettings" checked>movement
-	<input type="checkbox" name="FOVSettings">field of view
+	<button type="button" name='nextMob'>Finish turn</button>	
+	<button onclick="DEPLOYMENT=false; skylink.sendP2PMessage(showArmyList())" class="startGame">start game</button>	
+	<br>
+	<input type="checkbox" name="MovementSettings" checked>movement range</input>
+	<input type="checkbox" name="FOVSettings">field of view</input>
+	<input type="checkbox" name="rangeSettings">shooting range</input>
 		<script>
 		$( document ).ready(function() {
 			$( ":checkbox" ).click(function() {
 				hexagonGrid.refreshHexGrid();
 			});		
-		});
-		</script>
-	
-	
-		<script>
-		$( document ).ready(function() {
+
 			$('button[name=nextMob]').click(function() { 
 			
 				if(ACTIVE_MOB.player!=PLAYER_NAME) {
@@ -182,11 +180,6 @@
 
 	<div class="console-div">
         <a class="console-handle" href="http://link-for-non-js-users">Content</a>  
-		<button onclick="DEPLOYMENT=false;
-		skylink.sendP2PMessage(showArmyList())"
-		class="startGame">start game</button>	
-
-		<br/>	
 		<input type="text" id="message" placeholder="My message" />
 		<button onclick="sendMessage()">Send message</button>
 		  <div id="container">

@@ -45,9 +45,6 @@
 		} 
 
 		function hex_accessible(x,y) {
-		
-		//return isValidTile(new Tile(y,x));
-		
 			if(mapArray[x] == undefined) return false;
 			if(mapArray[x][y] == undefined) return false;
 			if(mapArray[x][y] == 'hex_tree') return false;
@@ -140,7 +137,7 @@
 				
 		return path;
 	}
-		
+	
 	
 	function getClosestBattlefieldBorder(targetTile) {
 		var tile;

@@ -190,6 +190,17 @@ HexagonGrid.prototype.drawHexGrid = function (originX, originY, isDebug) {
 				hexagonGrid.drawHexAtColRow(fov[i].column, fov[i].row, 'rgba(165,143,43,0.3)',  '');				
 			}		
 		}
+		
+		if($( ":checkbox[name='rangeSettings']" )[0].checked) {
+			var rangeRing = ACTIVE_MOB.getLongRangeRing();			
+			for(i=0; i<rangeRing.length; i++) {
+				hexagonGrid.drawHexAtColRow(rangeRing[i].column, rangeRing[i].row, 'rgba(165,143,43,1)',  '');				
+			}		
+			rangeRing = ACTIVE_MOB.getShortRangeRing();
+			for(i=0; i<rangeRing.length; i++) {
+				hexagonGrid.drawHexAtColRow(rangeRing[i].column, rangeRing[i].row, 'rgba(255,255,153,1)',  '');				
+			}				
+		}		
 	}
 	
 };
