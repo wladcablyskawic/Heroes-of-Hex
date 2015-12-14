@@ -19,14 +19,37 @@ var commandManager = {
 		user = peerInfo.userData.name || peerId;
 		className = 'message';
 	  }	
-		var castMessage = user+' tried to cast '+mess.spell +'(CV:'+mess.castingValue+') and rolled '+mess.rolled +' on '+mess.dice+' dice';
-		var success = mess.rolled>=mess.castingValue;
-		castMessage+= '. Spell '+ (success? ' casted successfully.':' failed.');
+		var castMessage = user+' tried to cast '+mess.spell +'(CV:'+mess.castingValue+') ';
+	  
+		if(mess.SnakeEyes) {
+			castMessage+= 'rolled Snake Eyes on '+mess.dice+' dice! The spell has been forgotten!';
+			if(isSelf) {
+				$.growl.error({ title: "Snake Eyes", message: castMessage });
+				$('#spellsMenu img[name="'+mess.spell+'"]').remove();
+				HEROES[0].forgoteSpell(mess.spell);
+			}
+			else $.growl.notice({ title: "Snake Eyes", message: castMessage });	  
+		} else if(mess.IrresistibleForce) {
+			castMessage+='on '+mess.dice+' dice and rolled it with Irresistible Force!';
+			if(isSelf) {
+				$.growl.notice({ title: "Irresistible Force!", message: castMessage });
+				MAGIC_PHASE=true;
+				hexagonGrid.refreshHexGrid();
+				$('a.magic-handle').trigger('click');				
+			}
+			else $.growl.error({ title: "Irresistible Force!", message: castMessage });	  	  
+		} else {
+			castMessage+= 'and rolled '+mess.rolled +' on '+mess.dice+' dice';
+			var success = mess.rolled>=mess.castingValue;
+			castMessage+= '. Spell '+ (success? ' casted successfully.':' failed.');
+				
+			if(!isSelf) {
+				if(success) respondSpell(mess, castMessage);		
+				else $.growl.notice({ title: "Enemy wizzard is weak", message: castMessage });
+			}
+		}
 		addMessage(castMessage, 'communicate');		  
-		
-		if(isSelf) return;
-		if(success) respondSpell(mess, castMessage);		
-		else $.growl.notice({ title: "Enemy wizzard is weak", message: castMessage });
+
 	},
 	
 	dispel: function(mess, isSelf, peerId, peerInfo) {
@@ -37,21 +60,37 @@ var commandManager = {
 		user = peerInfo.userData.name || peerId;
 		className = 'message';
 	  }	
+
+  	    var success = mess.threshold <= mess.rolled;
+		
+		if(mess.SnakeEyes) {
+			mess.rolled='Snake Eyes';		
+			success=false;
+		} else if(mess.IrresistibleForce) { 
+			mess.rolled='double six';
+			success=true;
+		}
 		var message = user+' tried to dispel and rolled '+mess.rolled  +' on '+mess.dice+' dice';
-	    var success = mess.threshold <= mess.rolled;
 		message+= '. Dispel'+ (success? ' successfully.':' failed.');
 		addMessage(message, 'communicate');	
-
-		if(isSelf) return;
-
-		if(!success) {
-			$('a.magic-handle').trigger('click');		
-			$.growl.notice({ title: "Spell casted succesfully", message: "Opponent wasnt able to stop your power! Choose a target." });
-			MAGIC_PHASE=true;
-			hexagonGrid.refreshHexGrid();
-			}
-		else   $.growl.error({ title: "Spell dispelled", message: "Opponent stopped your spell" });
-	},	
+		var communicateTitle;
+		if(success) communicateTitle="Spell dispelled";
+		else 		communicateTitle="Spell casted succesfully";
+		
+		
+		if(isSelf) {
+				if(!success) 			$.growl.error({ title: communicateTitle, message: "You cannot stop enemy power" });
+				else  $.growl.notice({ title: communicateTitle, message: "Enemy spell has been stopped" });
+		} else {
+			if(!success) {
+				$('a.magic-handle').trigger('click');		
+				$.growl.notice({ title: communicateTitle, message: "Opponent wasnt able to stop your power! Choose a target." });
+				MAGIC_PHASE=true;
+				hexagonGrid.refreshHexGrid();
+				}
+			else $.growl.error({ title: communicateTitle, message: "Opponent stopped your spell" });		
+		}
+	},		
 	
 	takeSpell: function(mess, isSelf, peerId, peerInfo) {
 	  var user = 'You',

@@ -21,30 +21,55 @@ Spell.prototype.validateTarget = function(mob) {
 }
 
 Spell.prototype.tryCast = function(dice) {
-	var sum = 0;
-	for(i=0; i<dice.length; i++) sum+=dice[i];
+	var rolled = this.prepareRollCommunicate(dice);
 	
 	var communicate = {};
 	communicate.Action='castSpell';
 	communicate.spell=this.name;
 	communicate.castingValue=this.castingValue;
-	communicate.rolled = sum;
-	communicate.dice=dice.length;
 	communicate.randomSeed=randomSeed;
+	communicate.rolled=rolled.rolled;
+	communicate.SnakeEyes = rolled.SnakeEyes;
+	communicate.IrresistibleForce=rolled.IrresistibleForce;
+	communicate.dice=rolled.dice;
+
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
 }
 
 Spell.prototype.dispel = function(dice, threshold) {
-	var sum = 0;
-	for(i=0; i<dice.length; i++) sum+=dice[i];
+	var rolled = this.prepareRollCommunicate(dice);
 	
 	var communicate = {};
 	communicate.Action='dispel';
 	communicate.threshold=threshold;
-	communicate.rolled = sum;
-	communicate.dice=dice.length;
 	communicate.randomSeed=randomSeed;	
+	communicate.rolled=rolled.rolled;
+	communicate.SnakeEyes = rolled.SnakeEyes;
+	communicate.IrresistibleForce=rolled.IrresistibleForce;
+	communicate.dice=rolled.dice;
+
 	skylink.sendP2PMessage(JSON.stringify(communicate)); 
+}
+
+Spell.prototype.prepareRollCommunicate = function(dice) {
+	var communicate = {};
+	var sum = 0;
+	var IrresistibleForce=0;
+	var SnakeEyes=0;
+	for(i=0; i<dice.length; i++) {
+		sum+=dice[i];
+		if(dice[i]==1) SnakeEyes++;
+		if(dice[i]==6) IrresistibleForce++;
+	}
+	
+	SnakeEyes = (SnakeEyes>1)?true:false;
+	IrresistibleForce = (IrresistibleForce>1)?true:false;
+	
+	communicate.rolled=sum;
+	communicate.SnakeEyes = SnakeEyes;
+	communicate.IrresistibleForce=IrresistibleForce;
+	communicate.dice=dice.length;
+	return communicate;
 }
 
 Spell.prototype.getImage = function() {
@@ -147,3 +172,5 @@ Spell.prototype.createBloodlust= function() {
 		return target.type +'\'s attack has been improved by bloodlust!';
 	}
 };
+
+

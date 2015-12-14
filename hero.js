@@ -9,18 +9,28 @@ var Hero = function(player, type, castingDice, dispelDice, leadership) {
 	
 	this.isCasting=false;
 	this.isDispeling=false;
+	
+	this.spells = [];
+	this.spells.push(new Spell('Cure'));
+	this.spells.push(new Spell('Bloodlust'));
+	this.spells.push(new Spell('Shield'));
+	this.spells.push(new Spell('Curse'));	
+	this.spells.push(new Spell('Magic Arrow'));	
 };
 
 Hero.prototype.getSpells = function() {
-
-	var spells = [];
-	spells.push(new Spell('Cure'));
-	spells.push(new Spell('Bloodlust'));
-	spells.push(new Spell('Shield'));
-	spells.push(new Spell('Curse'));	
-	spells.push(new Spell('Magic Arrow'));
-	return spells;
+	return this.spells;
 };
+
+Hero.prototype.forgotSpell = function(spell) {
+	for(i=0; i<this.spells.length; i++)
+	{
+		if(spell.name==spell) {
+			this.spells.splice(i, 1);
+			return;
+		}
+	}
+}
 
 Hero.prototype.isDispelPossible = function() {
 	if(HEROES[0].isDispeling && HEROES[0].dispelDice>0) return true;
