@@ -6,6 +6,9 @@ var Mob = function(player, Tile, name, type, speed, unitsize, attack, defense, d
 	this.player=player;
 	this.type=type;
 	this.unitsize=unitsize;
+	this._unitsize=unitsize;	
+	this.rangedVictims=0;
+	this.hasPanicTest=false;
 	this.attack=attack;
 	this.defense=defense;
 	this._attack=attack;
@@ -220,7 +223,7 @@ Mob.prototype.shoot = function(target) {
 	}
 	
 	var dmg = this.calculateRangeDmg(target);
-	target.payThePiper(dmg);
+	target.payThePiper(dmg, true);
 	this.shots--;
 	this.hasFinishedTurn=true;
 	this.isWorking=false;						
@@ -230,16 +233,17 @@ Mob.prototype.shoot = function(target) {
 Mob.prototype.standAndShot = function(target) {
 	if(this.shots==0) return;
 	var dmg = 0.5 * this.calculateRangeDmg(target);
-	target.payThePiper(dmg);
+	target.payThePiper(dmg, true);
 	this.shots--;
 	addMessage(this.getDescribe()+' decided to stand&shoot and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
 }
 
 
-Mob.prototype.payThePiper = function(dmg) {
+Mob.prototype.payThePiper = function(dmg, isRanged) {
 	var tmp = this.unitsize;
 	while(dmg > this.max_hp) {
 		this.unitsize--;
+		if(isRanged) this.rangedVictims++;
 		dmg-=this.max_hp;
 	}
 	 
@@ -253,6 +257,16 @@ Mob.prototype.payThePiper = function(dmg) {
 	
 	if(this.unitsize<0) this.unitsize=0;	
 	addMessage(this.getDescribe() +' lost '+(tmp-this.unitsize)+' troops');
+	
+	if(isRanged && !this.hasPanicTest && this.unitsize>0 && this.rangedVictims > 0.25 * this._unitsize) {
+		this.hasPanicTest=true;
+		if(!this.takeLDTest()) {
+			addMessage(this.getDescribe()+' is under the fire and started to panic!', 'communicate');	
+			this.flee();
+		} else {
+			addMessage(this.getDescribe()+' is under the fire but is unbreakable.', 'communicate');			
+		}
+	}
 };
 
     // turn player to a hexagon
@@ -310,36 +324,12 @@ Mob.prototype.FOV = function() {
 	return fovTiles;
 };
 
-Mob.prototype.tryReinforcement = function() {
-		if(randomGenerator()*10 > HEROES[0].leadership) {
-			if(this.isFleeing==false) return;
-			
-			var fleeDistance = Math.floor((randomGenerator() * (this.max_speed-1))+2);
-			stepByStep = getPathToBattlefieldBorder(this.Tile, fleeDistance);			
-			this.goToTile(stepByStep);
-			this.isFleeing = true;	
+Mob.prototype.takeLDTest = function() {
+	return !(randomGenerator()*10 > HEROES[0].leadership);
+}
 
-			if(!isValidTile(stepByStep[stepByStep.length-1])) {
-				addMessage(this.getDescribe()+' escaped from the battlefield!', 'communicate');	
-				if(this.player==PLAYER_NAME) 
-				$.growl.error({ title: 'Leadership test failed',
-					message: this.getDescribe()+'\s unit escaped from the battlefield!'});
-				else $.growl.notice({ title: 'Chickens', 
-						message: this.getDescribe()+'\s unit escaped from the battlefield!' });			
-						
-				setTimeout(function(mob) {
-					mob.unitsize=0;					
-					hexagonGrid.refreshHexGrid();
-				}, (fleeDistance+1)*150, this);							
-			} else {			
-				addMessage(this.getDescribe()+' is still fleeing!', 'communicate');	
-				if(this.player==PLAYER_NAME) 
-				$.growl.error({ title: 'Leadership test failed',
-					message: this.getDescribe()+'\s unit is fleeing to the battlefield border'});
-				else $.growl.notice({ title: 'Chickens', 
-						message: this.getDescribe()+'\s unit is fleeing to the battlefield border' });
-			}						
-		} else {		
+Mob.prototype.tryReinforcement = function() {
+		if(this.takeLDTest()) {
 			this.isFleeing=false;				
 			this.isReinforcemented=true;
 			this.speed=0;
@@ -348,5 +338,35 @@ Mob.prototype.tryReinforcement = function() {
 
 			if(this.player==PLAYER_NAME) $.growl.notice({ title: this.getDescribe()+' reinforcemented.', message: "You can turn it now." });
 			else $.growl.warning({ message: this.getDescribe()+' reinforcemented.' });
+		} else {				
+			this.flee();						
 		}
 };
+
+Mob.prototype.flee = function() {		
+	var fleeDistance = Math.floor((randomGenerator() * (this.max_speed-1))+2);
+	stepByStep = getPathToBattlefieldBorder(this.Tile, fleeDistance);			
+	this.goToTile(stepByStep);
+	this.isFleeing = true;	
+
+	if(!isValidTile(stepByStep[stepByStep.length-1])) {
+		addMessage(this.getDescribe()+' escaped from the battlefield!', 'communicate');	
+		if(this.player==PLAYER_NAME) 
+			$.growl.error({ title: 'Leadership test failed',
+					message: this.getDescribe()+'  escaped from the battlefield!'});
+		else $.growl.notice({ title: 'Chickens', 
+					message: this.getDescribe()+' escaped from the battlefield!' });
+						
+				setTimeout(function(mob) {
+					mob.unitsize=0;					
+					hexagonGrid.refreshHexGrid();
+				}, (fleeDistance+1)*150, this);							
+	} else {			
+		addMessage(this.getDescribe()+' is fleeing to the battlefield border!', 'communicate');	
+		if(this.player==PLAYER_NAME) 
+			$.growl.error({ title: 'Leadership test failed',
+			message: this.getDescribe()+' is fleeing to the battlefield border'});
+		else $.growl.notice({ title: 'Chickens', 
+			 message: this.getDescribe()+' is fleeing to the battlefield border' });
+	}
+}

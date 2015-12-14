@@ -783,12 +783,12 @@ function combat(attacker, target) {
 		if(target!=undefined) {
 			var dmg = attacker.calculateMeleeDmg(target);
 			addMessage(attacker.getDescribe()+' attacked '+ target.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
-			target.payThePiper(dmg);
+			target.payThePiper(dmg, false);
 						
 			if(target.unitsize>0) { 
 				dmg = target.calculateMeleeDmg(attacker);
 				addMessage(target.getDescribe()+' stricted back '+ attacker.getDescribe()+' and sustained '+Math.floor(dmg)+' dmg!', 'communicate');	
-				attacker.payThePiper(dmg);				
+				attacker.payThePiper(dmg, false);				
 			}
 		}
 }
@@ -802,7 +802,13 @@ function nextPlayer() {
 	var newActiveMob=null;
 	
 	for(playerMob of MOBS) {
-		if(playerMob.player==ACTIVE_MOB.player || playerMob.isAlive()==false) continue;
+		if(playerMob.isAlive()==false) continue;
+		if(playerMob.player==ACTIVE_MOB.player) {
+			playerMob.rangedVictims=0;
+			playerMob._unitsize=playerMob.unitsize;
+			playerMob.hasPanicTest=false;
+			continue;
+		}
 		playerMob.hasFinishedTurn=false;
 		playerMob.isWorking=false;
 		playerMob.speed=playerMob.max_speed;

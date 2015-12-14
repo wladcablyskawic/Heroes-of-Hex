@@ -149,7 +149,7 @@ Spell.prototype.createMagicArrow = function() {
 	this.target='enemy';
 	this.effect = function(target) {
 		target = new Mob().parse(target);
-		target.payThePiper(40);
+		target.payThePiper(40, true);
 		return target.type +' has been hitten by magical arrow and received 40dmg';
 	}
 	
